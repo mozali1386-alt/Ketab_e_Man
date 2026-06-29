@@ -1,0 +1,69 @@
+# ====================================================================
+# Project: BookClub (Qt + CMake)
+# Target IDEs: Qt Creator, CLion, VS Code, Visual Studio
+# ====================================================================
+
+# --- Qt & CMake Build Folders ---
+build/
+build-*/
+*-build-*
+[Bb]uild/
+/ServerApp/build/
+/FOOD/build/
+
+# --- Qt Creator User Settings ---
+*.pro.user
+*.pro.user.*
+CMakeLists.txt.user
+CMakeLists.txt.user.*
+*.CMakeLists.txt.user
+*.VisualXT.user
+.cmake/
+
+# --- IDEs and Editors Configuration (CLion, VS Code, etc.) ---
+.idea/
+cmake-build-*/
+.vscode/
+*.code-workspace
+.vs/
+Generated\ Files/
+VisualStudioWorkspaceAsset*
+
+# --- CMake Generated Files (In case of in-source builds) ---
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+git_update.sh
+
+# --- Compiled Object Files & Debug Artifacts ---
+*.o
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.slo
+*.lo
+*.a
+*.la
+*.lai
+*.so
+*.so.*
+*.dll
+*.dylib
+
+# --- Executables & Outputs ---
+*.exe
+*.out
+*.app
+
+# --- Local Databases ---
+*.db
+*.sqlite
+
+# --- General Editor backups ---
+*~
+*.swp
+*.swo
+.DS_Store
