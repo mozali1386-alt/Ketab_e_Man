@@ -2,7 +2,21 @@
 //YA MAHDI
 
 
+#include <QDateTime>
 #include "User.h"
 
-User::User() {
+#include "../additional library/libbcrypt/include/bcrypt/BCrypt.hpp"
+
+
+uint64_t User::generateUserId() {
+}
+
+User::User(const std::string & userName, const std::string & password,const std::string & email) {
+    this->userName = userName;
+    this->passwordHash = BCrypt::generateHash(password, 12);
+    this->email = email;
+    registerationDate = new QDateTime(QDateTime::currentDateTime());
+}
+User::~User() {
+    delete registerationDate;
 }

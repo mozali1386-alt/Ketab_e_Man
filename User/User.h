@@ -12,12 +12,12 @@
 class User {
     uint64_t userId;
     std::string userName;
-    std::uint64_t passwordHash;
+    std::string passwordHash;
     std::string email;
     QDateTime* registerationDate;
-
+    static uint64_t generateUserId();
 public:
-    User();
+    User(const std::string & userName, const std::string & password,const std::string & email);
     ~User();
 };
 
