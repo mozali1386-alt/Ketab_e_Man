@@ -13,7 +13,7 @@ bool User::checkPassword(const std::string &password) const {
     return BCrypt::validatePassword(password, passwordHash);
 }
 
-User::User(const std::string & userName, const std::string & password,const std::string & email) {
+User::User(const std::string & userName,const std::string & email, const std::string & password) {
     this->userName = userName;
     this->passwordHash = BCrypt::generateHash(password, 12);
     this->email = email;
@@ -21,6 +21,10 @@ User::User(const std::string & userName, const std::string & password,const std:
     userStatus = ACTIVE;
 }
 User::~User() {
+}
+
+void User::changePassword(const std::string &password) {
+    this->passwordHash = BCrypt::generateHash(password, 12);
 }
 
 bool User::isValidEmail(const std::string &email) {

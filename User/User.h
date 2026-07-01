@@ -25,10 +25,12 @@ private:
     virtual uint64_t generateUserId() = 0;
     bool checkPassword(const std::string & password) const;
 public:
-    User(const std::string & userName, const std::string & password,const std::string & email);
+    User(const std::string & userName, const std::string & email, const std::string & password);
     ~User();
+    void changePassword(const std::string & password);
     static bool isValidEmail(const std::string & email);
     static bool isValidPassword(const std::string & password);
+
 };
 
 #endif //KETAB_E_MAN_USER_H

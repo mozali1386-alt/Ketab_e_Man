@@ -19,7 +19,7 @@ class NormalUser : public User{
     uint64_t generateUserId() override;
 public:
     NormalUser(const std::string name, const std::string lastName,
-        const std::string username, const std::string password, const std::string email);
+        const std::string username, const std::string email, const std::string password);
 };
 
 
