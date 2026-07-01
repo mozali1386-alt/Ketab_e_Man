@@ -57,9 +57,9 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>30</x>
        <y>0</y>
-       <width>201</width>
+       <width>251</width>
        <height>41</height>
       </rect>
      </property>
@@ -67,7 +67,7 @@
       <string notr="true">font: 18pt &quot;Segoe UI&quot;;</string>
      </property>
      <property name="text">
-      <string>select your role</string>
+      <string>نقش خود را انتخاب کنید</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -84,17 +84,26 @@
      </property>
      <item>
       <property name="text">
-       <string notr="true">User</string>
+       <string notr="true">کاربر عادی</string>
+      </property>
+      <property name="icon">
+       <iconset theme="QIcon::ThemeIcon::CameraWeb"/>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Publisher</string>
+       <string>ناشر</string>
+      </property>
+      <property name="icon">
+       <iconset theme="QIcon::ThemeIcon::CameraWeb"/>
       </property>
      </item>
      <item>
       <property name="text">
-       <string notr="true">Admin</string>
+       <string notr="true">ادمین</string>
+      </property>
+      <property name="icon">
+       <iconset theme="QIcon::ThemeIcon::CameraWeb"/>
       </property>
      </item>
     </widget>
@@ -112,7 +121,7 @@
 background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="text">
-      <string>Login</string>
+      <string>ورود</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_signup">
@@ -129,7 +138,7 @@ background-color: rgb(255, 255, 255);</string>
 background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="text">
-      <string>sign Up</string>
+      <string>ثبت نام</string>
      </property>
     </widget>
    </widget>
@@ -139,7 +148,7 @@ background-color: rgb(255, 255, 255);</string>
       <x>60</x>
       <y>10</y>
       <width>271</width>
-      <height>51</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -150,7 +159,7 @@ color: rgb(255, 85, 0);</string>
      <string>Ketab-e-Man</string>
     </property>
     <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <set>Qt::AlignHCenter|Qt::AlignTop</set>
     </property>
    </widget>
   </widget>

@@ -51,7 +51,7 @@
 color: rgb(255, 85, 0);</string>
     </property>
     <property name="text">
-     <string>Login</string>
+     <string>ورود</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignHCenter|Qt::AlignTop</set>
@@ -94,7 +94,7 @@ background-color: rgb(255, 170, 0);
       <string/>
      </property>
      <property name="placeholderText">
-      <string>UserName</string>
+      <string>نام کاربری</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit_Password">
@@ -110,7 +110,7 @@ background-color: rgb(255, 170, 0);
       <string notr="true"/>
      </property>
      <property name="placeholderText">
-      <string>Password</string>
+      <string>رمز عبور</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_Confirm">
@@ -123,35 +123,34 @@ background-color: rgb(255, 170, 0);
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true"/>
+      <string notr="true">font: 24pt &quot;Segoe UI&quot;;</string>
      </property>
      <property name="text">
-      <string>Confirm</string>
+      <string>تایید</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_forgetpassword">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>100</x>
        <y>190</y>
        <width>101</width>
-       <height>20</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
-    color: blue;
     border: none;
     background: transparent;
-    text-decoration: underline;
+    color: #1a73e8;
 }
 
 QPushButton:hover {
-    color: #0056b3;
+    text-decoration: underline;
 }</string>
      </property>
      <property name="text">
-      <string>Forgot Password?</string>
+      <string>فراموشی رمز عبور؟</string>
      </property>
      <property name="flat">
       <bool>true</bool>
