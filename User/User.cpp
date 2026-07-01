@@ -35,4 +35,11 @@ bool User::isValidEmail(const std::string &email) {
     return std::regex_match(email, pattern);
 }
 
+bool User::isValidPassword(const std::string &password) {
+    const std::regex pattern(
+        R"((?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,})"
+    );
+    return std::regex_match(password, pattern);
+}
+
 
