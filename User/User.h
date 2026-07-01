@@ -16,6 +16,7 @@ class User {
     std::string email;
     QDateTime* registerationDate;
     static uint64_t generateUserId();
+    bool checkPassword(const std::string & password);
 public:
     User(const std::string & userName, const std::string & password,const std::string & email);
     ~User();
