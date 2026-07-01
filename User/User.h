@@ -10,13 +10,18 @@
 
 
 class User {
+    static long long usersCounter;
     uint64_t userId;
     std::string userName;
     std::string passwordHash;
     std::string email;
-    QDateTime* registerationDate;
+    QDateTime registerationDate;
+    static enum{
+        ACTIVE, BLOCKED
+    }userStatus;
+
     static uint64_t generateUserId();
-    bool checkPassword(const std::string & password);
+    bool checkPassword(const std::string & password) const;
 public:
     User(const std::string & userName, const std::string & password,const std::string & email);
     ~User();
