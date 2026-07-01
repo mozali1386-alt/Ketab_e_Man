@@ -14,6 +14,7 @@ qt_add_executable(Ketab_e_Man
     loginwindow.ui
     .gitignore
 
+    signinwindow.h signinwindow.cpp signinwindow.ui
     #resources.qrc
     ${RESOURCES}
 
