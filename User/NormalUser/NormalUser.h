@@ -14,8 +14,8 @@ class NormalUser : public User{
     uint64_t activeCartId;
 
     uint64_t generateUserId() override;
-    public:
-    NormalUser(std::string username, std::string password, std::string email, double walletBalance);
+public:
+    NormalUser(const std::string username, const std::string password, const std::string email);
 };
 
 

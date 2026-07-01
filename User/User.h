@@ -16,15 +16,17 @@ protected:
     std::string userName;
     std::string passwordHash;
     std::string email;
-    QDateTime registerationDate;
-    static enum UserStatus{
+    //QDateTime registerationDate;
+    enum UserStatus{
         ACTIVE, BLOCKED
     };
     UserStatus userStatus;
 private:
     virtual uint64_t generateUserId() = 0;
-    bool checkPassword(const std::string & password) const;
+
 public:
+    bool checkPassword(const std::string & password) const;
+
     User(const std::string & userName, const std::string & password,const std::string & email);
     ~User();
     static bool isValidEmail(const std::string & email);

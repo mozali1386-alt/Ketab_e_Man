@@ -9,5 +9,5 @@ uint64_t NormalUser::generateUserId() {
     //most edit
 }
 
-NormalUser::NormalUser(std::string username, std::string password, std::string email, double walletBalance) :User(username, password, email) {
+NormalUser::NormalUser(const std::string username, const std::string password, const std::string email) :User(username, password, email) {
 }
