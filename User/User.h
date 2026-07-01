@@ -16,15 +16,17 @@ class User {
     std::string passwordHash;
     std::string email;
     QDateTime registerationDate;
-    static enum{
+    static enum UserStatus{
         ACTIVE, BLOCKED
-    }userStatus;
-
+    };
+    UserStatus userStatus;
     static uint64_t generateUserId();
     bool checkPassword(const std::string & password) const;
 public:
     User(const std::string & userName, const std::string & password,const std::string & email);
     ~User();
+    static bool isValidEmail(const std::string & email);
+    static bool isValidPassword(const std::string & password);
 };
 
 #endif //KETAB_E_MAN_USER_H
