@@ -8,3 +8,6 @@ uint64_t NormalUser::generateUserId() {
     this->userId = 0;
     //most edit
 }
+
+NormalUser::NormalUser(std::string username, std::string password, std::string email, double walletBalance) :User(username, password, email) {
+}
