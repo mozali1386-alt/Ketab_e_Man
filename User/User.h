@@ -11,6 +11,7 @@
 
 class User {
     static long long usersCounter;
+protected:
     uint64_t userId;
     std::string userName;
     std::string passwordHash;
@@ -20,7 +21,8 @@ class User {
         ACTIVE, BLOCKED
     };
     UserStatus userStatus;
-    static uint64_t generateUserId();
+private:
+    virtual uint64_t generateUserId() = 0;
     bool checkPassword(const std::string & password) const;
 public:
     User(const std::string & userName, const std::string & password,const std::string & email);

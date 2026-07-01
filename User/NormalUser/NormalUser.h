@@ -10,8 +10,10 @@
 class NormalUser : public User{
     double walletBalance;
     std::forward_list<uint64_t> favoriteGenreIds;
-    uint64_t personalId;
+    uint64_t personalLibraryId;
     uint64_t activeCartId;
+
+    uint64_t generateUserId() override;
 };
 
 

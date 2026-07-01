@@ -9,10 +9,6 @@
 
 long long User::usersCounter = 0ll;
 
-uint64_t User::generateUserId() {
-    return 0;
-}
-
 bool User::checkPassword(const std::string &password) const {
     return BCrypt::validatePassword(password, passwordHash);
 }
@@ -41,5 +37,4 @@ bool User::isValidPassword(const std::string &password) {
     );
     return std::regex_match(password, pattern);
 }
-
 

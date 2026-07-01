@@ -3,3 +3,8 @@
 //
 
 #include "NormalUser.h"
+
+uint64_t NormalUser::generateUserId() {
+    this->userId = 0;
+    //most edit
+}
