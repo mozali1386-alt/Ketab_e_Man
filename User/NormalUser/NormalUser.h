@@ -8,12 +8,13 @@
 #include "../User.h"
 
 class NormalUser : public User{
+    public:
     std::string name;
     std::string lastName;
-    double walletBalance;
+    double walletBalance{0};
     std::forward_list<uint64_t> favoriteGenreIds;
-    uint64_t personalLibraryId;
-    uint64_t activeCartId;
+    uint64_t personalLibraryId{0};
+    uint64_t activeCartId{0};
 
     uint64_t generateUserId() override;
 public:

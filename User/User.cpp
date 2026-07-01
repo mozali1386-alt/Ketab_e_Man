@@ -1,7 +1,7 @@
 //in the name of ALLAH
 //YA MAHDI
 
-#include <QDateTime>
+
 #include "User.h"
 #include "../additional library/libbcrypt/include/bcrypt/BCrypt.hpp"
 #include <regex>
@@ -14,11 +14,10 @@ bool User::checkPassword(const std::string &password) const {
 }
 
 User::User(const std::string & userName, const std::string & password,const std::string & email) {
-    usersCounter++;
     this->userName = userName;
     this->passwordHash = BCrypt::generateHash(password, 12);
     this->email = email;
-    //registerationDate = QDateTime(QDateTime::currentDateTime());
+    //registerationDate = QDateTime::currentDateTime();
     userStatus = ACTIVE;
 }
 User::~User() {

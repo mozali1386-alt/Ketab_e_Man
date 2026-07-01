@@ -4,11 +4,8 @@
 #include "loginwindow.h"
 
 #include <QApplication>
-
+#include "User/NormalUser/NormalUser.h"
+#include <iostream>
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    LoginWindow w;
-    w.show();
-    return QApplication::exec();
 }

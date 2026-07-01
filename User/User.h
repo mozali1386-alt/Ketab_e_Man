@@ -5,28 +5,26 @@
 #define KETAB_E_MAN_USER_H
 #include <cstdint>
 #include <string>
-
+#include <QDateTime>
 #include "../loginwindow.h"
 
 
 class User {
-    static long long usersCounter;
 protected:
-    uint64_t userId;
+    static long long usersCounter;
+    uint64_t userId{0};
     std::string userName;
     std::string passwordHash;
     std::string email;
-    //QDateTime registerationDate;
+    QDateTime registerationDate;
     enum UserStatus{
         ACTIVE, BLOCKED
     };
     UserStatus userStatus;
 private:
     virtual uint64_t generateUserId() = 0;
-
-public:
     bool checkPassword(const std::string & password) const;
-
+public:
     User(const std::string & userName, const std::string & password,const std::string & email);
     ~User();
     static bool isValidEmail(const std::string & email);
