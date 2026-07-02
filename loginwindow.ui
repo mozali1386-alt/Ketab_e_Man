@@ -153,7 +153,7 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="styleSheet">
      <string notr="true">font: 36pt &quot;Segoe UI&quot;;
-color: rgb(255, 85, 0);</string>
+color: rgb(255, 0, 0);</string>
     </property>
     <property name="text">
      <string>Ketab-e-Man</string>

@@ -48,7 +48,7 @@
     </property>
     <property name="styleSheet">
      <string notr="true">font: 36pt &quot;Segoe UI&quot;;
-color: rgb(255, 85, 0);</string>
+color: rgb(255, 0, 0);</string>
     </property>
     <property name="text">
      <string>ورود</string>
@@ -60,10 +60,10 @@ color: rgb(255, 85, 0);</string>
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>43</x>
-      <y>110</y>
+      <x>48</x>
+      <y>130</y>
       <width>310</width>
-      <height>220</height>
+      <height>261</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -81,10 +81,10 @@ background-color: rgb(255, 170, 0);
     <widget class="QLineEdit" name="lineEdit_UserName">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>290</width>
-       <height>51</height>
+       <x>20</x>
+       <y>20</y>
+       <width>271</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="styleSheet">
@@ -100,10 +100,10 @@ background-color: rgb(255, 170, 0);
     <widget class="QLineEdit" name="lineEdit_Password">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>70</y>
-       <width>291</width>
-       <height>51</height>
+       <x>20</x>
+       <y>90</y>
+       <width>271</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="styleSheet">
@@ -116,14 +116,14 @@ background-color: rgb(255, 170, 0);
     <widget class="QPushButton" name="pushButton_Confirm">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>130</y>
-       <width>291</width>
-       <height>51</height>
+       <x>20</x>
+       <y>160</y>
+       <width>271</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">font: 24pt &quot;Segoe UI&quot;;</string>
+      <string notr="true">font: 20pt &quot;Segoe UI&quot;;</string>
      </property>
      <property name="text">
       <string>تایید</string>
@@ -133,7 +133,7 @@ background-color: rgb(255, 170, 0);
      <property name="geometry">
       <rect>
        <x>100</x>
-       <y>190</y>
+       <y>220</y>
        <width>101</width>
        <height>21</height>
       </rect>
@@ -154,6 +154,32 @@ QPushButton:hover {
      </property>
      <property name="flat">
       <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_passwordError">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>130</y>
+       <width>201</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_usernameError">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>60</y>
+       <width>201</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </widget>
