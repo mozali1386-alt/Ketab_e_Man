@@ -18,6 +18,7 @@ qt_add_executable(Ketab_e_Man
     #resources.qrc
     ${RESOURCES}
     usersignupwindow.h usersignupwindow.cpp usersignupwindow.ui
+    publishersignupwindow.h publishersignupwindow.cpp publishersignupwindow.ui
 
 
 )
