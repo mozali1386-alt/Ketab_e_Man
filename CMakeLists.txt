@@ -19,6 +19,7 @@ qt_add_executable(Ketab_e_Man
     ${RESOURCES}
     usersignupwindow.h usersignupwindow.cpp usersignupwindow.ui
     publishersignupwindow.h publishersignupwindow.cpp publishersignupwindow.ui
+    resetpassworddialog.h resetpassworddialog.cpp resetpassworddialog.ui
 
 
 )
