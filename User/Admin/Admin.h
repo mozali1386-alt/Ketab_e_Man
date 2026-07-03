@@ -13,5 +13,7 @@ class Admin :public User{
     Admin & getAdmin();
 };
 
+زاش
+
 
 #endif //KETAB_E_MAN_ADMIN_H

@@ -6,7 +6,6 @@
 #include "../additional library/libbcrypt/include/bcrypt/BCrypt.hpp"
 #include <regex>
 
-
 long long User::usersCounter = 0ll;
 
 bool User::checkPassword(const std::string &password) const {
@@ -20,6 +19,7 @@ User::User(const std::string & userName,const std::string & email, const std::st
     //registerationDate = QDateTime::currentDateTime();
     userStatus = ACTIVE;
 }
+
 User::~User() {
 }
 
@@ -39,5 +39,29 @@ bool User::isValidPassword(const std::string &password) {
         R"((?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,})"
     );
     return std::regex_match(password, pattern);
+}
+
+std::string User::userNameGetter() const {
+    return userName;
+}
+
+std::string User::passwordHashGetter() const {
+    return passwordHash;
+}
+
+std::string User::emailGetter() const {
+    return email;
+}
+
+QDateTime User::registerationDateGetter() const {
+    return registerationDate;
+}
+
+User::UserStatus User::userStatusGetter() const {
+    return userStatus;
+}
+
+uint64_t User::userIdGetter() const {
+    return userId;
 }
 

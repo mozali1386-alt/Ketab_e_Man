@@ -8,7 +8,8 @@
 #include "../User.h"
 
 class NormalUser : public User{
-    public:
+public:
+
     std::string name;
     std::string lastName;
     double walletBalance{0};
@@ -20,6 +21,7 @@ class NormalUser : public User{
 public:
     NormalUser(const std::string name, const std::string lastName,
         const std::string username, const std::string email, const std::string password);
+
 };
 
 
