@@ -20,7 +20,7 @@ private:
     QDateTime registerationDate;
     UserStatus status;
 protected:
-    uint64_t userId{0};
+    uint64_t id{0};
     static long long usersCounter;
 
 private:

@@ -17,7 +17,7 @@ User::User(const std::string & userName,const std::string & email, const std::st
     this->passwordHash = BCrypt::generateHash(password, 12);
     this->email = email;
     registerationDate = QDateTime::currentDateTime();
-    userStatus = ACTIVE;
+    status = ACTIVE;
 }
 
 User::~User() {
@@ -62,6 +62,6 @@ User::UserStatus User::getStatus() const {
 }
 
 uint64_t User::getUserId() const {
-    return userId;
+    return id;
 }
 
