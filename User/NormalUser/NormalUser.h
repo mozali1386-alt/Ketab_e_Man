@@ -8,20 +8,22 @@
 #include "../User.h"
 
 class NormalUser : public User{
-public:
-
+private:
     std::string name;
     std::string lastName;
     double walletBalance{0};
-    std::forward_list<uint64_t> favoriteGenreIds;
+    uint64_t favoriteGenreIds[3]{0};
     uint64_t personalLibraryId{0};
     uint64_t activeCartId{0};
-
     uint64_t generateUserId() override;
 public:
     NormalUser(const std::string name, const std::string lastName,
-        const std::string username, const std::string email, const std::string password);
-
+               const std::string username, const std::string email, const std::string password);
+    std::string getName() const;
+    std::string getLastName() const;
+    double getWalletBalance() const;
+    uint64_t getPersonalLibraryId() const;
+    uint64_t getActiveCartId() const;
 };
 
 

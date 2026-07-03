@@ -7,13 +7,13 @@
 
 
 class Admin :public User{
+
+private:
     Admin(std::string userName, std::string email, std::string password);
     uint64_t generateUserId() override;
-    public:
+public:
     Admin & getAdmin();
+
 };
-
-زاش
-
 
 #endif //KETAB_E_MAN_ADMIN_H

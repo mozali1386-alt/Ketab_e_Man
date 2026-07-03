@@ -33,17 +33,12 @@ public:
     void changePassword(const std::string & password);
     static bool isValidEmail(const std::string & email);
     static bool isValidPassword(const std::string & password);
-    std::string userNameGetter() const;
-
-    std::string passwordHashGetter() const;
-
-    std::string emailGetter() const;
-
-    QDateTime registerationDateGetter() const;
-
-    UserStatus userStatusGetter() const;
-
-    uint64_t userIdGetter() const;
+    std::string getUserName() const;
+    std::string getPasswordHash() const;
+    std::string getEmail() const;
+    QDateTime getRegisterationDate() const;
+    UserStatus getUserStatus() const;
+    uint64_t getUserId() const;
 
 };
 

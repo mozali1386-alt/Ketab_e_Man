@@ -41,27 +41,27 @@ bool User::isValidPassword(const std::string &password) {
     return std::regex_match(password, pattern);
 }
 
-std::string User::userNameGetter() const {
-    return userName;
+std::string User::getUserName() const {
+    return this->userName;
 }
 
-std::string User::passwordHashGetter() const {
+std::string User::getPasswordHash() const {
     return passwordHash;
 }
 
-std::string User::emailGetter() const {
+std::string User::getEmail() const {
     return email;
 }
 
-QDateTime User::registerationDateGetter() const {
+QDateTime User::getRegisterationDate() const {
     return registerationDate;
 }
 
-User::UserStatus User::userStatusGetter() const {
+User::UserStatus User::getUserStatus() const {
     return userStatus;
 }
 
-uint64_t User::userIdGetter() const {
+uint64_t User::getUserId() const {
     return userId;
 }
 
