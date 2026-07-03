@@ -6,19 +6,19 @@
 
 
 uint64_t NormalUser::generateUserId() {
-    if (!id) {
+    if (!userId) {
         uint64_t value = static_cast<uint64_t>(qHash(this->getUserName()));
         uint64_t tenDigit = value % 10000000000ULL;
         uint64_t newUserId = 12ull * 1000000 * 1000000 * 100000 + tenDigit * 10000 * 1000 + ++usersCounter;
         return newUserId;
     }
-    return this->id;
+    return this->userId;
 }
 
 NormalUser::NormalUser(const std::string & name, const std::string & lastName,
     const std::string &username, const std::string & email, const std::string & password)
     :User(username, email, password) {
-    id = NormalUser::generateUserId();
+    userId = NormalUser::generateUserId();
     this->name = name;
     this->lastName = lastName;
 }
