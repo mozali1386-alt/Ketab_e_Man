@@ -3,7 +3,8 @@
 
 #include "Admin.h"
 
-Admin::Admin(std::string userName, std::string email, std::string password) :User(userName, email, password){
+Admin::Admin(const std::string & userName, const std::string & email, const std::string & password) :User(userName, email, password){
+    this->userId = generateUserId();
 }
 
 uint64_t Admin::generateUserId() {

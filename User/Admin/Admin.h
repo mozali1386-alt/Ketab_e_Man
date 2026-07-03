@@ -9,10 +9,10 @@
 class Admin :public User{
 
 private:
-    Admin(std::string userName, std::string email, std::string password);
+    Admin(const std::string & userName, const std::string & email, const std::string & password);
     uint64_t generateUserId() override;
 public:
-    Admin & getAdmin();
+    static Admin & getAdmin();
 
 };
 

@@ -4,7 +4,6 @@
 
 #ifndef KETAB_E_MAN_NORMALUSER_H
 #define KETAB_E_MAN_NORMALUSER_H
-#include <forward_list>
 #include "../User.h"
 
 class NormalUser : public User{
@@ -17,8 +16,8 @@ private:
     uint64_t activeCartId{0};
     uint64_t generateUserId() override;
 public:
-    NormalUser(const std::string name, const std::string lastName,
-               const std::string username, const std::string email, const std::string password);
+    NormalUser(const std::string & name, const std::string & lastName,
+               const std::string & username, const std::string & email, const std::string & password);
     std::string getName() const;
     std::string getLastName() const;
     double getWalletBalance() const;

@@ -3,7 +3,6 @@
 
 #ifndef KETAB_E_MAN_USER_H
 #define KETAB_E_MAN_USER_H
-#include <cstdint>
 #include <string>
 #include <QDateTime>
 #include "../loginwindow.h"

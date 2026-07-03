@@ -15,8 +15,8 @@ uint64_t NormalUser::generateUserId() {
     return this->userId;
 }
 
-NormalUser::NormalUser(const std::string name, const std::string lastName,
-    const std::string username, const std::string email, const std::string password)
+NormalUser::NormalUser(const std::string & name, const std::string & lastName,
+    const std::string &username, const std::string & email, const std::string & password)
     :User(username, email, password) {
     userId = NormalUser::generateUserId();
     this->name = name;
