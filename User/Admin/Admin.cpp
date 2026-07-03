@@ -21,3 +21,7 @@ Admin & Admin::getAdmin() {
     static Admin admin("admin", "admin@ad.min", "admin1405");
     return admin;
 }
+
+void Admin::changeUserStatus(User &user, User::UserStatus status) {
+    user.status = status;
+}

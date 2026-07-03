@@ -18,7 +18,7 @@ private:
     std::string passwordHash;
     std::string email;
     QDateTime registerationDate;
-    UserStatus userStatus;
+    UserStatus status;
 protected:
     uint64_t userId{0};
     static long long usersCounter;
@@ -36,9 +36,11 @@ public:
     std::string getPasswordHash() const;
     std::string getEmail() const;
     QDateTime getRegisterationDate() const;
-    UserStatus getUserStatus() const;
+    UserStatus getStatus() const;
     uint64_t getUserId() const;
 
+
+    friend class Admin;
 };
 
 #endif //KETAB_E_MAN_USER_H

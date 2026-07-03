@@ -1,6 +1,5 @@
-//
-// Created by Mohammad Habib on 6/30/2026.
-//
+//in the name of ALLAH
+//YA MAHDI
 
 #ifndef KETAB_E_MAN_NORMALUSER_H
 #define KETAB_E_MAN_NORMALUSER_H

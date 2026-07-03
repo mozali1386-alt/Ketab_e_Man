@@ -57,7 +57,7 @@ QDateTime User::getRegisterationDate() const {
     return registerationDate;
 }
 
-User::UserStatus User::getUserStatus() const {
+User::UserStatus User::getStatus() const {
     return userStatus;
 }
 

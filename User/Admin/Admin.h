@@ -13,7 +13,7 @@ private:
     uint64_t generateUserId() override;
 public:
     static Admin & getAdmin();
-
+    void changeUserStatus(User & user, User::UserStatus status);
 };
 
 #endif //KETAB_E_MAN_ADMIN_H
