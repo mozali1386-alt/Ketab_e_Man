@@ -34,8 +34,7 @@ add_executable(Ketab_e_Man main.cpp
         User/Admin/Admin.h
         User/Publisher/Publisher.cpp
         User/Publisher/Publisher.h
-        Book/Genre/Genre.cpp
-        Book/Genre/Genre.h)
+        )
 target_link_libraries(Ketab_e_Man
         Qt::Core
         Qt::Gui

@@ -1,21 +1,19 @@
 //in the name of ALLAH
 //YA MAHDI
 
-
 #include "User.h"
 #include "../additional library/libbcrypt/include/bcrypt/BCrypt.hpp"
 #include <regex>
 
-long long User::usersCounter = 0ll;
+uint64_t User::usersCounter = 0;
 
-bool User::checkPassword(const std::string &password) const {
-    return BCrypt::validatePassword(password, passwordHash);
-}
-
-User::User(const std::string & userName,const std::string & email, const std::string & password) {
+User::User(const std::string &userName,
+           const std::string &password,
+           const std::string &email) {
+    usersCounter++;
     this->userName = userName;
-    this->passwordHash = BCrypt::generateHash(password, 12);
     this->email = email;
+    passwordHash = BCrypt::generateHash(password, 12);
     registerationDate = QDateTime::currentDateTime();
     status = ACTIVE;
 }
@@ -23,8 +21,18 @@ User::User(const std::string & userName,const std::string & email, const std::st
 User::~User() {
 }
 
-void User::changePassword(const std::string &password) {
-    this->passwordHash = BCrypt::generateHash(password, 12);
+bool User::checkPassword(const std::string &password) const {
+    return BCrypt::validatePassword(password, passwordHash);
+}
+
+bool User::changePassword(const std::string &oldPassword,
+                          const std::string &newPassword) {
+    if (!checkPassword(oldPassword))
+        return false;
+    if (!isValidPassword(newPassword))
+        return false;
+    passwordHash = BCrypt::generateHash(newPassword, 12);
+    return true;
 }
 
 bool User::isValidEmail(const std::string &email) {
@@ -36,17 +44,17 @@ bool User::isValidEmail(const std::string &email) {
 
 bool User::isValidPassword(const std::string &password) {
     const std::regex pattern(
-        R"((?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,})"
+        R"((?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,})"
     );
     return std::regex_match(password, pattern);
 }
 
-std::string User::getUserName() const {
-    return this->userName;
+uint64_t User::getUserId() const {
+    return userId;
 }
 
-std::string User::getPasswordHash() const {
-    return passwordHash;
+std::string User::getUserName() const {
+    return userName;
 }
 
 std::string User::getEmail() const {
@@ -58,10 +66,25 @@ QDateTime User::getRegisterationDate() const {
 }
 
 User::UserStatus User::getStatus() const {
-    return userStatus;
+    return status;
 }
 
-uint64_t User::getUserId() const {
-    return id;
+bool User::isBlocked() const {
+    return status == BLOCKED;
 }
 
+void User::setUserName(const std::string &userName) {
+    this->userName = userName;
+}
+
+void User::setEmail(const std::string &email) {
+    this->email = email;
+}
+
+void User::block() {
+    status = BLOCKED;
+}
+
+void User::unblock() {
+    status = ACTIVE;
+}
