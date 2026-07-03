@@ -11,7 +11,7 @@ uint64_t Admin::generateUserId() {
     if (!id) {
         uint64_t value = static_cast<uint64_t>(qHash(this->getUserName()));
         uint64_t tenDigit = value % 10000000000ULL;
-        uint64_t newUserId = 1ull * 1000000 * 1000000 * 1000000 + tenDigit * 10000 * 10000 + ++usersCounter;
+        uint64_t newUserId = 10ull * 1000000 * 1000000 * 1000000 + tenDigit * 10000 * 10000 + ++usersCounter;
         return newUserId;
     }
     return this->id;
