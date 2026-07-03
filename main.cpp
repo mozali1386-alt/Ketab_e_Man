@@ -6,6 +6,5 @@
 #include <QApplication>
 #include "User/NormalUser/NormalUser.h"
 #include <iostream>
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
 }
