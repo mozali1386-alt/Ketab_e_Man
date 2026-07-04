@@ -347,11 +347,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
       <height>209</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QWidget" name="widget" native="true"/>
-     </item>
-    </layout>
+    <layout class="QVBoxLayout" name="verticalLayout"/>
    </widget>
   </widget>
   <widget class="QLabel" name="label_bookpikcher">
