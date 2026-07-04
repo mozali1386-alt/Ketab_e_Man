@@ -22,6 +22,7 @@ qt_add_executable(Ketab_e_Man
     resetpassworddialog.h resetpassworddialog.cpp resetpassworddialog.ui
     storepage.h storepage.cpp storepage.ui
     bookdetails.h bookdetails.cpp bookdetails.ui
+    cartpage.h cartpage.cpp cartpage.ui
 
 
 )
@@ -31,7 +32,7 @@ target_link_libraries(Ketab_e_Man
         Qt::Core
         Qt::Widgets
 )
-
+target_include_directories(Ketab_e_Man PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 install(TARGETS Ketab_e_Man
     BUNDLE  DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
