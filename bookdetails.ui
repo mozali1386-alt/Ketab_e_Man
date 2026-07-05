@@ -295,7 +295,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <item row="2" column="1">
      <widget class="QLabel" name="label_5">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -311,7 +311,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <item row="3" column="1">
      <widget class="QLabel" name="label_7">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -324,7 +324,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <item row="1" column="1">
      <widget class="QLabel" name="label_3">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -337,13 +337,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <item row="5" column="1">
      <widget class="QLabel" name="label_12">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="text">
-       <string>تخفیف: </string>
+       <string>تخفیف:</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -372,7 +372,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <item row="4" column="1">
      <widget class="QLabel" name="label_10">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -401,13 +401,16 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <item row="0" column="1">
      <widget class="QLabel" name="label">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="text">
        <string>نام کتاب :</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>
