@@ -23,6 +23,7 @@ qt_add_executable(Ketab_e_Man
     storepage.h storepage.cpp storepage.ui
     bookdetails.h bookdetails.cpp bookdetails.ui
     cartpage.h cartpage.cpp cartpage.ui
+    cartitemwidget.h cartitemwidget.cpp cartitemwidget.ui
 
 
 )
