@@ -26,6 +26,7 @@ qt_add_executable(Ketab_e_Man
     cartitemwidget.h cartitemwidget.cpp cartitemwidget.ui
     userprofilepage.h userprofilepage.cpp userprofilepage.ui
     storebookwidget.h storebookwidget.cpp storebookwidget.ui
+    historycardwidget.h historycardwidget.cpp historycardwidget.ui
 
 
 )
