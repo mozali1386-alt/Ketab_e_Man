@@ -59,7 +59,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_discount">
+    <widget class="QLabel" name="label_tarikh">
      <property name="text">
       <string/>
      </property>
