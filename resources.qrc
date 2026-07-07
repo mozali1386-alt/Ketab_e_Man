@@ -6,5 +6,6 @@
         <file>images/icons8-trash-24.png</file>
         <file>images/icons8-edit-48.png</file>
         <file>images/icons8-add-folder-48.png</file>
+        <file>images/icons8-bell-48.png</file>
     </qresource>
 </RCC>
