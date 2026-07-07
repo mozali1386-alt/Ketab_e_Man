@@ -1,0 +1,345 @@
+classDiagram
+    %% ========== کلاس‌های پایه ==========
+    
+    class BaseEntity {
+        <<abstract>>
+        -quint64 id
+        -QDateTime createdAt
+        -QDateTime updatedAt
+        +getId() quint64
+        +getCreatedAt() QDateTime
+        +getUpdatedAt() QDateTime
+        #setId(quint64) void
+        #touchUpdatedAt() void
+    }
+
+    %% ========== User و نقش‌ها (وراثت) ==========
+    
+    class User {
+        <<abstract>>
+        -QString name
+        -QString username
+        -QString email
+        -QString passwordHash
+        -QString securityQuestion
+        -QString securityAnswerHash
+        -quint64 walletId
+        -QVector~quint64~ reviewIds
+        -QVector~quint64~ notificationIds
+        -bool isBlocked
+        -bool isActive
+        +authenticatePassword(plainPassword) bool
+        +setPassword(plainPassword) void
+        +resetPassword(question, answer, newPassword) bool
+        +addReview(reviewId) void
+        +removeReview(reviewId) void
+        +addNotification(notifId) void
+        +getUnreadNotificationCount() int
+        +getWalletId() quint64
+        +getRole() Role
+    }
+
+    class NormalUser {
+        -quint64 libraryId
+        -QVector~Genre~ favoriteGenres
+        +purchaseBook(bookId) void
+        +addFavoriteGenre(genre) void
+        +removeFavoriteGenre(genre) void
+        +getFavoriteGenres() QVector~Genre~
+        +getLibraryId() quint64
+    }
+
+    class Library {
+        -quint64 ownerId
+        -QVector~quint64~ shelfIds
+        -QVector~quint64~ purchasedBookIds
+        -QVector~quint64~ savedBookIds
+        +addShelf(shelfId) void
+        +removeShelf(shelfId) void
+        +addToSavedBooks(bookId) void
+        +removeFromSavedBooks(bookId) void
+        +getPurchasedBooks() QVector~quint64~
+        +getSavedBooks() QVector~quint64~
+        +getShelves() QVector~quint64~
+    }
+
+    class Publisher {
+        -QVector~quint64~ myBookIds
+        +publishBook(bookId) void
+        +editBook(bookId, bookData) void
+        +removeBook(bookId) void
+        +applyDiscountToBook(bookId, percent) void
+        +receiveSaleIncome(amount) void
+        +getRevenue() double
+        +getAverageRatingOfMyBooks() double
+        +getTopSellingBooks(count) QVector~quint64~
+        +getBottomSellingBooks(count) QVector~quint64~
+        +getTotalPublishedBooks() int
+    }
+
+    class Admin {
+        +blockUser(userId) void
+        +unblockUser(userId) void
+        +deleteUser(userId) void
+        +activateUserAccount(userId) void
+        +deleteBook(bookId) void
+        +editBook(bookId, bookData) void
+        +viewAllUsers() QVector~quint64~
+        +viewAllBooks() QVector~quint64~
+        +deleteReview(reviewId) void
+        +viewServerStats() ServerStats
+    }
+
+    %% ========== Book ==========
+    
+    class Book {
+        -QString title
+        -QString author
+        -quint64 publisherId
+        -Genre genre
+        -QString description
+        -double price
+        -double discountPercent
+        -QString coverImagePath
+        -QString pdfFilePath
+        -int salesCount
+        -bool isActive
+        -QVector~quint64~ reviewIds
+        +getAverageRating() double
+        +getTotalReviewCount() int
+        +applyDiscount(percent) void
+        +incrementSales() void
+        +deactivate() void
+        +reactivate() void
+        +addReview(reviewId) void
+        +removeReview(reviewId) void
+        +getPublisher() quint64
+    }
+
+    %% ========== Review ==========
+    
+    class Review {
+        -quint64 userId
+        -quint64 bookId
+        -QString text
+        -int stars
+        +editText(newText) void
+        +editStars(newStars) void
+        +remove() void
+    }
+
+    %% ========== Cart & Purchase ==========
+    
+    class Cart {
+        -quint64 ownerId
+        -QVector~CartItem~ items
+        +addItem(bookId, quantity) void
+        +removeItem(bookId) void
+        +clear() void
+        +getTotalPrice() double
+        +getTotalDiscount() double
+        +getFinalPrice() double
+        +getItemCount() int
+        +checkout() quint64
+    }
+
+    class CartItem {
+        -quint64 bookId
+        -int quantity
+        +getSubtotal() double
+        +getDiscountedSubtotal() double
+    }
+
+    class Purchase {
+        -quint64 buyerId
+        -QVector~quint64~ bookIds
+        -double totalAmount
+        -QDateTime purchaseDate
+        +getBooks() QVector~quint64~
+        +getBuyer() quint64
+    }
+
+    %% ========== Shelf ==========
+    
+    class Shelf {
+        -QString name
+        -quint64 ownerId
+        -QVector~quint64~ bookIds
+        +addBook(bookId) void
+        +removeBook(bookId) void
+        +rename(newName) void
+    }
+
+    %% ========== Notification ==========
+    
+    class Notification {
+        -quint64 recipientId
+        -QString message
+        -NotificationType type
+        -QDateTime timestamp
+        -bool isRead
+        +markAsRead() void
+    }
+
+    %% ========== Wallet ==========
+    
+    class Wallet {
+        -quint64 ownerId
+        -double balance
+        -QVector~quint64~ transactionIds
+        +deposit(amount) void
+        +withdraw(amount) bool
+        +getBalance() double
+        +addTransaction(transactionId) void
+    }
+
+    class Transaction {
+        -quint64 walletId
+        -double amount
+        -TransactionType type
+        -QString description
+        -QDateTime timestamp
+    }
+
+    %% ========== Server ==========
+    
+    class Server {
+        -QMap~quint64, User*~ users
+        -QMap~quint64, Book*~ books
+        -QMap~quint64, Review*~ reviews
+        -QMap~quint64, Purchase*~ purchases
+        -QMap~quint64, Shelf*~ shelves
+        -QMap~quint64, Notification*~ notifications
+        -QMap~quint64, Wallet*~ wallets
+        -QMap~quint64, Library*~ libraries
+        -QVector~QTcpSocket*~ clients
+        -ServerStats stats
+        +start() void
+        +stop() void
+        +authenticateUser(username, password) quint64
+        +registerUser(userData) quint64
+        +searchBooks(query) QVector~quint64~
+        +handleClientRequest(socket, request) void
+        +broadcastNotification(notifId) void
+        +getUserById(id) User*
+        +getBookById(id) Book*
+        +getReviewById(id) Review*
+        +createReview(userId, bookId, text, stars) quint64
+        +deleteReview(reviewId) void
+        +processPurchase(buyerId, cartId) quint64
+        +getStats() ServerStats
+    }
+
+    class ServerStats {
+        -int connectedUsers
+        -int totalRequests
+        -double cpuUsage
+        -double ramUsage
+        -ServerHealth health
+    }
+
+    %% ========== Enums ==========
+    
+    class Role {
+        <<enumeration>>
+        USER
+        PUBLISHER
+        ADMIN
+    }
+
+    class Genre {
+        <<enumeration>>
+        FICTION
+        SCIENCE
+        HISTORY
+        FANTASY
+        ROMANCE
+        MYSTERY
+        BIOGRAPHY
+        SELF_HELP
+        TECH
+    }
+
+    class NotificationType {
+        <<enumeration>>
+        NEW_BOOK_IN_FAVORITE_GENRE
+        DISCOUNT_ON_SAVED_BOOK
+        NEW_SALE_FOR_PUBLISHER
+        NEW_REVIEW_ON_MY_BOOK
+        PURCHASE_COMPLETE
+    }
+
+    class TransactionType {
+        <<enumeration>>
+        DEPOSIT
+        WITHDRAW
+        PURCHASE
+        SALE_INCOME
+        REFUND
+    }
+
+    class ServerHealth {
+        <<enumeration>>
+        HEALTHY
+        BUSY
+        OVERLOADED
+    }
+
+    %% ========== وراثت ==========
+    
+    BaseEntity <|-- User
+    User <|-- NormalUser
+    User <|-- Publisher
+    User <|-- Admin
+
+    %% ========== روابط ==========
+    
+    User "1" --> "0..*" Review : نوشته (reviewIds)
+    User "1" --> "0..*" Notification : دریافت کرده (notificationIds)
+    User "1" --> "1" Wallet : دارد (walletId)
+
+    NormalUser "1" --> "0..1" Cart : دارد
+    NormalUser "1" --> "0..*" Purchase : خریده (buyerId)
+    NormalUser "1" --> "1" Library : دارد (libraryId)
+    NormalUser "1" --> "0..3" Genre : علاقه‌مند (favoriteGenres)
+
+    Library "1" --> "0..*" Shelf : ایجاد کرده (shelfIds)
+    Library "1" --> "0..*" Book : ذخیره/خریداری کرده
+    
+    Publisher "1" --> "0..*" Book : منتشر کرده (myBookIds)
+
+    Book "1" --> "0..*" Review : دارد (reviewIds)
+    Book "1" --> "1" Genre : متعلق به
+    Book "1" --> "1" Publisher : منتشرشده توسط (publisherId)
+
+    Cart "1" --> "0..*" CartItem : شامل
+    CartItem "1" --> "1" Book : مرجع (bookId)
+
+    Purchase "1" --> "1..*" Book : شامل (bookIds)
+    Purchase "1" --> "1" NormalUser : خریدار (buyerId)
+    Purchase "1" ..> "1" Wallet : برداشت از کیف‌پول خریدار
+    Purchase "1" ..> "1" Wallet : واریز به کیف‌پول ناشر
+
+    Shelf "1" --> "0..*" Book : شامل (bookIds)
+    Shelf "1" --> "1" NormalUser : مالک (ownerId)
+
+    Review "1" --> "1" User : نویسنده (userId)
+    Review "1" --> "1" Book : مربوط به (bookId)
+
+    Notification "1" --> "1" User : گیرنده (recipientId)
+    Notification "1" --> "1" NotificationType : نوع
+
+    Wallet "1" --> "1" User : مالک (ownerId)
+    Wallet "1" --> "0..*" Transaction : شامل (transactionIds)
+    Transaction "1" --> "1" Wallet : متعلق به (walletId)
+
+    Server "1" --> "0..*" User : مدیریت
+    Server "1" --> "0..*" Book : مدیریت
+    Server "1" --> "0..*" Review : مدیریت
+    Server "1" --> "0..*" Purchase : مدیریت
+    Server "1" --> "0..*" Shelf : مدیریت
+    Server "1" --> "0..*" Notification : مدیریت
+    Server "1" --> "0..*" Wallet : مدیریت
+    Server "1" --> "0..*" Library : مدیریت
+    Server "1" --> "1" ServerStats : دارد
+    
