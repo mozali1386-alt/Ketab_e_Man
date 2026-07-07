@@ -30,6 +30,7 @@ qt_add_executable(Ketab_e_Man
     commentcardwidget.h commentcardwidget.cpp commentcardwidget.ui
     booklibraryitem.h booklibraryitem.cpp booklibraryitem.ui
     librarywidget.h librarywidget.cpp librarywidget.ui
+    userdashboard.h userdashboard.cpp userdashboard.ui
 
 
 )
