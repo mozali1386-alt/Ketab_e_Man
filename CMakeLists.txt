@@ -31,6 +31,8 @@ qt_add_executable(Ketab_e_Man
     booklibraryitem.h booklibraryitem.cpp booklibraryitem.ui
     librarywidget.h librarywidget.cpp librarywidget.ui
     userdashboard.h userdashboard.cpp userdashboard.ui
+    notificationdialog.h notificationdialog.cpp notificationdialog.ui
+    notificationitem.h notificationitem.cpp notificationitem.ui
 
 
 )
