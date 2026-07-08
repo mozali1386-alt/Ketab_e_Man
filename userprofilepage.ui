@@ -35,7 +35,7 @@
      <item row="1" column="0" colspan="3">
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_khali">
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -49,7 +49,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
             <string>تاریخچه خرید شما خالی است...</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -63,7 +63,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
             <bool>true</bool>
            </property>
            <property name="alignment">
-            <set>Qt::AlignHCenter|Qt::AlignTop</set>
+            <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
            </property>
            <widget class="QWidget" name="scrollAreaWidgetContents">
             <property name="geometry">
@@ -88,7 +88,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
         <string/>
        </property>
        <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
        </property>
       </widget>
      </item>
@@ -100,7 +100,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
       <string>اطلاعات کاربری</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="6" column="2">
@@ -119,7 +119,7 @@ font: 10pt &quot;Segoe UI&quot;;</string>
          <string>ایمیل:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -317,7 +317,7 @@ border-radius: 8px;
          <string/>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>

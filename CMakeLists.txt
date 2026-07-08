@@ -37,6 +37,7 @@ qt_add_executable(Ketab_e_Man
     pdfviewerwidget.h pdfviewerwidget.cpp pdfviewerwidget.ui
     publisherstatistics.h publisherstatistics.cpp publisherstatistics.ui
     bookmanagement.h bookmanagement.cpp bookmanagement.ui
+    publisherprofilepage.h publisherprofilepage.cpp publisherprofilepage.ui
 
 
 )
