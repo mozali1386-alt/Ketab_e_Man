@@ -52,10 +52,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBox"/>
+       <widget class="QSpinBox" name="spinBox_pagenumber"/>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_4">
+       <widget class="QToolButton" name="toolButton_backpage">
+        <property name="toolTip">
+         <string>رفتن به صفحه قبل
+</string>
+        </property>
         <property name="text">
          <string>...</string>
         </property>
@@ -65,7 +69,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_3">
+       <widget class="QToolButton" name="toolButton_nextpage">
+        <property name="toolTip">
+         <string>رفتن به صفحه بعد
+</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -75,7 +83,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton">
+       <widget class="QToolButton" name="toolButton_zoomout">
         <property name="text">
          <string/>
         </property>
@@ -85,7 +93,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_2">
+       <widget class="QToolButton" name="toolButton_zoomin">
         <property name="text">
          <string/>
         </property>
@@ -108,7 +116,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pushButton_exit">
         <property name="styleSheet">
          <string notr="true">QPushButton {
     background-color: #E63946; /* رنگ قرمز ملایم و استاندارد */
