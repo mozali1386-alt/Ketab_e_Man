@@ -38,6 +38,7 @@ qt_add_executable(Ketab_e_Man
     publisherstatistics.h publisherstatistics.cpp publisherstatistics.ui
     bookmanagement.h bookmanagement.cpp bookmanagement.ui
     publisherprofilepage.h publisherprofilepage.cpp publisherprofilepage.ui
+    publisherdashboard.h publisherdashboard.cpp publisherdashboard.ui
 
 
 )

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>UserDashboard</class>
- <widget class="QMainWindow" name="UserDashboard">
+ <class>Publisherdashboard</class>
+ <widget class="QMainWindow" name="Publisherdashboard">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
+    <width>600</width>
     <height>590</height>
    </rect>
   </property>
@@ -24,6 +24,21 @@
        <enum>QFrame::Shadow::Raised</enum>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QToolButton" name="toolButton_notification">
          <property name="styleSheet">
@@ -31,9 +46,6 @@
          </property>
          <property name="text">
           <string/>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -44,7 +56,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>40</width>
+           <width>568</width>
            <height>20</height>
           </size>
          </property>
@@ -61,29 +73,60 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>45</height>
-       </size>
-      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
-      <widget class="Storepage" name="page_store"/>
-      <widget class="Userprofilepage" name="page_profile"/>
-      <widget class="Cartpage" name="page_cart"/>
-      <widget class="LibraryWidget" name="page_library"/>
+      <widget class="BookManagement" name="page_managementbook"/>
+      <widget class="Publisherprofilepage" name="page_profile"/>
+      <widget class="QWidget" name="page_statistic">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="PublisherStatistics" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>569</width>
+             <height>540</height>
+            </rect>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>540</height>
+            </size>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
      <widget class="QFrame" name="frame_2">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="styleSheet">
        <string notr="true">/* استایل کلی پس‌زمینه نوار پایینی */
 QFrame {
@@ -137,17 +180,17 @@ QPushButton:checked {
         <number>0</number>
        </property>
        <item>
-        <widget class="QPushButton" name="pushButton_profile">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+        <widget class="QPushButton" name="pushButton_hesabkarbar">
          <property name="minimumSize">
           <size>
            <width>0</width>
            <height>45</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
           </size>
          </property>
          <property name="text">
@@ -156,8 +199,30 @@ QPushButton:checked {
          <property name="checkable">
           <bool>true</bool>
          </property>
-         <property name="checked">
-          <bool>false</bool>
+         <property name="autoExclusive">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_statistic">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>45</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>آمارها</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
          <property name="autoExclusive">
           <bool>true</bool>
@@ -165,83 +230,24 @@ QPushButton:checked {
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_mylibrary">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+        <widget class="QPushButton" name="pushButton_managmentbook">
          <property name="minimumSize">
           <size>
            <width>0</width>
            <height>45</height>
           </size>
          </property>
-         <property name="text">
-          <string>کتابخانه من</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <property name="autoExclusive">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_cart">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
+         <property name="maximumSize">
           <size>
-           <width>0</width>
-           <height>45</height>
+           <width>16777215</width>
+           <height>16777215</height>
           </size>
          </property>
          <property name="text">
-          <string>سبد خرید</string>
+          <string>مدیریت کتاب ها</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <property name="autoExclusive">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_store">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>45</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>فروشگاه</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
          </property>
          <property name="autoExclusive">
           <bool>true</bool>
@@ -258,7 +264,7 @@ QPushButton:checked {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>550</width>
+     <width>600</width>
      <height>18</height>
     </rect>
    </property>
@@ -267,30 +273,30 @@ QPushButton:checked {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Storepage</class>
+   <class>Publisherprofilepage</class>
    <extends>QWidget</extends>
-   <header>storepage.h</header>
+   <header>publisherprofilepage.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Cartpage</class>
+   <class>PublisherStatistics</class>
    <extends>QWidget</extends>
-   <header>cartpage.h</header>
+   <header>publisherstatistics.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>LibraryWidget</class>
+   <class>BookManagement</class>
    <extends>QWidget</extends>
-   <header>librarywidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Userprofilepage</class>
-   <extends>QWidget</extends>
-   <header>userprofilepage.h</header>
+   <header>bookmanagement.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>toolButton_notification</tabstop>
+  <tabstop>pushButton_statistic</tabstop>
+  <tabstop>pushButton_managmentbook</tabstop>
+  <tabstop>pushButton_hesabkarbar</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
