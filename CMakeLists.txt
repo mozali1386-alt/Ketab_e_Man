@@ -3,6 +3,7 @@ project(Ketab_e_Man LANGUAGES CXX)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Charts)
 find_package(Qt6 REQUIRED COMPONENTS Pdf PdfWidgets)
+find_package(Qt6 REQUIRED COMPONENTS Quick QuickWidgets)
 
 qt_standard_project_setup()
 
@@ -39,6 +40,11 @@ qt_add_executable(Ketab_e_Man
     bookmanagement.h bookmanagement.cpp bookmanagement.ui
     publisherprofilepage.h publisherprofilepage.cpp publisherprofilepage.ui
     publisherdashboard.h publisherdashboard.cpp publisherdashboard.ui
+    admindashboard.h admindashboard.cpp admindashboard.ui
+    editbookdialog.h editbookdialog.cpp editbookdialog.ui
+
+
+
 
 
 )
@@ -50,6 +56,8 @@ target_link_libraries(Ketab_e_Man
         Qt6::Pdf
         Qt6::PdfWidgets
         Qt6::Charts
+        Qt6::QuickWidgets
+
 )
 target_include_directories(Ketab_e_Man PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 install(TARGETS Ketab_e_Man
