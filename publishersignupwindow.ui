@@ -108,6 +108,9 @@ font: 36pt &quot;Segoe UI&quot;;</string>
        <height>41</height>
       </rect>
      </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
      <property name="placeholderText">
       <string>رمز عبور</string>
      </property>
@@ -120,6 +123,9 @@ font: 36pt &quot;Segoe UI&quot;;</string>
        <width>291</width>
        <height>41</height>
       </rect>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
      </property>
      <property name="placeholderText">
       <string>تکرار رمز عبور</string>
