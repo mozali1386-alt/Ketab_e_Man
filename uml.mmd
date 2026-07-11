@@ -1,0 +1,383 @@
+classDiagram
+    %% ========== کلاس‌های پایه و مدیریت فایل ==========
+    
+    class BaseEntity {
+        <<abstract>>
+        #quint64 id
+        #QDateTime createdAt
+        #QDateTime updatedAt
+        +getId() quint64
+        +getCreatedAt() QDateTime
+        +getUpdatedAt() QDateTime
+        #setId(quint64) void
+        #touchUpdatedAt() void
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class FileManager {
+        -QString baseDirectory
+        +saveAllData(Server* server) bool
+        +loadAllData(Server* server) bool
+        -saveUsers(QMap~quint64, User*~) void
+        -loadUsers() QMap~quint64, User*~
+        -saveBooks(QMap~quint64, Book*~) void
+        -loadBooks() QMap~quint64, Book*~
+        -saveLibraries(QMap~quint64, Library*~) void
+        -loadLibraries() QMap~quint64, Library*~
+        -saveAuthors(QMap~quint64, Author*~) void
+        -loadAuthors() QMap~quint64, Author*~
+    }
+
+    %% ========== موتور جستجوی سریع ==========
+
+    class SearchEngine {
+        -QMap~Genre, QVector~quint64~~ genreIndex
+        -QMap~quint64, QVector~quint64~~ authorIndex
+        -QMap~quint64, QVector~quint64~~ publisherIndex
+        -TrieNode* titleTrieRoot
+        +buildIndexes(books: QMap~quint64, Book*~) void
+        +searchByTitle(prefix: QString) QVector~quint64~
+        +searchByAuthor(authorId: quint64) QVector~quint64~
+        +filterByGenre(genre: Genre) QVector~quint64~
+        +searchByPublisher(pubId: quint64) QVector~quint64~
+        +addBookToIndex(book: Book*) void
+        +removeBookFromIndex(bookId: quint64) void
+    }
+
+    class TrieNode {
+        -QMap~QChar, TrieNode*~ children
+        -bool isEndOfWord
+        -QVector~quint64~ bookIds
+        +insert(word: QString, bookId: quint64) void
+        +searchPrefix(prefix: QString) QVector~quint64~
+    }
+
+    %% ========== User و نقش‌ها ==========
+    
+    class User {
+        <<abstract>>
+        #Role role
+        #QString username
+        #QString email
+        #QString passwordHash
+        #QString securityQuestion
+        #QString securityAnswerHash
+        #quint64 walletId
+        #QVector~quint64~ reviewIds
+        #QVector~quint64~ notificationIds
+        #bool isBlocked
+        #bool isActive
+        +getRole() Role
+        +authenticatePassword(plainPassword) bool
+        +setPassword(plainPassword) void
+        +resetPassword(question, answer, newPassword) bool
+        +addReview(reviewId) void
+        +removeReview(reviewId) void
+        +addNotification(notifId) void
+        +getUnreadNotificationCount() int
+        +getWalletId() quint64
+        +setWalletId(quint64) void
+    }
+
+    class NormalUser {
+        -quint64 libraryId
+        -QVector~Genre~ favoriteGenres
+        +purchaseBook(bookId) void
+        +addFavoriteGenre(genre) void
+        +removeFavoriteGenre(genre) void
+        +getFavoriteGenres() QVector~Genre~
+        +getLibraryId() quint64
+        +setLibraryId(quint64) void
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Publisher {
+        -QVector~quint64~ myBookIds
+        -double revenue
+        +publishBook(bookId) void
+        +removeBook(bookId) void
+        +receiveSaleIncome(amount) void
+        +getRevenue() double
+        +getMyBookIds() QVector~quint64~
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Admin {
+        +blockUser(userId) void
+        +unblockUser(userId) void
+        +deleteUser(userId) void
+        +activateUserAccount(userId) void
+        +deleteBook(bookId) void
+        +viewAllUsers() QVector~quint64~
+        +viewAllBooks() QVector~quint64~
+        +deleteReview(reviewId) void
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    %% ========== سیستم کتاب، نویسنده و کتابخانه ==========
+    
+    class Author {
+        -QString fullName
+        -QString biography
+        -QVector~quint64~ bookIds
+        +getFullName() QString
+        +getBiography() QString
+        +setBiography(bio: QString) void
+        +addBook(bookId) void
+        +removeBook(bookId) void
+        +getBookIds() QVector~quint64~
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Book {
+        -QString title
+        -quint64 authorId
+        -quint64 publisherId
+        -Genre genre
+        -QString description
+        -double price
+        -double discountPercent
+        -QString coverImagePath
+        -QString pdfFilePath
+        -int salesCount
+        -bool isActive
+        -QVector~quint64~ reviewIds
+        +getTitle() QString
+        +getAuthorId() quint64
+        +getPublisherId() quint64
+        +getGenre() Genre
+        +getFinalPrice() double
+        +applyDiscount(percent) void
+        +incrementSales() void
+        +deactivate() void
+        +reactivate() void
+        +addReview(reviewId) void
+        +removeReview(reviewId) void
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Library {
+        -quint64 ownerId
+        -QVector~quint64~ shelfIds
+        -QVector~quint64~ purchasedBookIds
+        -QVector~quint64~ savedBookIds
+        +addShelf(shelfId) void
+        +removeShelf(shelfId) void
+        +addToSavedBooks(bookId) void
+        +removeFromSavedBooks(bookId) void
+        +addToPurchasedBooks(bookId) void
+        +getPurchasedBooks() QVector~quint64~
+        +getSavedBooks() QVector~quint64~
+        +getShelves() QVector~quint64~
+        +getOwnerId() quint64
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Shelf {
+        -QString name
+        -quint64 ownerId
+        -QVector~quint64~ bookIds
+        +addBook(bookId) void
+        +removeBook(bookId) void
+        +rename(newName) void
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    %% ========== موجودیت‌های مالی، نظرات و اعلان‌ها ==========
+
+    class Review {
+        -quint64 userId
+        -quint64 bookId
+        -QString text
+        -int stars
+        +editText(newText) void
+        +editStars(newStars) void
+        +getText() QString
+        +getStars() int
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Cart {
+        -quint64 ownerId
+        -QVector~CartItem~ items
+        +addItem(bookId, quantity) void
+        +removeItem(bookId) void
+        +clear() void
+        +getItems() QVector~CartItem~
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class CartItem {
+        -quint64 bookId
+        -int quantity
+        +getBookId() quint64
+        +getQuantity() int
+        +setQuantity(int) void
+    }
+
+    class Purchase {
+        -quint64 buyerId
+        -QVector~quint64~ bookIds
+        -double totalAmount
+        -QDateTime purchaseDate
+        +getBuyerId() quint64
+        +getBookIds() QVector~quint64~
+        +getTotalAmount() double
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Notification {
+        -quint64 recipientId
+        -QString message
+        -NotificationType type
+        -bool isRead
+        +markAsRead() void
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Wallet {
+        -quint64 ownerId
+        -double balance
+        -QVector~quint64~ transactionIds
+        +deposit(amount) void
+        +withdraw(amount) bool
+        +getBalance() double
+        +addTransaction(transactionId) void
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    class Transaction {
+        -quint64 walletId
+        -double amount
+        -TransactionType type
+        -QString description
+        +generateId() quint64
+        +serialize() QString
+        +deserialize(QString) void
+    }
+
+    %% ========== سرور و مدیریت اصلی ==========
+    
+    class Server {
+        -QMap~quint64, User*~ users
+        -QMap~quint64, Book*~ books
+        -QMap~quint64, Author*~ authors
+        -QMap~quint64, Review*~ reviews
+        -QMap~quint64, Purchase*~ purchases
+        -QMap~quint64, Shelf*~ shelves
+        -QMap~quint64, Notification*~ notifications
+        -QMap~quint64, Wallet*~ wallets
+        -QMap~quint64, Library*~ libraries
+        -ServerStats stats
+        -SearchEngine searchEngine
+        -FileManager fileManager
+        +start() void
+        +stop() void
+        +registerUser(userData) quint64
+        +authenticateUser(username, password) quint64
+        +publishNewBook(publisherId, authorId, bookData) quint64
+        +searchBooks(query) QVector~quint64~
+        +processPurchase(buyerId, cartId) quint64
+        +saveState() void
+        +loadState() void
+    }
+
+    class ServerStats {
+        -int connectedUsers
+        -int totalRequests
+    }
+
+    %% ========== Enums ==========
+    
+    class Role {
+        <<enumeration>>
+        USER
+        PUBLISHER
+        ADMIN
+    }
+
+    class Genre {
+        <<enumeration>>
+        FICTION
+        SCIENCE
+        HISTORY
+        FANTASY
+        ROMANCE
+        MYSTERY
+        TECH
+    }
+
+    class NotificationType {
+        <<enumeration>>
+        NEW_BOOK_IN_FAVORITE_GENRE
+        DISCOUNT_ON_SAVED_BOOK
+        NEW_SALE_FOR_PUBLISHER
+        PURCHASE_COMPLETE
+    }
+
+    class TransactionType {
+        <<enumeration>>
+        DEPOSIT
+        WITHDRAW
+        PURCHASE
+        SALE_INCOME
+    }
+
+    %% ========== وراثت و روابط ==========
+    
+    BaseEntity <|-- User
+    BaseEntity <|-- Author
+    BaseEntity <|-- Book
+    BaseEntity <|-- Review
+    BaseEntity <|-- Cart
+    BaseEntity <|-- Purchase
+    BaseEntity <|-- Shelf
+    BaseEntity <|-- Notification
+    BaseEntity <|-- Wallet
+    BaseEntity <|-- Transaction
+    BaseEntity <|-- Library
+
+    User <|-- NormalUser
+    User <|-- Publisher
+    User <|-- Admin
+
+    Server "1" *-- "1" SearchEngine : مدیریت جستجو
+    Server "1" *-- "1" FileManager : مدیریت فایل
+    SearchEngine "1" *-- "1" TrieNode : ریشه درخت کلمات
+
+    NormalUser "1" --> "1" Library : دارد (libraryId)
+    Library "1" --> "0..*" Shelf : مدیریت قفسه‌ها
+    Library "1" --> "0..*" Book : ذخیره/خرید
+    Cart "1" --> "0..*" CartItem : شامل
+    User "1" --> "1" Wallet : متصل با آیدی
+    
+    %% روابط ناشر، کتاب و نویسنده
+    Publisher "1" --> "0..*" Book : منتشر کرده
+    Author "1" --> "0..*" Book : نوشته است
+    Book "1" --> "1" Author : ارجاع با authorId
