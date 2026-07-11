@@ -14,7 +14,8 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(Ketab_e_Man main.cpp)
+add_executable(Ketab_e_Man main.cpp
+        src/shared/Enums.h)
 target_link_libraries(Ketab_e_Man
         Qt::Core
         Qt::Gui
