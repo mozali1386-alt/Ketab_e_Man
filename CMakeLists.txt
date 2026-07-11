@@ -17,6 +17,7 @@ find_package(Qt6 COMPONENTS
 add_executable(Ketab_e_Man main.cpp
         src/shared/Enums.h
         src/shared/Protocol.h
+        src/shared/BaseEntity.h
         src/shared/BaseEntity.cpp)
 target_link_libraries(Ketab_e_Man
         Qt::Core
