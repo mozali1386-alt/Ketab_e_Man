@@ -18,7 +18,16 @@ add_executable(Ketab_e_Man
         src/shared/Enums.h
         src/shared/Protocol.h
         src/shared/BaseEntity.h
-        src/shared/BaseEntity.cpp)
+        src/shared/BaseEntity.cpp
+        src/shared/User.h
+        src/shared/User.cpp
+        src/shared/NormalUser.h
+        src/shared/NormalUser.cpp
+        src/shared/Admin.h
+        src/shared/Admin.cpp
+        src/shared/Author.h
+        src/shared/Publisher.cpp
+        src/shared/Author.cpp)
 target_link_libraries(Ketab_e_Man
         Qt::Core
         Qt::Gui
