@@ -7,7 +7,7 @@
 #include "BaseEntity.h"
 #include "Enums.h"
 #include <QString>
-#include <QVector>
+#include <QSet>
 
 class User : public BaseEntity {
 public:
@@ -17,6 +17,8 @@ public:
 
     Role getRole() const;
 
+    QString getFullName() const;
+
     QString getUsername() const;
 
     QString getEmail() const;
@@ -25,15 +27,15 @@ public:
 
     quint64 getWalletId() const;
 
-    QVector<quint64> getReviewIds() const;
+    QSet<quint64> getReviewIds() const;
 
-    QVector<quint64> getNotificationIds() const;
+    QSet<quint64> getNotificationIds() const;
 
     bool getIsBlocked() const;
 
-    bool getIsActive() const;
-
     void setRole(Role newRole);
+
+    void setFullName(const QString &newFullName);
 
     void setUsername(const QString &newUsername);
 
@@ -44,8 +46,6 @@ public:
     void setWalletId(quint64 newWalletId);
 
     void setIsBlocked(bool blocked);
-
-    void setIsActive(bool active);
 
     bool authenticatePassword(const QString &plainPassword);
 
@@ -65,16 +65,16 @@ public:
 
 protected:
     Role role;
+    QString fullName;
     QString username;
     QString email;
     QString passwordHash;
     QString securityQuestion;
     QString securityAnswerHash;
     quint64 walletId;
-    QVector<quint64> reviewIds;
-    QVector<quint64> notificationIds;
+    QSet<quint64> reviewIds;
+    QSet<quint64> notificationIds;
     bool isBlocked;
-    bool isActive;
 
     QString hashText(const QString &plainText) const;
 

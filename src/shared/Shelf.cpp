@@ -20,7 +20,7 @@ quint64 Shelf::getOwnerId() const {
     return ownerId;
 }
 
-QVector<quint64> Shelf::getBookIds() const {
+QSet<quint64> Shelf::getBookIds() const {
     return bookIds;
 }
 
@@ -30,17 +30,12 @@ void Shelf::setOwnerId(quint64 newOwnerId) {
 }
 
 void Shelf::addBook(quint64 bookId) {
-    bookIds.append(bookId);
+    bookIds.insert(bookId);
     touchUpdatedAt();
 }
 
 void Shelf::removeBook(quint64 bookId) {
-    for (int i = 0; i < bookIds.size(); i++) {
-        if (bookIds.at(i) == bookId) {
-            bookIds.remove(i);
-            break;
-        }
-    }
+    bookIds.remove(bookId);
     touchUpdatedAt();
 }
 
@@ -55,8 +50,8 @@ quint64 Shelf::generateId() {
 
 QString Shelf::serialize() const {
     QStringList bookList;
-    for (int i = 0; i < bookIds.size(); i++) {
-        bookList.append(QString::number(bookIds.at(i)));
+    for (quint64 bookId: bookIds) {
+        bookList.append(QString::number(bookId));
     }
 
     QString safeName = name;
@@ -97,7 +92,7 @@ void Shelf::deserialize(const QString &data) {
     if (bookToken.length() > 0) {
         QStringList parts = bookToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            bookIds.append(parts.at(i).toULongLong());
+            bookIds.insert(parts.at(i).toULongLong());
         }
     }
 }

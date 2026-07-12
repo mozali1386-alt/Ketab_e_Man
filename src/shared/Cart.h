@@ -5,8 +5,7 @@
 #define CART_H
 
 #include "BaseEntity.h"
-#include "CartItem.h"
-#include <QVector>
+#include <QSet>
 
 class Cart : public BaseEntity {
 public:
@@ -16,11 +15,11 @@ public:
 
     quint64 getOwnerId() const;
 
-    QVector<CartItem> getItems() const;
+    QSet<quint64> getBookIds() const;
 
     void setOwnerId(quint64 newOwnerId);
 
-    void addItem(quint64 bookId, int quantity);
+    void addItem(quint64 bookId);
 
     void removeItem(quint64 bookId);
 
@@ -34,7 +33,7 @@ public:
 
 private:
     quint64 ownerId;
-    QVector<CartItem> items;
+    QSet<quint64> bookIds;
 };
 
 #endif

@@ -148,17 +148,12 @@ void Book::reactivate() {
 }
 
 void Book::addReview(quint64 reviewId) {
-    reviewIds.append(reviewId);
+    reviewIds.insert(reviewId);
     touchUpdatedAt();
 }
 
 void Book::removeReview(quint64 reviewId) {
-    for (int i = 0; i < reviewIds.size(); i++) {
-        if (reviewIds.at(i) == reviewId) {
-            reviewIds.remove(i);
-            break;
-        }
-    }
+    reviewIds.remove(reviewId);
     touchUpdatedAt();
 }
 
@@ -168,8 +163,8 @@ quint64 Book::generateId() {
 
 QString Book::serialize() const {
     QStringList reviewList;
-    for (int i = 0; i < reviewIds.size(); i++) {
-        reviewList.append(QString::number(reviewIds.at(i)));
+    for (quint64 reviewId: reviewIds) {
+        reviewList.append(QString::number(reviewId));
     }
 
     QString safeTitle = title;
@@ -254,7 +249,7 @@ void Book::deserialize(const QString &data) {
     if (reviewToken.length() > 0) {
         QStringList parts = reviewToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            reviewIds.append(parts.at(i).toULongLong());
+            reviewIds.insert(parts.at(i).toULongLong());
         }
     }
 }

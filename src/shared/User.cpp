@@ -7,6 +7,7 @@
 
 User::User() {
     role = Role::USER;
+    fullName = "";
     username = "";
     email = "";
     passwordHash = "";
@@ -14,7 +15,6 @@ User::User() {
     securityAnswerHash = "";
     walletId = 0;
     isBlocked = false;
-    isActive = false;
 }
 
 User::~User() {
@@ -22,6 +22,10 @@ User::~User() {
 
 Role User::getRole() const {
     return role;
+}
+
+QString User::getFullName() const {
+    return fullName;
 }
 
 QString User::getUsername() const {
@@ -40,11 +44,11 @@ quint64 User::getWalletId() const {
     return walletId;
 }
 
-QVector<quint64> User::getReviewIds() const {
+QSet<quint64> User::getReviewIds() const {
     return reviewIds;
 }
 
-QVector<quint64> User::getNotificationIds() const {
+QSet<quint64> User::getNotificationIds() const {
     return notificationIds;
 }
 
@@ -52,12 +56,13 @@ bool User::getIsBlocked() const {
     return isBlocked;
 }
 
-bool User::getIsActive() const {
-    return isActive;
-}
-
 void User::setRole(Role newRole) {
     role = newRole;
+    touchUpdatedAt();
+}
+
+void User::setFullName(const QString &newFullName) {
+    fullName = newFullName;
     touchUpdatedAt();
 }
 
@@ -83,11 +88,6 @@ void User::setWalletId(quint64 newWalletId) {
 
 void User::setIsBlocked(bool blocked) {
     isBlocked = blocked;
-    touchUpdatedAt();
-}
-
-void User::setIsActive(bool active) {
-    isActive = active;
     touchUpdatedAt();
 }
 
@@ -130,22 +130,17 @@ bool User::resetPassword(const QString &question, const QString &answer, const Q
 }
 
 void User::addReview(quint64 reviewId) {
-    reviewIds.append(reviewId);
+    reviewIds.insert(reviewId);
     touchUpdatedAt();
 }
 
 void User::removeReview(quint64 reviewId) {
-    for (int i = 0; i < reviewIds.size(); i++) {
-        if (reviewIds.at(i) == reviewId) {
-            reviewIds.remove(i);
-            break;
-        }
-    }
+    reviewIds.remove(reviewId);
     touchUpdatedAt();
 }
 
 void User::addNotification(quint64 notifId) {
-    notificationIds.append(notifId);
+    notificationIds.insert(notifId);
     touchUpdatedAt();
 }
 
@@ -155,20 +150,24 @@ int User::getUnreadNotificationCount() const {
 
 QString User::serializeUserFields() const {
     QStringList reviewList;
-    for (int i = 0; i < reviewIds.size(); i++) {
-        reviewList.append(QString::number(reviewIds.at(i)));
+    for (quint64 reviewId: reviewIds) {
+        reviewList.append(QString::number(reviewId));
     }
 
     QStringList notifList;
-    for (int i = 0; i < notificationIds.size(); i++) {
-        notifList.append(QString::number(notificationIds.at(i)));
+    for (quint64 notifId: notificationIds) {
+        notifList.append(QString::number(notifId));
     }
+
+    QString safeFullName = fullName;
+    safeFullName.replace("|", "&pipe;");
 
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
     result += updatedAt.toString(Qt::ISODate) + "|";
     result += QString::number(static_cast<int>(role)) + "|";
+    result += safeFullName + "|";
     result += username + "|";
     result += email + "|";
     result += passwordHash + "|";
@@ -176,7 +175,6 @@ QString User::serializeUserFields() const {
     result += securityAnswerHash + "|";
     result += QString::number(walletId) + "|";
     result += QString(isBlocked ? "1" : "0") + "|";
-    result += QString(isActive ? "1" : "0") + "|";
     result += reviewList.join(",") + "|";
     result += notifList.join(",");
 
@@ -194,6 +192,11 @@ int User::deserializeUserFields(const QStringList &tokens, int startIndex) {
     index++;
     role = static_cast<Role>(tokens.at(index).toInt());
     index++;
+
+    fullName = tokens.at(index);
+    index++;
+    fullName.replace("&pipe;", "|");
+
     username = tokens.at(index);
     index++;
     email = tokens.at(index);
@@ -208,8 +211,6 @@ int User::deserializeUserFields(const QStringList &tokens, int startIndex) {
     index++;
     isBlocked = (tokens.at(index) == "1");
     index++;
-    isActive = (tokens.at(index) == "1");
-    index++;
 
     reviewIds.clear();
     QString reviewsToken = tokens.at(index);
@@ -217,7 +218,7 @@ int User::deserializeUserFields(const QStringList &tokens, int startIndex) {
     if (reviewsToken.length() > 0) {
         QStringList parts = reviewsToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            reviewIds.append(parts.at(i).toULongLong());
+            reviewIds.insert(parts.at(i).toULongLong());
         }
     }
 
@@ -227,7 +228,7 @@ int User::deserializeUserFields(const QStringList &tokens, int startIndex) {
     if (notifToken.length() > 0) {
         QStringList parts = notifToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            notificationIds.append(parts.at(i).toULongLong());
+            notificationIds.insert(parts.at(i).toULongLong());
         }
     }
 
