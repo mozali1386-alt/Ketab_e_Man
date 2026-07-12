@@ -14,7 +14,7 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(Ketab_e_Man main.cpp
+add_executable(Ketab_e_Man
         src/shared/Enums.h
         src/shared/Protocol.h
         src/shared/BaseEntity.h
