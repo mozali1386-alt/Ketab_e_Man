@@ -1,64 +1,71 @@
-cmake_minimum_required(VERSION 4.2)
+#in the name of ALLAH
+#YA MAHDI
+
+cmake_minimum_required(VERSION 3.30)
 project(Ketab_e_Man)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_PREFIX_PATH "D:/Qt/6.11.1/mingw_64")
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
 
-find_package(Qt6 COMPONENTS
-        Core
-        Gui
-        Widgets
-        REQUIRED)
-
-add_executable(Ketab_e_Man main.cpp
-        src/shared/Enums.h
-        src/shared/Protocol.h
-        src/shared/BaseEntity.h
-        src/shared/BaseEntity.cpp
-        src/shared/User.h
-        src/shared/User.cpp
-        src/shared/NormalUser.h
-        src/shared/NormalUser.cpp
-        src/shared/Admin.h
-        src/shared/Admin.cpp
-        src/shared/Author.h
-        src/shared/Publisher.cpp
-        src/shared/Author.cpp)
-target_link_libraries(Ketab_e_Man
-        Qt::Core
-        Qt::Gui
-        Qt::Widgets
+set(SHARED_SOURCES
+        shared/BaseEntity.cpp
+        shared/User.cpp
+        shared/NormalUser.cpp
+        shared/Publisher.cpp
+        shared/Admin.cpp
+        shared/Author.cpp
+        shared/Book.cpp
+        shared/Library.cpp
+        shared/Shelf.cpp
+        shared/Review.cpp
+        shared/Cart.cpp
+        shared/CartItem.cpp
+        shared/Notification.cpp
+        shared/Wallet.cpp
+        shared/Transaction.cpp
+        shared/Purchase.cpp
 )
 
-if (WIN32 AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(DEBUG_SUFFIX)
-    if (MSVC AND CMAKE_BUILD_TYPE MATCHES "Debug")
-        set(DEBUG_SUFFIX "d")
-    endif ()
-    set(QT_INSTALL_PATH "${CMAKE_PREFIX_PATH}")
-    if (NOT EXISTS "${QT_INSTALL_PATH}/bin")
-        set(QT_INSTALL_PATH "${QT_INSTALL_PATH}/..")
-        if (NOT EXISTS "${QT_INSTALL_PATH}/bin")
-            set(QT_INSTALL_PATH "${QT_INSTALL_PATH}/..")
-        endif ()
-    endif ()
-    if (EXISTS "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll")
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E make_directory
-                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll"
-                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
-    endif ()
-    foreach (QT_LIB Core Gui Widgets)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                "${QT_INSTALL_PATH}/bin/Qt6${QT_LIB}${DEBUG_SUFFIX}.dll"
-                "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
-    endforeach (QT_LIB)
-endif ()
+set(SHARED_HEADERS
+        shared/Enums.h
+        shared/Protocol.h
+        shared/BaseEntity.h
+        shared/User.h
+        shared/NormalUser.h
+        shared/Publisher.h
+        shared/Admin.h
+        shared/Author.h
+        shared/Book.h
+        shared/Library.h
+        shared/Shelf.h
+        shared/Review.h
+        shared/Cart.h
+        shared/CartItem.h
+        shared/Notification.h
+        shared/Wallet.h
+        shared/Transaction.h
+        shared/Purchase.h
+)
+
+
+if (WIN32)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${Qt6_DIR}/../../../bin")
+
+    foreach(TARGET_NAME)
+        if (WINDEPLOYQT_EXECUTABLE)
+            add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+                    COMMAND ${WINDEPLOYQT_EXECUTABLE}
+                    --no-translations
+                    --no-system-d3d-compiler
+                    --no-opengl-sw
+                    "$<TARGET_FILE:${TARGET_NAME}>"
+            )
+        endif()
+    endforeach()
+endif()
