@@ -49,7 +49,7 @@ font: 36pt &quot;Segoe UI&quot;;</string>
      <string>عضویت</string>
     </property>
     <property name="alignment">
-     <set>Qt::AlignHCenter|Qt::AlignTop</set>
+     <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
     </property>
    </widget>
    <widget class="QFrame" name="frame">
@@ -68,10 +68,10 @@ font: 36pt &quot;Segoe UI&quot;;</string>
 }</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QLineEdit" name="lineEdit_nashr">
      <property name="geometry">
@@ -108,6 +108,9 @@ font: 36pt &quot;Segoe UI&quot;;</string>
        <height>41</height>
       </rect>
      </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
      <property name="placeholderText">
       <string>رمز عبور</string>
      </property>
@@ -120,6 +123,9 @@ font: 36pt &quot;Segoe UI&quot;;</string>
        <width>291</width>
        <height>41</height>
       </rect>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
      </property>
      <property name="placeholderText">
       <string>تکرار رمز عبور</string>
