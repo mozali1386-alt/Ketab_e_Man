@@ -20,15 +20,11 @@ public:
 
     TransactionType getType() const;
 
-    QString getDescription() const;
-
     void setWalletId(quint64 newWalletId);
 
     void setAmount(double newAmount);
 
     void setType(TransactionType newType);
-
-    void setDescription(const QString &newDescription);
 
     static quint64 generateId();
 
@@ -40,7 +36,6 @@ private:
     quint64 walletId;
     double amount;
     TransactionType type;
-    QString description;
 };
 
 #endif

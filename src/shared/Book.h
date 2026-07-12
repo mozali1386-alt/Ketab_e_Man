@@ -7,7 +7,7 @@
 #include "BaseEntity.h"
 #include "Enums.h"
 #include <QString>
-#include <QVector>
+#include <QSet>
 
 class Book : public BaseEntity {
 public:
@@ -37,7 +37,7 @@ public:
 
     bool getIsActive() const;
 
-    QVector<quint64> getReviewIds() const;
+    QSet<quint64> getReviewIds() const;
 
     void setTitle(const QString &newTitle);
 
@@ -87,7 +87,7 @@ private:
     QString pdfFilePath;
     int salesCount;
     bool isActive;
-    QVector<quint64> reviewIds;
+    QSet<quint64> reviewIds;
 };
 
 #endif

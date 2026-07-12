@@ -5,7 +5,7 @@
 #define LIBRARY_H
 
 #include "BaseEntity.h"
-#include <QVector>
+#include <QSet>
 
 class Library : public BaseEntity {
 public:
@@ -15,11 +15,11 @@ public:
 
     quint64 getOwnerId() const;
 
-    QVector<quint64> getShelves() const;
+    QSet<quint64> getShelves() const;
 
-    QVector<quint64> getPurchasedBooks() const;
+    QSet<quint64> getPurchasedBooks() const;
 
-    QVector<quint64> getSavedBooks() const;
+    QSet<quint64> getSavedBooks() const;
 
     void setOwnerId(quint64 newOwnerId);
 
@@ -41,9 +41,9 @@ public:
 
 private:
     quint64 ownerId;
-    QVector<quint64> shelfIds;
-    QVector<quint64> purchasedBookIds;
-    QVector<quint64> savedBookIds;
+    QSet<quint64> shelfIds;
+    QSet<quint64> purchasedBookIds;
+    QSet<quint64> savedBookIds;
 };
 
 #endif

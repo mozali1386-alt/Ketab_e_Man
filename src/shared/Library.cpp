@@ -15,15 +15,15 @@ quint64 Library::getOwnerId() const {
     return ownerId;
 }
 
-QVector<quint64> Library::getShelves() const {
+QSet<quint64> Library::getShelves() const {
     return shelfIds;
 }
 
-QVector<quint64> Library::getPurchasedBooks() const {
+QSet<quint64> Library::getPurchasedBooks() const {
     return purchasedBookIds;
 }
 
-QVector<quint64> Library::getSavedBooks() const {
+QSet<quint64> Library::getSavedBooks() const {
     return savedBookIds;
 }
 
@@ -33,42 +33,27 @@ void Library::setOwnerId(quint64 newOwnerId) {
 }
 
 void Library::addShelf(quint64 shelfId) {
-    shelfIds.append(shelfId);
+    shelfIds.insert(shelfId);
     touchUpdatedAt();
 }
 
 void Library::removeShelf(quint64 shelfId) {
-    for (int i = 0; i < shelfIds.size(); i++) {
-        if (shelfIds.at(i) == shelfId) {
-            shelfIds.remove(i);
-            break;
-        }
-    }
+    shelfIds.remove(shelfId);
     touchUpdatedAt();
 }
 
 void Library::addToSavedBooks(quint64 bookId) {
-    for (int i = 0; i < savedBookIds.size(); i++) {
-        if (savedBookIds.at(i) == bookId) {
-            return;
-        }
-    }
-    savedBookIds.append(bookId);
+    savedBookIds.insert(bookId);
     touchUpdatedAt();
 }
 
 void Library::removeFromSavedBooks(quint64 bookId) {
-    for (int i = 0; i < savedBookIds.size(); i++) {
-        if (savedBookIds.at(i) == bookId) {
-            savedBookIds.remove(i);
-            break;
-        }
-    }
+    savedBookIds.remove(bookId);
     touchUpdatedAt();
 }
 
 void Library::addToPurchasedBooks(quint64 bookId) {
-    purchasedBookIds.append(bookId);
+    purchasedBookIds.insert(bookId);
 
     removeFromSavedBooks(bookId);
 
@@ -81,18 +66,18 @@ quint64 Library::generateId() {
 
 QString Library::serialize() const {
     QStringList shelfList;
-    for (int i = 0; i < shelfIds.size(); i++) {
-        shelfList.append(QString::number(shelfIds.at(i)));
+    for (quint64 shelfId: shelfIds) {
+        shelfList.append(QString::number(shelfId));
     }
 
     QStringList purchasedList;
-    for (int i = 0; i < purchasedBookIds.size(); i++) {
-        purchasedList.append(QString::number(purchasedBookIds.at(i)));
+    for (quint64 bookId: purchasedBookIds) {
+        purchasedList.append(QString::number(bookId));
     }
 
     QStringList savedList;
-    for (int i = 0; i < savedBookIds.size(); i++) {
-        savedList.append(QString::number(savedBookIds.at(i)));
+    for (quint64 bookId: savedBookIds) {
+        savedList.append(QString::number(bookId));
     }
 
     QString result = "";
@@ -126,7 +111,7 @@ void Library::deserialize(const QString &data) {
     if (shelfToken.length() > 0) {
         QStringList parts = shelfToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            shelfIds.append(parts.at(i).toULongLong());
+            shelfIds.insert(parts.at(i).toULongLong());
         }
     }
 
@@ -136,7 +121,7 @@ void Library::deserialize(const QString &data) {
     if (purchasedToken.length() > 0) {
         QStringList parts = purchasedToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            purchasedBookIds.append(parts.at(i).toULongLong());
+            purchasedBookIds.insert(parts.at(i).toULongLong());
         }
     }
 
@@ -146,7 +131,7 @@ void Library::deserialize(const QString &data) {
     if (savedToken.length() > 0) {
         QStringList parts = savedToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            savedBookIds.append(parts.at(i).toULongLong());
+            savedBookIds.insert(parts.at(i).toULongLong());
         }
     }
 }

@@ -6,7 +6,7 @@
 
 #include "BaseEntity.h"
 #include <QString>
-#include <QVector>
+#include <QSet>
 
 class Shelf : public BaseEntity {
 public:
@@ -18,7 +18,7 @@ public:
 
     quint64 getOwnerId() const;
 
-    QVector<quint64> getBookIds() const;
+    QSet<quint64> getBookIds() const;
 
     void setOwnerId(quint64 newOwnerId);
 
@@ -37,7 +37,7 @@ public:
 private:
     QString name;
     quint64 ownerId;
-    QVector<quint64> bookIds;
+    QSet<quint64> bookIds;
 };
 
 #endif
