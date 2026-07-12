@@ -15,8 +15,8 @@ quint64 Cart::getOwnerId() const {
     return ownerId;
 }
 
-QVector<CartItem> Cart::getItems() const {
-    return items;
+QSet<quint64> Cart::getBookIds() const {
+    return bookIds;
 }
 
 void Cart::setOwnerId(quint64 newOwnerId) {
@@ -24,33 +24,18 @@ void Cart::setOwnerId(quint64 newOwnerId) {
     touchUpdatedAt();
 }
 
-void Cart::addItem(quint64 bookId, int quantity) {
-    for (int i = 0; i < items.size(); i++) {
-        if (items.at(i).getBookId() == bookId) {
-            int currentQuantity = items.at(i).getQuantity();
-            items[i].setQuantity(currentQuantity + quantity);
-            touchUpdatedAt();
-            return;
-        }
-    }
-
-    CartItem newItem(bookId, quantity);
-    items.append(newItem);
+void Cart::addItem(quint64 bookId) {
+    bookIds.insert(bookId);
     touchUpdatedAt();
 }
 
 void Cart::removeItem(quint64 bookId) {
-    for (int i = 0; i < items.size(); i++) {
-        if (items.at(i).getBookId() == bookId) {
-            items.remove(i);
-            break;
-        }
-    }
+    bookIds.remove(bookId);
     touchUpdatedAt();
 }
 
 void Cart::clear() {
-    items.clear();
+    bookIds.clear();
     touchUpdatedAt();
 }
 
@@ -60,8 +45,8 @@ quint64 Cart::generateId() {
 
 QString Cart::serialize() const {
     QStringList itemList;
-    for (int i = 0; i < items.size(); i++) {
-        itemList.append(items.at(i).serialize());
+    for (quint64 bookId: bookIds) {
+        itemList.append(QString::number(bookId));
     }
 
     QString result = "";
@@ -69,7 +54,7 @@ QString Cart::serialize() const {
     result += createdAt.toString(Qt::ISODate) + "|";
     result += updatedAt.toString(Qt::ISODate) + "|";
     result += QString::number(ownerId) + "|";
-    result += itemList.join(";");
+    result += itemList.join(",");
 
     return result;
 }
@@ -87,15 +72,13 @@ void Cart::deserialize(const QString &data) {
     ownerId = tokens.at(index).toULongLong();
     index++;
 
-    items.clear();
+    bookIds.clear();
     QString itemsToken = tokens.at(index);
     index++;
     if (itemsToken.length() > 0) {
-        QStringList itemParts = itemsToken.split(";");
-        for (int i = 0; i < itemParts.size(); i++) {
-            CartItem newItem;
-            newItem.deserialize(itemParts.at(i));
-            items.append(newItem);
+        QStringList parts = itemsToken.split(",");
+        for (int i = 0; i < parts.size(); i++) {
+            bookIds.insert(parts.at(i).toULongLong());
         }
     }
 }
