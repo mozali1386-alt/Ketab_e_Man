@@ -7,8 +7,8 @@
 #include <QMap>
 #include <QSet>
 #include "TrieNode.h"
-#include "../../shared/Book.h"
-#include "../../shared/Enums.h"
+#include "../../src/shared/Book.h"
+#include "../../src/shared/Enums.h"
 
 class SearchEngine {
 public:
@@ -18,15 +18,15 @@ public:
 
     void buildIndexes(const QMap<quint64, Book *> &books);
 
-    void addBookToIndex(Book *book);
+    void addBookToIndex(const Book *book);
 
     void removeBookFromIndex(quint64 bookId);
 
-    QSet<quint64> searchByTitle(const QString &prefix);
+    QSet<quint64> searchByTitle(const QString &prefix) const;
 
     QSet<quint64> searchByAuthor(quint64 authorId);
 
-    QSet<quint64> searchByPublisher(quint64 publisherId);
+    QSet<quint64> searchByPublisher(quint64 publisherId) const;
 
     QSet<quint64> filterByGenre(Genre genre);
 
