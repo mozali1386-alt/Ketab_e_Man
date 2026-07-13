@@ -40,3 +40,41 @@ void SearchEngine::addBookToIndex(const Book *book) {
     bookPublisherLookup.insert(bookId, book->getPublisherId());
     publisherIndex[book->getPublisherId()].insert(bookId);
 }
+
+void SearchEngine::removeBookFromIndex(quint64 bookId) {
+    if (!bookTitleLookup.contains(bookId)) {
+        return;
+    }
+
+    QString title = bookTitleLookup.value(bookId);
+    titleTrieRoot->removeBookId(title, bookId);
+    bookTitleLookup.remove(bookId);
+
+    Genre genre = bookGenreLookup.value(bookId);
+    genreIndex[genre].remove(bookId);
+    bookGenreLookup.remove(bookId);
+
+    quint64 authorId = bookAuthorLookup.value(bookId);
+    authorIndex[authorId].remove(bookId);
+    bookAuthorLookup.remove(bookId);
+
+    quint64 publisherId = bookPublisherLookup.value(bookId);
+    publisherIndex[publisherId].remove(bookId);
+    bookPublisherLookup.remove(bookId);
+}
+
+QSet<quint64> SearchEngine::searchByTitle(const QString &prefix) const {
+    return titleTrieRoot->searchPrefix(prefix.toLower());
+}
+
+QSet<quint64> SearchEngine::searchByAuthor(quint64 authorId) {
+    return authorIndex.value(authorId);
+}
+
+QSet<quint64> SearchEngine::searchByPublisher(quint64 publisherId) const {
+    return publisherIndex.value(publisherId);
+}
+
+QSet<quint64> SearchEngine::filterByGenre(Genre genre) {
+    return genreIndex.value(genre);
+}
