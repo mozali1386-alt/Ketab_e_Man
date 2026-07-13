@@ -81,7 +81,7 @@ target_compile_definitions(Ketab_e_Man_Server PRIVATE PROJECT_ROOT_DIR="${CMAKE_
 set_target_properties(Ketab_e_Man_Server PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/server")
 
 add_executable(Ketab_e_Man_Client
-        #client/main.cpp
+#        client/main.cpp
 #        client/network/ClientNetwork.cpp
 #        client/network/ClientNetwork.h
         ${SHARED_HEADERS}
