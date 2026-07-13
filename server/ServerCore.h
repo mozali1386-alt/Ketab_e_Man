@@ -98,6 +98,27 @@ private:
     QMap<quint64, Wallet *> wallets;
     QMap<quint64, Transaction *> transactions;
     QMap<quint64, Purchase *> purchases;
+
+    void handleRequest(ClientHandler *handler, int commandId, const QString &payload);
+
+    void handleLoginRequest(ClientHandler *handler, const QString &payload);
+
+    void handleRegisterRequest(ClientHandler *handler, const QString &payload);
+
+    void handleForgotPasswordRequest(ClientHandler *handler, const QString &payload);
+
+    void handleResetPasswordRequest(ClientHandler *handler, const QString &payload);
+
+    void handleLogoutRequest(ClientHandler *handler, const QString &payload);
+
+    void handlePublishRequest(ClientHandler *handler, const QString &payload);
+
+    void handleUpdateBookRequest(ClientHandler *handler, const QString &payload);
+
+    void handleDeactivateBookRequest(ClientHandler *handler, const QString &payload);
+
+
+
 };
 
 #endif
