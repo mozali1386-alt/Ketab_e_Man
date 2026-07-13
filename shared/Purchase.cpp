@@ -17,7 +17,7 @@ quint64 Purchase::getBuyerId() const {
     return buyerId;
 }
 
-QVector<quint64> Purchase::getBookIds() const {
+QSet<quint64> Purchase::getBookIds() const {
     return bookIds;
 }
 
@@ -34,7 +34,7 @@ void Purchase::setBuyerId(quint64 newBuyerId) {
     touchUpdatedAt();
 }
 
-void Purchase::setBookIds(const QVector<quint64> &newBookIds) {
+void Purchase::setBookIds(const QSet<quint64> &newBookIds) {
     bookIds = newBookIds;
     touchUpdatedAt();
 }
@@ -50,8 +50,8 @@ quint64 Purchase::generateId() {
 
 QString Purchase::serialize() const {
     QStringList bookList;
-    for (int i = 0; i < bookIds.size(); i++) {
-        bookList.append(QString::number(bookIds.at(i)));
+    for (quint64 bookId: bookIds) {
+        bookList.append(QString::number(bookId));
     }
 
     QString result = "";
@@ -85,7 +85,7 @@ void Purchase::deserialize(const QString &data) {
     if (bookToken.length() > 0) {
         QStringList parts = bookToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            bookIds.append(parts.at(i).toULongLong());
+            bookIds.insert(parts.at(i).toULongLong());
         }
     }
 

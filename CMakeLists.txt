@@ -53,8 +53,8 @@ set(SHARED_HEADERS
 
 add_executable(Ketab_e_Man_Server
         #server/main.cpp
-#        server/ServerCore.cpp
-#        server/ServerCore.h
+        server/ServerCore.cpp
+        server/ServerCore.h
         server/ServerStats.cpp
         server/ServerStats.h
         server/network/ServerNetwork.cpp
