@@ -7,8 +7,8 @@
 #include <QMap>
 #include <QSet>
 #include "TrieNode.h"
-#include "../../src/shared/Book.h"
-#include "../../src/shared/Enums.h"
+#include "../../shared/Book.h"
+#include "../../shared/Enums.h"
 
 class SearchEngine {
 public:
