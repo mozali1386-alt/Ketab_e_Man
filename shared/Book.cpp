@@ -65,7 +65,7 @@ bool Book::getIsActive() const {
     return isActive;
 }
 
-QVector<quint64> Book::getReviewIds() const {
+QSet<quint64> Book::getReviewIds() const {
     return reviewIds;
 }
 
