@@ -48,3 +48,37 @@ void ClientHandler::onReadyRead() {
         emit requestReceived(this, commandId, payload);
     }
 }
+
+void ClientHandler::onDisconnected() {
+    emit clientDisconnected(this);
+}
+
+void ClientHandler::sendResponse(int commandId, const QString &payload) {
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_10);
+
+    out << (quint32) 0;
+    out << commandId;
+    out << payload;
+
+    out.device()->seek(0);
+    out << (quint32) (block.size() - (int) sizeof(quint32));
+
+    socket->write(block);
+}
+
+quint64 ClientHandler::getUserId() const {
+    return userId;
+}
+
+void ClientHandler::setUserId(quint64 newUserId) {
+    userId = newUserId;
+}
+
+bool ClientHandler::isAuthenticated() const {
+    if (userId == 0) {
+        return false;
+    }
+    return true;
+}
