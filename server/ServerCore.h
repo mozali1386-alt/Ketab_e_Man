@@ -117,8 +117,55 @@ private:
 
     void handleDeactivateBookRequest(ClientHandler *handler, const QString &payload);
 
+    void handleBuyRequest(ClientHandler *handler, const QString &payload);
 
+    void handleSearchRequest(ClientHandler *handler, const QString &payload);
 
+    void handleAddReviewRequest(ClientHandler *handler, const QString &payload);
+
+    void handleEditReviewRequest(ClientHandler *handler, const QString &payload);
+
+    void handleDeleteReviewRequest(ClientHandler *handler, const QString &payload);
+
+    void handleAddToCartRequest(ClientHandler *handler, const QString &payload);
+
+    void handleRemoveFromCartRequest(ClientHandler *handler, const QString &payload);
+
+    void handleCheckoutCartRequest(ClientHandler *handler, const QString &payload);
+
+    void handleCreateShelfRequest(ClientHandler *handler, const QString &payload);
+
+    void handleAddBookToShelfRequest(ClientHandler *handler, const QString &payload);
+
+    void handleSaveBookRequest(ClientHandler *handler, const QString &payload);
+
+    void handleBlockUserRequest(ClientHandler *handler, const QString &payload);
+
+    void handleUnblockUserRequest(ClientHandler *handler, const QString &payload);
+
+    void handleDeleteBookRequest(ClientHandler *handler, const QString &payload);
+
+    void handleSetFavoriteGenresRequest(ClientHandler *handler, const QString &payload);
+
+    User *findUserByUsername(const QString &username);
+
+    Cart *findOrCreateCartForUser(quint64 userId);
+
+    ClientHandler *findClientHandlerByUserId(quint64 userId);
+
+    void sendNotificationToUser(quint64 userId, NotificationType type, const QString &message);
+
+    void notifyUsersAboutNewBook(Book *book);
+
+    void broadcastReviewUpdated(quint64 bookId);
+
+    void purgeBookFromNonOwnerPlaces(quint64 bookId);
+
+    bool libraryOwnerHasPurchasedBook(quint64 ownerId, quint64 bookId);
+
+    bool processPurchase(ClientHandler *handler, quint64 userId, const QVector<quint64> &bookIdList);
+
+    void deleteAllReviewsForBook(quint64 bookId, Book *book);
 };
 
 #endif
