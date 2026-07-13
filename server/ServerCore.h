@@ -77,6 +77,27 @@ private slots:
 
     void onClientDisconnected(ClientHandler *handler);
 
+private:
+    ServerNetwork *network;
+    QSet<ClientHandler *> connectedClients;
+    QMap<quint64, ClientHandler *> loggedInClients;
+    QMutex dataMutex;
+
+    FileManager fileManager;
+    SearchEngine searchEngine;
+    ServerStats stats;
+
+    QMap<quint64, User *> users;
+    QMap<quint64, Book *> books;
+    QMap<quint64, Author *> authors;
+    QMap<quint64, Library *> libraries;
+    QMap<quint64, Shelf *> shelves;
+    QMap<quint64, Review *> reviews;
+    QMap<quint64, Cart *> carts;
+    QMap<quint64, Notification *> notifications;
+    QMap<quint64, Wallet *> wallets;
+    QMap<quint64, Transaction *> transactions;
+    QMap<quint64, Purchase *> purchases;
 };
 
 #endif
