@@ -63,8 +63,8 @@ add_executable(Ketab_e_Man_Server
 #        server/network/ClientHandler.h
 #        server/database/FileManager.cpp
 #        server/database/FileManager.h
-#        server/logic/SearchEngine.cpp
-#        server/logic/SearchEngine.h
+        server/logic/SearchEngine.cpp
+        server/logic/SearchEngine.h
         server/logic/TrieNode.cpp
         server/logic/TrieNode.h
 #        server/gui/ServerDashboard.cpp
