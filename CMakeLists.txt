@@ -57,8 +57,8 @@ add_executable(Ketab_e_Man_Server
 #        server/ServerCore.h
 #        server/ServerStats.cpp
 #        server/ServerStats.h
-#        server/network/ServerNetwork.cpp
-#        server/network/ServerNetwork.h
+        server/network/ServerNetwork.cpp
+        server/network/ServerNetwork.h
         server/network/ClientHandler.cpp
         server/network/ClientHandler.h
 #        server/database/FileManager.cpp
