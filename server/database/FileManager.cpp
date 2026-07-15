@@ -2,7 +2,7 @@
 //YA MAHDI
 
 #include "FileManager.h"
-#include "../ServerCore.h"
+#include "../ServerDataStore.h"
 #include "../../shared/NormalUser.h"
 #include "../../shared/Publisher.h"
 #include "../../shared/Admin.h"
@@ -24,46 +24,46 @@ void FileManager::ensureBaseDirectoryExists() {
     dir.mkpath(baseDirectory);
 }
 
-bool FileManager::saveAllData(ServerCore *server) {
-    if (server == nullptr) {
+bool FileManager::saveAllData(ServerDataStore *dataStore) {
+    if (dataStore == nullptr) {
         return false;
     }
 
     ensureBaseDirectoryExists();
 
-    saveUsers(server->getUsersMap());
-    saveBooks(server->getBooksMap());
-    saveAuthors(server->getAuthorsMap());
-    saveLibraries(server->getLibrariesMap());
-    saveShelves(server->getShelvesMap());
-    saveReviews(server->getReviewsMap());
-    saveCarts(server->getCartsMap());
-    saveNotifications(server->getNotificationsMap());
-    saveWallets(server->getWalletsMap());
-    saveTransactions(server->getTransactionsMap());
-    savePurchases(server->getPurchasesMap());
+    saveUsers(dataStore->getUsersMap());
+    saveBooks(dataStore->getBooksMap());
+    saveAuthors(dataStore->getAuthorsMap());
+    saveLibraries(dataStore->getLibrariesMap());
+    saveShelves(dataStore->getShelvesMap());
+    saveReviews(dataStore->getReviewsMap());
+    saveCarts(dataStore->getCartsMap());
+    saveNotifications(dataStore->getNotificationsMap());
+    saveWallets(dataStore->getWalletsMap());
+    saveTransactions(dataStore->getTransactionsMap());
+    savePurchases(dataStore->getPurchasesMap());
 
     return true;
 }
 
-bool FileManager::loadAllData(ServerCore *server) {
-    if (server == nullptr) {
+bool FileManager::loadAllData(ServerDataStore *dataStore) {
+    if (dataStore == nullptr) {
         return false;
     }
 
     ensureBaseDirectoryExists();
 
-    loadUsers(server->getUsersMap());
-    loadBooks(server->getBooksMap());
-    loadAuthors(server->getAuthorsMap());
-    loadLibraries(server->getLibrariesMap());
-    loadShelves(server->getShelvesMap());
-    loadReviews(server->getReviewsMap());
-    loadCarts(server->getCartsMap());
-    loadNotifications(server->getNotificationsMap());
-    loadWallets(server->getWalletsMap());
-    loadTransactions(server->getTransactionsMap());
-    loadPurchases(server->getPurchasesMap());
+    loadUsers(dataStore->getUsersMap());
+    loadBooks(dataStore->getBooksMap());
+    loadAuthors(dataStore->getAuthorsMap());
+    loadLibraries(dataStore->getLibrariesMap());
+    loadShelves(dataStore->getShelvesMap());
+    loadReviews(dataStore->getReviewsMap());
+    loadCarts(dataStore->getCartsMap());
+    loadNotifications(dataStore->getNotificationsMap());
+    loadWallets(dataStore->getWalletsMap());
+    loadTransactions(dataStore->getTransactionsMap());
+    loadPurchases(dataStore->getPurchasesMap());
 
     return true;
 }
@@ -78,6 +78,9 @@ void FileManager::saveUsers(QMap<quint64, User *> &users) {
     QList<quint64> keys = users.keys();
     for (int i = 0; i < keys.size(); i++) {
         User *user = users.value(keys.at(i));
+        if (user == nullptr) {
+            continue;
+        }
         out << user->serialize() << "\n";
     }
 
@@ -110,6 +113,10 @@ void FileManager::loadUsers(QMap<quint64, User *> &users) {
         }
 
         user->deserialize(line);
+        BaseEntity::registerExistingId(user->getId());
+        if (users.contains(user->getId())) {
+            delete users.value(user->getId());
+        }
         users.insert(user->getId(), user);
     }
 
@@ -126,6 +133,9 @@ void FileManager::saveBooks(QMap<quint64, Book *> &books) {
     QList<quint64> keys = books.keys();
     for (int i = 0; i < keys.size(); i++) {
         Book *book = books.value(keys.at(i));
+        if (book == nullptr) {
+            continue;
+        }
         out << book->serialize() << "\n";
     }
 
@@ -147,6 +157,10 @@ void FileManager::loadBooks(QMap<quint64, Book *> &books) {
 
         Book *book = new Book();
         book->deserialize(line);
+        BaseEntity::registerExistingId(book->getId());
+        if (books.contains(book->getId())) {
+            delete books.value(book->getId());
+        }
         books.insert(book->getId(), book);
     }
 
@@ -163,6 +177,9 @@ void FileManager::saveAuthors(QMap<quint64, Author *> &authors) {
     QList<quint64> keys = authors.keys();
     for (int i = 0; i < keys.size(); i++) {
         Author *author = authors.value(keys.at(i));
+        if (author == nullptr) {
+            continue;
+        }
         out << author->serialize() << "\n";
     }
 
@@ -184,6 +201,10 @@ void FileManager::loadAuthors(QMap<quint64, Author *> &authors) {
 
         Author *author = new Author();
         author->deserialize(line);
+        BaseEntity::registerExistingId(author->getId());
+        if (authors.contains(author->getId())) {
+            delete authors.value(author->getId());
+        }
         authors.insert(author->getId(), author);
     }
 
@@ -200,6 +221,9 @@ void FileManager::saveLibraries(QMap<quint64, Library *> &libraries) {
     QList<quint64> keys = libraries.keys();
     for (int i = 0; i < keys.size(); i++) {
         Library *library = libraries.value(keys.at(i));
+        if (library == nullptr) {
+            continue;
+        }
         out << library->serialize() << "\n";
     }
 
@@ -221,6 +245,10 @@ void FileManager::loadLibraries(QMap<quint64, Library *> &libraries) {
 
         Library *library = new Library();
         library->deserialize(line);
+        BaseEntity::registerExistingId(library->getId());
+        if (libraries.contains(library->getId())) {
+            delete libraries.value(library->getId());
+        }
         libraries.insert(library->getId(), library);
     }
 
@@ -237,6 +265,9 @@ void FileManager::saveShelves(QMap<quint64, Shelf *> &shelves) {
     QList<quint64> keys = shelves.keys();
     for (int i = 0; i < keys.size(); i++) {
         Shelf *shelf = shelves.value(keys.at(i));
+        if (shelf == nullptr) {
+            continue;
+        }
         out << shelf->serialize() << "\n";
     }
 
@@ -258,6 +289,10 @@ void FileManager::loadShelves(QMap<quint64, Shelf *> &shelves) {
 
         Shelf *shelf = new Shelf();
         shelf->deserialize(line);
+        BaseEntity::registerExistingId(shelf->getId());
+        if (shelves.contains(shelf->getId())) {
+            delete shelves.value(shelf->getId());
+        }
         shelves.insert(shelf->getId(), shelf);
     }
 
@@ -274,6 +309,9 @@ void FileManager::saveReviews(QMap<quint64, Review *> &reviews) {
     QList<quint64> keys = reviews.keys();
     for (int i = 0; i < keys.size(); i++) {
         Review *review = reviews.value(keys.at(i));
+        if (review == nullptr) {
+            continue;
+        }
         out << review->serialize() << "\n";
     }
 
@@ -295,6 +333,10 @@ void FileManager::loadReviews(QMap<quint64, Review *> &reviews) {
 
         Review *review = new Review();
         review->deserialize(line);
+        BaseEntity::registerExistingId(review->getId());
+        if (reviews.contains(review->getId())) {
+            delete reviews.value(review->getId());
+        }
         reviews.insert(review->getId(), review);
     }
 
@@ -311,6 +353,9 @@ void FileManager::saveCarts(QMap<quint64, Cart *> &carts) {
     QList<quint64> keys = carts.keys();
     for (int i = 0; i < keys.size(); i++) {
         Cart *cart = carts.value(keys.at(i));
+        if (cart == nullptr) {
+            continue;
+        }
         out << cart->serialize() << "\n";
     }
 
@@ -332,6 +377,10 @@ void FileManager::loadCarts(QMap<quint64, Cart *> &carts) {
 
         Cart *cart = new Cart();
         cart->deserialize(line);
+        BaseEntity::registerExistingId(cart->getId());
+        if (carts.contains(cart->getId())) {
+            delete carts.value(cart->getId());
+        }
         carts.insert(cart->getId(), cart);
     }
 
@@ -348,6 +397,9 @@ void FileManager::saveNotifications(QMap<quint64, Notification *> &notifications
     QList<quint64> keys = notifications.keys();
     for (int i = 0; i < keys.size(); i++) {
         Notification *notification = notifications.value(keys.at(i));
+        if (notification == nullptr) {
+            continue;
+        }
         out << notification->serialize() << "\n";
     }
 
@@ -369,6 +421,10 @@ void FileManager::loadNotifications(QMap<quint64, Notification *> &notifications
 
         Notification *notification = new Notification();
         notification->deserialize(line);
+        BaseEntity::registerExistingId(notification->getId());
+        if (notifications.contains(notification->getId())) {
+            delete notifications.value(notification->getId());
+        }
         notifications.insert(notification->getId(), notification);
     }
 
@@ -385,6 +441,9 @@ void FileManager::saveWallets(QMap<quint64, Wallet *> &wallets) {
     QList<quint64> keys = wallets.keys();
     for (int i = 0; i < keys.size(); i++) {
         Wallet *wallet = wallets.value(keys.at(i));
+        if (wallet == nullptr) {
+            continue;
+        }
         out << wallet->serialize() << "\n";
     }
 
@@ -406,6 +465,10 @@ void FileManager::loadWallets(QMap<quint64, Wallet *> &wallets) {
 
         Wallet *wallet = new Wallet();
         wallet->deserialize(line);
+        BaseEntity::registerExistingId(wallet->getId());
+        if (wallets.contains(wallet->getId())) {
+            delete wallets.value(wallet->getId());
+        }
         wallets.insert(wallet->getId(), wallet);
     }
 
@@ -422,6 +485,9 @@ void FileManager::saveTransactions(QMap<quint64, Transaction *> &transactions) {
     QList<quint64> keys = transactions.keys();
     for (int i = 0; i < keys.size(); i++) {
         Transaction *transaction = transactions.value(keys.at(i));
+        if (transaction == nullptr) {
+            continue;
+        }
         out << transaction->serialize() << "\n";
     }
 
@@ -443,6 +509,10 @@ void FileManager::loadTransactions(QMap<quint64, Transaction *> &transactions) {
 
         Transaction *transaction = new Transaction();
         transaction->deserialize(line);
+        BaseEntity::registerExistingId(transaction->getId());
+        if (transactions.contains(transaction->getId())) {
+            delete transactions.value(transaction->getId());
+        }
         transactions.insert(transaction->getId(), transaction);
     }
 
@@ -459,6 +529,9 @@ void FileManager::savePurchases(QMap<quint64, Purchase *> &purchases) {
     QList<quint64> keys = purchases.keys();
     for (int i = 0; i < keys.size(); i++) {
         Purchase *purchase = purchases.value(keys.at(i));
+        if (purchase == nullptr) {
+            continue;
+        }
         out << purchase->serialize() << "\n";
     }
 
@@ -480,6 +553,10 @@ void FileManager::loadPurchases(QMap<quint64, Purchase *> &purchases) {
 
         Purchase *purchase = new Purchase();
         purchase->deserialize(line);
+        BaseEntity::registerExistingId(purchase->getId());
+        if (purchases.contains(purchase->getId())) {
+            delete purchases.value(purchase->getId());
+        }
         purchases.insert(purchase->getId(), purchase);
     }
 
