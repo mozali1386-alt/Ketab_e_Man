@@ -6,7 +6,7 @@
 
 #include "BaseEntity.h"
 #include <QString>
-#include <QVector>
+#include <QSet>
 
 class Author : public BaseEntity {
 public:
@@ -18,7 +18,7 @@ public:
 
     QString getBiography() const;
 
-    QVector<quint64> getBookIds() const;
+    QSet<quint64> getBookIds() const;
 
     void setFullName(const QString &newFullName);
 
@@ -37,7 +37,7 @@ public:
 private:
     QString fullName;
     QString biography;
-    QVector<quint64> bookIds;
+    QSet<quint64> bookIds;
 };
 
 #endif
