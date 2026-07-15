@@ -18,15 +18,15 @@
 #include "../../shared/Transaction.h"
 #include "../../shared/Purchase.h"
 
-class ServerCore;
+class ServerDataStore;
 
 class FileManager {
 public:
     FileManager();
 
-    bool saveAllData(ServerCore *server);
+    bool saveAllData(ServerDataStore *dataStore);
 
-    bool loadAllData(ServerCore *server);
+    bool loadAllData(ServerDataStore *dataStore);
 
 private:
     QString baseDirectory;
