@@ -60,13 +60,13 @@ void signinwindow::on_pushButton_Confirm_clicked()
 
     QMainWindow *dash = nullptr;
     //بعدا که سرور درست شد باید جواب سرور را به جای role قرار دهیم
-    if (role == "Admin")
+    if (role == "ADMIN")
         dash = new Admindashboard();
 
-    else if (role == "Normaluser")
+    else if (role == "NORMALUSER")
         dash = new UserDashboard();
 
-    else if (role == "Publisher")
+    else if (role == "PUBLISHER")
         dash = new Publisherdashboard();
 
     dash->show();

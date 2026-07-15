@@ -97,14 +97,14 @@ void Usersignupwindow::on_pushButton_confirm_clicked()
         return;
     }
     QStringList englishgenre = {
-        "Romance", // آیتم 0: عاشقانه
-        "Crime",   // آیتم 1: جنایی
-        "SciFi",   // آیتم 2: علمی تخیلی
-        "Horror",  // آیتم 3: ترسناک
-        "Classic", // آیتم 4: کلاسیک
-        "Art",     // آیتم 5: هنری
-        "Comedy",  // آیتم 6: طنز (تانس)
-        "History"  // آیتم 7: تاریخی
+        "ROMANCE", // آیتم 0: عاشقانه
+        "CRIME",   // آیتم 1: جنایی
+        "SCIFI",   // آیتم 2: علمی تخیلی
+        "HORROR",  // آیتم 3: ترسناک
+        "CLASSIC", // آیتم 4: کلاسیک
+        "ART",     // آیتم 5: هنری
+        "COMEDY",  // آیتم 6: طنز (تانس)
+        "HISTORY"  // آیتم 7: تاریخی
     };
 
     QStringList selectedGenres;
