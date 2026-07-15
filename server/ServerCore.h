@@ -14,7 +14,10 @@
 #include "database/FileManager.h"
 #include "logic/SearchEngine.h"
 #include "ServerStats.h"
+#include "ServerDataStore.h"
 #include "../shared/User.h"
+#include "../shared/NormalUser.h"
+#include "../shared/Admin.h"
 #include "../shared/Book.h"
 #include "../shared/Author.h"
 #include "../shared/Library.h"
@@ -22,9 +25,6 @@
 #include "../shared/Review.h"
 #include "../shared/Cart.h"
 #include "../shared/Notification.h"
-#include "../shared/Wallet.h"
-#include "../shared/Transaction.h"
-#include "../shared/Purchase.h"
 #include "../shared/Enums.h"
 
 class ServerCore : public QObject {
@@ -39,27 +39,7 @@ public:
 
     void stopServer();
 
-    QMap<quint64, User *> &getUsersMap();
-
-    QMap<quint64, Book *> &getBooksMap();
-
-    QMap<quint64, Author *> &getAuthorsMap();
-
-    QMap<quint64, Library *> &getLibrariesMap();
-
-    QMap<quint64, Shelf *> &getShelvesMap();
-
-    QMap<quint64, Review *> &getReviewsMap();
-
-    QMap<quint64, Cart *> &getCartsMap();
-
-    QMap<quint64, Notification *> &getNotificationsMap();
-
-    QMap<quint64, Wallet *> &getWalletsMap();
-
-    QMap<quint64, Transaction *> &getTransactionsMap();
-
-    QMap<quint64, Purchase *> &getPurchasesMap();
+    ServerDataStore &getDataStore();
 
     int getConnectedClientCount() const;
 
@@ -81,23 +61,12 @@ private:
     ServerNetwork *network;
     QSet<ClientHandler *> connectedClients;
     QMap<quint64, ClientHandler *> loggedInClients;
-    QMutex dataMutex;
+    mutable QMutex dataMutex;
 
     FileManager fileManager;
     SearchEngine searchEngine;
     ServerStats stats;
-
-    QMap<quint64, User *> users;
-    QMap<quint64, Book *> books;
-    QMap<quint64, Author *> authors;
-    QMap<quint64, Library *> libraries;
-    QMap<quint64, Shelf *> shelves;
-    QMap<quint64, Review *> reviews;
-    QMap<quint64, Cart *> carts;
-    QMap<quint64, Notification *> notifications;
-    QMap<quint64, Wallet *> wallets;
-    QMap<quint64, Transaction *> transactions;
-    QMap<quint64, Purchase *> purchases;
+    ServerDataStore data;
 
     void handleRequest(ClientHandler *handler, int commandId, const QString &payload);
 
@@ -152,6 +121,22 @@ private:
     Cart *findOrCreateCartForUser(quint64 userId);
 
     ClientHandler *findClientHandlerByUserId(quint64 userId);
+
+    bool splitPayloadOrFail(ClientHandler *handler, const QString &payload, int minParts, QStringList &outParts);
+
+    bool parseGenre(const QString &text, Genre &out);
+
+    bool parseDouble(const QString &text, double &out);
+
+    quint64 requireAuthentication(ClientHandler *handler);
+
+    Admin *requireAdmin(quint64 userId, ClientHandler *handler);
+
+    NormalUser *requireNormalUser(quint64 userId, ClientHandler *handler);
+
+    Library *requireUserLibrary(quint64 userId, ClientHandler *handler);
+
+    Book *requireOwnedBook(quint64 bookId, quint64 userId, ClientHandler *handler);
 
     void sendNotificationToUser(quint64 userId, NotificationType type, const QString &message);
 
