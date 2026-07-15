@@ -43,3 +43,9 @@ quint64 BaseEntity::generateId() {
     idCounter = idCounter + 1;
     return newId;
 }
+
+void BaseEntity::registerExistingId(quint64 existingId) {
+    if (existingId >= idCounter) {
+        idCounter = existingId + 1;
+    }
+}
