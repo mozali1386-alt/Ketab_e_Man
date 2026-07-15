@@ -144,8 +144,15 @@ void User::addNotification(quint64 notifId) {
     touchUpdatedAt();
 }
 
-int User::getUnreadNotificationCount() const {
-    return notificationIds.size();
+int User::getUnreadNotificationCount(const QMap<quint64, Notification *> &allNotifications) const {
+    int unreadCount = 0;
+    for (quint64 notifId: notificationIds) {
+        Notification *notif = allNotifications.value(notifId, nullptr);
+        if (notif != nullptr && !notif->getIsRead()) {
+            unreadCount++;
+        }
+    }
+    return unreadCount;
 }
 
 QString User::serializeUserFields() const {
@@ -160,8 +167,8 @@ QString User::serializeUserFields() const {
     }
 
     QString safeFullName = fullName;
+    safeFullName.replace("&pipe;", "&amp;pipe;");
     safeFullName.replace("|", "&pipe;");
-
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
@@ -196,7 +203,7 @@ int User::deserializeUserFields(const QStringList &tokens, int startIndex) {
     fullName = tokens.at(index);
     index++;
     fullName.replace("&pipe;", "|");
-
+    fullName.replace("&amp;pipe;", "&pipe;");
     username = tokens.at(index);
     index++;
     email = tokens.at(index);
