@@ -167,3 +167,128 @@ User *ServerCore::findUserByUsername(const QString &username) {
     }
     return nullptr;
 }
+
+Cart *ServerCore::findOrCreateCartForUser(quint64 userId) {
+    QList<quint64> keys = data.getCartsMap().keys();
+    for (int i = 0; i < keys.size(); i++) {
+        Cart *cart = data.getCartsMap().value(keys.at(i));
+        if (cart->getOwnerId() == userId) {
+            return cart;
+        }
+    }
+
+    Cart *newCart = new Cart();
+    newCart->assignNewId();
+    newCart->setOwnerId(userId);
+    data.getCartsMap().insert(newCart->getId(), newCart);
+    return newCart;
+}
+
+ClientHandler *ServerCore::findClientHandlerByUserId(quint64 userId) {
+    dataMutex.lock();
+    ClientHandler *handler = loggedInClients.value(userId, nullptr);
+    dataMutex.unlock();
+    return handler;
+}
+
+bool ServerCore::splitPayloadOrFail(ClientHandler *handler, const QString &payload, int minParts,
+                                    QStringList &outParts) {
+    outParts = payload.split("|");
+    if (outParts.size() < minParts) {
+        handler->sendResponse(RES_FAIL, "Invalid data");
+        return false;
+    }
+    return true;
+}
+
+bool ServerCore::parseGenre(const QString &text, Genre &out) {
+    bool ok = false;
+    int value = text.toInt(&ok);
+    if (!ok || value < static_cast<int>(Genre::FICTION) || value > static_cast<int>(Genre::TECH)) {
+        return false;
+    }
+    out = static_cast<Genre>(value);
+    return true;
+}
+
+bool ServerCore::parseDouble(const QString &text, double &out) {
+    bool ok = false;
+    out = text.toDouble(&ok);
+    return ok;
+}
+
+quint64 ServerCore::requireAuthentication(ClientHandler *handler) {
+    if (!handler->isAuthenticated()) {
+        handler->sendResponse(RES_FAIL, "Not authenticated");
+        return 0;
+    }
+    return handler->getUserId();
+}
+
+Admin *ServerCore::requireAdmin(quint64 userId, ClientHandler *handler) {
+    User *user = data.getUsersMap().value(userId, nullptr);
+    if (user == nullptr || user->getRole() != Role::ADMIN) {
+        handler->sendResponse(RES_FAIL, "Not authorized");
+        return nullptr;
+    }
+    return static_cast<Admin *>(user);
+}
+
+NormalUser *ServerCore::requireNormalUser(quint64 userId, ClientHandler *handler) {
+    User *user = data.getUsersMap().value(userId, nullptr);
+    if (user == nullptr || user->getRole() != Role::USER) {
+        handler->sendResponse(RES_FAIL, "Not authorized");
+        return nullptr;
+    }
+    return static_cast<NormalUser *>(user);
+}
+
+Library *ServerCore::requireUserLibrary(quint64 userId, ClientHandler *handler) {
+    NormalUser *normalUser = requireNormalUser(userId, handler);
+    if (normalUser == nullptr) {
+        return nullptr;
+    }
+
+    Library *library = data.getLibrariesMap().value(normalUser->getLibraryId(), nullptr);
+    if (library == nullptr) {
+        handler->sendResponse(RES_FAIL, "Library not found");
+        return nullptr;
+    }
+    return library;
+}
+
+Book *ServerCore::requireOwnedBook(quint64 bookId, quint64 userId, ClientHandler *handler) {
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr || book->getPublisherId() != userId) {
+        handler->sendResponse(RES_FAIL, "Not authorized");
+        return nullptr;
+    }
+
+    User *publisherUser = data.getUsersMap().value(userId, nullptr);
+    if (publisherUser == nullptr || publisherUser->getRole() != Role::PUBLISHER) {
+        handler->sendResponse(RES_FAIL, "Not authorized");
+        return nullptr;
+    }
+
+    return book;
+}
+
+void ServerCore::sendNotificationToUser(quint64 userId, NotificationType type, const QString &message) {
+    Notification *notification = new Notification();
+    notification->assignNewId();
+    notification->setRecipientId(userId);
+    notification->setMessage(message);
+    notification->setType(type);
+    data.getNotificationsMap().insert(notification->getId(), notification);
+
+    User *user = data.getUsersMap().value(userId, nullptr);
+    if (user != nullptr) {
+        user->addNotification(notification->getId());
+    }
+
+    ClientHandler *targetHandler = findClientHandlerByUserId(userId);
+    if (targetHandler != nullptr) {
+        QString payload = QString::number(static_cast<int>(type)) + "|" + message;
+        targetHandler->sendResponse(NOTIFY_NEW_EVENT, payload);
+    }
+}
