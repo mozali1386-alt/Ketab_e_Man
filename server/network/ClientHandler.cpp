@@ -9,17 +9,18 @@ ClientHandler::ClientHandler(qintptr socketDescriptor, QObject *parent) : QObjec
     userId = 0;
 
     socket = new QTcpSocket(this);
-    socket->setSocketDescriptor(socketDescriptor);
+
+    if (!socket->setSocketDescriptor(socketDescriptor)) {
+        deleteLater();
+        return;
+    }
 
     connect(socket, &QTcpSocket::readyRead, this, &ClientHandler::onReadyRead);
     connect(socket, &QTcpSocket::disconnected, this, &ClientHandler::onDisconnected);
+    connect(socket, &QTcpSocket::errorOccurred, this, &ClientHandler::onSocketError);
 }
 
 ClientHandler::~ClientHandler() {
-    if (socket != nullptr) {
-        socket->deleteLater();
-        socket = nullptr;
-    }
 }
 
 void ClientHandler::onReadyRead() {
@@ -32,6 +33,11 @@ void ClientHandler::onReadyRead() {
                 return;
             }
             in >> blockSize;
+
+            if (blockSize > MAX_BLOCK_SIZE) {
+                socket->disconnectFromHost();
+                return;
+            }
         }
 
         if (socket->bytesAvailable() < (qint64) blockSize) {
@@ -43,6 +49,11 @@ void ClientHandler::onReadyRead() {
         in >> commandId;
         in >> payload;
 
+        if (in.status() != QDataStream::Ok) {
+            socket->disconnectFromHost();
+            return;
+        }
+
         blockSize = 0;
 
         emit requestReceived(this, commandId, payload);
@@ -53,7 +64,16 @@ void ClientHandler::onDisconnected() {
     emit clientDisconnected(this);
 }
 
+void ClientHandler::onSocketError(QAbstractSocket::SocketError socketError) {
+    Q_UNUSED(socketError);
+    socket->abort();
+}
+
 void ClientHandler::sendResponse(int commandId, const QString &payload) {
+    if (socket == nullptr || socket->state() != QAbstractSocket::ConnectedState) {
+        return;
+    }
+
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_10);
