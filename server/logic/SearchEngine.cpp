@@ -14,13 +14,15 @@ SearchEngine::~SearchEngine() {
 
 void SearchEngine::buildIndexes(const QMap<quint64, Book *> &books) {
     QList<quint64> keys = books.keys();
-    for (quint64 key : keys) {
-        Book *book = books.value(key);
-        addBookToIndex(book);
+    for (int i = 0; i < keys.size(); i++) {
+        Book *book = books.value(keys.at(i));
+        if (book != nullptr && book->getIsActive()) {
+            addBookToIndex(book);
+        }
     }
 }
 
-void SearchEngine::addBookToIndex(const Book *book) {
+void SearchEngine::addBookToIndex(Book *book) {
     if (book == nullptr) {
         return;
     }
@@ -63,7 +65,7 @@ void SearchEngine::removeBookFromIndex(quint64 bookId) {
     bookPublisherLookup.remove(bookId);
 }
 
-QSet<quint64> SearchEngine::searchByTitle(const QString &prefix) const {
+QSet<quint64> SearchEngine::searchByTitle(const QString &prefix) {
     return titleTrieRoot->searchPrefix(prefix.toLower());
 }
 
@@ -71,7 +73,7 @@ QSet<quint64> SearchEngine::searchByAuthor(quint64 authorId) {
     return authorIndex.value(authorId);
 }
 
-QSet<quint64> SearchEngine::searchByPublisher(quint64 publisherId) const {
+QSet<quint64> SearchEngine::searchByPublisher(quint64 publisherId) {
     return publisherIndex.value(publisherId);
 }
 

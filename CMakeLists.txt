@@ -52,8 +52,6 @@ set(SHARED_HEADERS
 )
 
 add_executable(Ketab_e_Man_Server
-        server/main.cpp
-        server/ServerCore.cpp
         server/ServerCore.h
         server/ServerStats.cpp
         server/ServerStats.h
@@ -67,8 +65,6 @@ add_executable(Ketab_e_Man_Server
         server/logic/SearchEngine.h
         server/logic/TrieNode.cpp
         server/logic/TrieNode.h
-        server/gui/ServerDashboard.cpp
-        server/gui/ServerDashboard.h
         server/gui/ServerLogModel.cpp
         server/gui/ServerLogModel.h
         ${SHARED_SOURCES}

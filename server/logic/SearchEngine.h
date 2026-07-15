@@ -18,15 +18,15 @@ public:
 
     void buildIndexes(const QMap<quint64, Book *> &books);
 
-    void addBookToIndex(const Book *book);
+    void addBookToIndex(Book *book);
 
     void removeBookFromIndex(quint64 bookId);
 
-    QSet<quint64> searchByTitle(const QString &prefix) const;
+    QSet<quint64> searchByTitle(const QString &prefix);
 
     QSet<quint64> searchByAuthor(quint64 authorId);
 
-    QSet<quint64> searchByPublisher(quint64 publisherId) const;
+    QSet<quint64> searchByPublisher(quint64 publisherId);
 
     QSet<quint64> filterByGenre(Genre genre);
 
