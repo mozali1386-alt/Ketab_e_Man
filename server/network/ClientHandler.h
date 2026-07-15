@@ -34,10 +34,13 @@ private slots:
 
     void onDisconnected();
 
+    void onSocketError(QAbstractSocket::SocketError socketError);
+
 private:
     QTcpSocket *socket;
     quint32 blockSize;
     quint64 userId;
+    static const quint32 MAX_BLOCK_SIZE = 10485760;
 };
 
 #endif
