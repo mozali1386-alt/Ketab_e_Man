@@ -98,3 +98,98 @@ void ServerCore::handleForgotPasswordRequest(ClientHandler *handler, const QStri
     handler->sendResponse(RES_SUCCESS, user->getSecurityQuestion());
 }
 
+void ServerCore::handleResetPasswordRequest(ClientHandler *handler, const QString &payload) {
+    QStringList parts;
+    if (!splitPayloadOrFail(handler, payload, 4, parts)) {
+        return;
+    }
+
+    User *user = findUserByUsername(parts.at(0));
+    if (user == nullptr) {
+        handler->sendResponse(RES_FAIL, "User not found");
+        return;
+    }
+
+    if (user->resetPassword(parts.at(1), parts.at(2), parts.at(3))) {
+        handler->sendResponse(RES_SUCCESS, "Password reset");
+    } else {
+        handler->sendResponse(RES_FAIL, "Incorrect security answer");
+    }
+}
+
+void ServerCore::handleLogoutRequest(ClientHandler *handler, const QString &payload) {
+    Q_UNUSED(payload);
+
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    loggedInClients.remove(userId);
+    handler->setUserId(0);
+    handler->sendResponse(RES_SUCCESS, "Logged out");
+}
+
+void ServerCore::handleSetFavoriteGenresRequest(ClientHandler *handler, const QString &payload) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    NormalUser *normalUser = requireNormalUser(userId, handler);
+    if (normalUser == nullptr) {
+        return;
+    }
+
+    QStringList genreParts = payload.split(",");
+    for (int i = 0; i < genreParts.size(); i++) {
+        Genre genre;
+        if (parseGenre(genreParts.at(i), genre)) {
+            normalUser->addFavoriteGenre(genre);
+        }
+    }
+
+    handler->sendResponse(RES_SUCCESS, "Favorite genres updated");
+}
+
+void ServerCore::handleBlockUserRequest(ClientHandler *handler, const QString &payload) {
+    quint64 adminId = requireAuthentication(handler);
+    if (adminId == 0) {
+        return;
+    }
+
+    Admin *admin = requireAdmin(adminId, handler);
+    if (admin == nullptr) {
+        return;
+    }
+
+    User *target = data.getUsersMap().value(payload.toULongLong(), nullptr);
+    if (target == nullptr) {
+        handler->sendResponse(RES_FAIL, "User not found");
+        return;
+    }
+
+    admin->blockUser(target);
+    handler->sendResponse(RES_SUCCESS, "User blocked");
+}
+
+void ServerCore::handleUnblockUserRequest(ClientHandler *handler, const QString &payload) {
+    quint64 adminId = requireAuthentication(handler);
+    if (adminId == 0) {
+        return;
+    }
+
+    Admin *admin = requireAdmin(adminId, handler);
+    if (admin == nullptr) {
+        return;
+    }
+
+    User *target = data.getUsersMap().value(payload.toULongLong(), nullptr);
+    if (target == nullptr) {
+        handler->sendResponse(RES_FAIL, "User not found");
+        return;
+    }
+
+    admin->unblockUser(target);
+    handler->sendResponse(RES_SUCCESS, "User unblocked");
+}
