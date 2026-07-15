@@ -63,8 +63,8 @@ quint64 Review::generateId() {
 
 QString Review::serialize() const {
     QString safeText = text;
+    safeText.replace("&pipe;", "&amp;pipe;");
     safeText.replace("|", "&pipe;");
-
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
@@ -95,7 +95,7 @@ void Review::deserialize(const QString &data) {
     text = tokens.at(index);
     index++;
     text.replace("&pipe;", "|");
-
+    text.replace("&amp;pipe;", "&pipe;");
     stars = tokens.at(index).toInt();
     index++;
 }

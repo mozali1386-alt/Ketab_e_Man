@@ -20,7 +20,7 @@ QString Author::getBiography() const {
     return biography;
 }
 
-QVector<quint64> Author::getBookIds() const {
+QSet<quint64> Author::getBookIds() const {
     return bookIds;
 }
 
@@ -35,17 +35,12 @@ void Author::setBiography(const QString &bio) {
 }
 
 void Author::addBook(quint64 bookId) {
-    bookIds.append(bookId);
+    bookIds.insert(bookId);
     touchUpdatedAt();
 }
 
 void Author::removeBook(quint64 bookId) {
-    for (int i = 0; i < bookIds.size(); i++) {
-        if (bookIds.at(i) == bookId) {
-            bookIds.remove(i);
-            break;
-        }
-    }
+    bookIds.remove(bookId);
     touchUpdatedAt();
 }
 
@@ -55,16 +50,16 @@ quint64 Author::generateId() {
 
 QString Author::serialize() const {
     QStringList bookList;
-    for (int i = 0; i < bookIds.size(); i++) {
-        bookList.append(QString::number(bookIds.at(i)));
+    for (quint64 bookId: bookIds) {
+        bookList.append(QString::number(bookId));
     }
 
     QString safeName = fullName;
+    safeName.replace("&pipe;", "&amp;pipe;");
     safeName.replace("|", "&pipe;");
-
     QString safeBio = biography;
+    safeBio.replace("&pipe;", "&amp;pipe;");
     safeBio.replace("|", "&pipe;");
-
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
@@ -90,18 +85,18 @@ void Author::deserialize(const QString &data) {
     fullName = tokens.at(index);
     index++;
     fullName.replace("&pipe;", "|");
-
+    fullName.replace("&amp;pipe;", "&pipe;");
     biography = tokens.at(index);
     index++;
     biography.replace("&pipe;", "|");
-
+    biography.replace("&amp;pipe;", "&pipe;");
     bookIds.clear();
     QString bookToken = tokens.at(index);
     index++;
     if (bookToken.length() > 0) {
         QStringList parts = bookToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            bookIds.append(parts.at(i).toULongLong());
+            bookIds.insert(parts.at(i).toULongLong());
         }
     }
 }

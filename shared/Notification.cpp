@@ -56,8 +56,8 @@ quint64 Notification::generateId() {
 
 QString Notification::serialize() const {
     QString safeMessage = message;
+    safeMessage.replace("&pipe;", "&amp;pipe;");
     safeMessage.replace("|", "&pipe;");
-
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
@@ -86,7 +86,7 @@ void Notification::deserialize(const QString &data) {
     message = tokens.at(index);
     index++;
     message.replace("&pipe;", "|");
-
+    message.replace("&amp;pipe;", "&pipe;");
     type = static_cast<NotificationType>(tokens.at(index).toInt());
     index++;
     isRead = (tokens.at(index) == "1");
