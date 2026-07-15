@@ -6,8 +6,10 @@
 
 #include "BaseEntity.h"
 #include "Enums.h"
+#include "Notification.h"
 #include <QString>
 #include <QSet>
+#include <QMap>
 
 class User : public BaseEntity {
 public:
@@ -61,7 +63,7 @@ public:
 
     void addNotification(quint64 notifId);
 
-    int getUnreadNotificationCount() const;
+    int getUnreadNotificationCount(const QMap<quint64, Notification *> &allNotifications) const;
 
 protected:
     Role role;

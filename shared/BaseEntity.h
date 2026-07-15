@@ -27,6 +27,8 @@ public:
 
     static quint64 generateId();
 
+    static void registerExistingId(quint64 existingId);
+
 protected:
     quint64 id;
     QDateTime createdAt;

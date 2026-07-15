@@ -65,7 +65,7 @@ bool Book::getIsActive() const {
     return isActive;
 }
 
-QVector<quint64> Book::getReviewIds() const {
+QSet<quint64> Book::getReviewIds() const {
     return reviewIds;
 }
 
@@ -168,17 +168,17 @@ QString Book::serialize() const {
     }
 
     QString safeTitle = title;
+    safeTitle.replace("&pipe;", "&amp;pipe;");
     safeTitle.replace("|", "&pipe;");
-
     QString safeDescription = description;
+    safeDescription.replace("&pipe;", "&amp;pipe;");
     safeDescription.replace("|", "&pipe;");
-
     QString safeCoverPath = coverImagePath;
+    safeCoverPath.replace("&pipe;", "&amp;pipe;");
     safeCoverPath.replace("|", "&pipe;");
-
     QString safePdfPath = pdfFilePath;
+    safePdfPath.replace("&pipe;", "&amp;pipe;");
     safePdfPath.replace("|", "&pipe;");
-
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
@@ -213,7 +213,7 @@ void Book::deserialize(const QString &data) {
     title = tokens.at(index);
     index++;
     title.replace("&pipe;", "|");
-
+    title.replace("&amp;pipe;", "&pipe;");
     authorId = tokens.at(index).toULongLong();
     index++;
     publisherId = tokens.at(index).toULongLong();
@@ -224,7 +224,7 @@ void Book::deserialize(const QString &data) {
     description = tokens.at(index);
     index++;
     description.replace("&pipe;", "|");
-
+    description.replace("&amp;pipe;", "&pipe;");
     price = tokens.at(index).toDouble();
     index++;
     discountPercent = tokens.at(index).toDouble();
@@ -233,11 +233,11 @@ void Book::deserialize(const QString &data) {
     coverImagePath = tokens.at(index);
     index++;
     coverImagePath.replace("&pipe;", "|");
-
+    coverImagePath.replace("&amp;pipe;", "&pipe;");
     pdfFilePath = tokens.at(index);
     index++;
     pdfFilePath.replace("&pipe;", "|");
-
+    pdfFilePath.replace("&amp;pipe;", "&pipe;");
     salesCount = tokens.at(index).toInt();
     index++;
     isActive = (tokens.at(index) == "1");

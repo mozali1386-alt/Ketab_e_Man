@@ -5,7 +5,7 @@
 #define PURCHASE_H
 
 #include "BaseEntity.h"
-#include <QVector>
+#include <QSet>
 
 class Purchase : public BaseEntity {
 public:
@@ -15,7 +15,7 @@ public:
 
     quint64 getBuyerId() const;
 
-    QVector<quint64> getBookIds() const;
+    QSet<quint64> getBookIds() const;
 
     double getTotalAmount() const;
 
@@ -23,7 +23,7 @@ public:
 
     void setBuyerId(quint64 newBuyerId);
 
-    void setBookIds(const QVector<quint64> &newBookIds);
+    void setBookIds(const QSet<quint64> &newBookIds);
 
     void setTotalAmount(double newTotalAmount);
 
@@ -35,7 +35,7 @@ public:
 
 private:
     quint64 buyerId;
-    QVector<quint64> bookIds;
+    QSet<quint64> bookIds;
     double totalAmount;
     QDateTime purchaseDate;
 };

@@ -16,7 +16,7 @@ quint64 NormalUser::getLibraryId() const {
     return libraryId;
 }
 
-QVector<Genre> NormalUser::getFavoriteGenres() const {
+QSet<Genre> NormalUser::getFavoriteGenres() const {
     return favoriteGenres;
 }
 
@@ -26,32 +26,20 @@ void NormalUser::setLibraryId(quint64 newLibraryId) {
 }
 
 void NormalUser::addFavoriteGenre(Genre genre) {
-    for (int i = 0; i < favoriteGenres.size(); i++) {
-        if (favoriteGenres.at(i) == genre) {
-            return;
-        }
+    if (favoriteGenres.contains(genre)) {
+        return;
     }
 
     if (favoriteGenres.size() >= 3) {
         return;
     }
 
-    favoriteGenres.append(genre);
+    favoriteGenres.insert(genre);
     touchUpdatedAt();
 }
 
 void NormalUser::removeFavoriteGenre(Genre genre) {
-    for (int i = 0; i < favoriteGenres.size(); i++) {
-        if (favoriteGenres.at(i) == genre) {
-            favoriteGenres.remove(i);
-            break;
-        }
-    }
-    touchUpdatedAt();
-}
-
-void NormalUser::purchaseBook(quint64 bookId) {
-    Q_UNUSED(bookId);
+    favoriteGenres.remove(genre);
     touchUpdatedAt();
 }
 
@@ -61,8 +49,8 @@ quint64 NormalUser::generateId() {
 
 QString NormalUser::serialize() const {
     QStringList genreList;
-    for (int i = 0; i < favoriteGenres.size(); i++) {
-        genreList.append(QString::number(static_cast<int>(favoriteGenres.at(i))));
+    for (Genre genre: favoriteGenres) {
+        genreList.append(QString::number(static_cast<int>(genre)));
     }
 
     QString result = serializeUserFields();
@@ -86,7 +74,7 @@ void NormalUser::deserialize(const QString &data) {
     if (genreToken.length() > 0) {
         QStringList parts = genreToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            favoriteGenres.append(static_cast<Genre>(parts.at(i).toInt()));
+            favoriteGenres.insert(static_cast<Genre>(parts.at(i).toInt()));
         }
     }
 }

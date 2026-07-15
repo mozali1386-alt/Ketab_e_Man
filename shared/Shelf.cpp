@@ -55,8 +55,8 @@ QString Shelf::serialize() const {
     }
 
     QString safeName = name;
+    safeName.replace("&pipe;", "&amp;pipe;");
     safeName.replace("|", "&pipe;");
-
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
@@ -82,7 +82,7 @@ void Shelf::deserialize(const QString &data) {
     name = tokens.at(index);
     index++;
     name.replace("&pipe;", "|");
-
+    name.replace("&amp;pipe;", "&pipe;");
     ownerId = tokens.at(index).toULongLong();
     index++;
 

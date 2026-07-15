@@ -6,7 +6,7 @@
 
 #include "User.h"
 #include "Enums.h"
-#include <QVector>
+#include <QSet>
 
 class NormalUser : public User {
 public:
@@ -16,15 +16,13 @@ public:
 
     quint64 getLibraryId() const;
 
-    QVector<Genre> getFavoriteGenres() const;
+    QSet<Genre> getFavoriteGenres() const;
 
     void setLibraryId(quint64 newLibraryId);
 
     void addFavoriteGenre(Genre genre);
 
     void removeFavoriteGenre(Genre genre);
-
-    void purchaseBook(quint64 bookId);
 
     static quint64 generateId();
 
@@ -34,7 +32,7 @@ public:
 
 private:
     quint64 libraryId;
-    QVector<Genre> favoriteGenres;
+    QSet<Genre> favoriteGenres;
 };
 
 #endif
