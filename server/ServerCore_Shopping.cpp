@@ -102,3 +102,68 @@ bool ServerCore::processPurchase(ClientHandler *handler, quint64 userId, const Q
     return true;
 }
 
+void ServerCore::handleBuyRequest(ClientHandler *handler, const QString &payload) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    QStringList bookIdStrings = payload.split(",");
+
+    QVector<quint64> bookIdList;
+    for (int i = 0; i < bookIdStrings.size(); i++) {
+        bookIdList.append(bookIdStrings.at(i).toULongLong());
+    }
+
+    processPurchase(handler, userId, bookIdList);
+}
+
+void ServerCore::handleAddToCartRequest(ClientHandler *handler, const QString &payload) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    Cart *cart = findOrCreateCartForUser(userId);
+    cart->addItem(payload.toULongLong());
+
+    handler->sendResponse(RES_SUCCESS, "Added to cart");
+}
+
+void ServerCore::handleRemoveFromCartRequest(ClientHandler *handler, const QString &payload) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    Cart *cart = findOrCreateCartForUser(userId);
+    cart->removeItem(payload.toULongLong());
+
+    handler->sendResponse(RES_SUCCESS, "Removed from cart");
+}
+
+void ServerCore::handleCheckoutCartRequest(ClientHandler *handler, const QString &payload) {
+    Q_UNUSED(payload);
+
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    Cart *cart = findOrCreateCartForUser(userId);
+    QSet<quint64> cartBookIds = cart->getBookIds();
+
+    if (cartBookIds.size() == 0) {
+        handler->sendResponse(RES_FAIL, "Cart is empty");
+        return;
+    }
+
+    QVector<quint64> bookIdList;
+    for (quint64 bookId: cartBookIds) {
+        bookIdList.append(bookId);
+    }
+
+    if (processPurchase(handler, userId, bookIdList)) {
+        cart->clear();
+    }
+}
