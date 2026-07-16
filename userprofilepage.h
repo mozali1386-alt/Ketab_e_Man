@@ -38,8 +38,6 @@ private:
     QString originalGenres;
     QMap<QString, QString> genreMap;
     void information(QString dataString);
-
-    QString originalDataString;
 };
 
 #endif // USERPROFILEPAGE_H

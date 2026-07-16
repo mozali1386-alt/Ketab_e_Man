@@ -6,8 +6,9 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSpinBox>
-#include <QTimer>
+#include <QStringList>
 #include <QVBoxLayout>
+#include "historycardwidget.h"
 #include "resetpassworddialog.h"
 #include "ui_userprofilepage.h"
 
@@ -31,9 +32,10 @@ Userprofilepage::Userprofilepage(QWidget *parent)
     genreMap["تاریخی"] = "HISTORY";
 
     //تست
+    //client->sendMessage("GET_DATA_USERPROFILE");
     //دزیافت اطلاعات سرور
-    QString dataString = "نام و نام خانوادگی || نام کاربری || ایمیل || ROMANCE";
-    QStringList parts = dataString.split("||");
+    QString dataString = "DATA_USERPROFILE||ALI||ALI1234||MOZ@GMA.CO||ROMANCE,SCIFI||1000||"
+                         "3||nbook,nauthor,price,date##nbook,nauthor,price,date";
     information(dataString);
 }
 
@@ -180,7 +182,6 @@ void Userprofilepage::on_pushButton_sabt_clicked()
         }
     }
 
-    // مرتب‌سازی و تبدیل به رشته برای مقایسه دقیق
     currentSelectedGenres.sort();
     QString currentGenresString = currentSelectedGenres.join(",");
 
@@ -190,6 +191,20 @@ void Userprofilepage::on_pushButton_sabt_clicked()
         // هیچ کدام تغییر نکرده‌اند؛ پس چیزی به سرور ارسال نمی‌کنیم
         return;
     }
+
+    // QString Message = QString("SIGNUP_NORMALU||%1||%2||%3||%4||%5")
+    //                       .arg(name, username, email, password, genresString);
+    // qDebug() << Message;
+
+    //client->sendMessage(Message);
+    // ===================
+    //جواب سرور
+    //====================
+    originalName = currentName;
+    originalEmail = currentEmail;
+    originalGenres = currentGenresString;
+
+    //بعد از موفق بودن جواب سرور داده ها را ذخیره می کنیم برای انصراف
 
     // اگر به اینجا رسیدیم یعنی حداقل یکی از موارد تغییر کرده است.
     // کدهای ارسال اطلاعات به سرور را در اینجا قرار دهید:
@@ -202,30 +217,51 @@ void Userprofilepage::on_pushButton_enseraf_clicked()
     ui->label_errorEmail->clear();
 
     // بازگردانی همه چیز به حالت اول با استفاده از رشته اولیه
-    if (!originalDataString.isEmpty()) {
-        information(originalDataString);
+    // if (!originalDataString.isEmpty()) {
+    //     information(originalDataString);
+    // }
+    ui->lineEdit_name->setText(originalName);
+    ui->lineEdit_Email->setText(originalEmail);
+
+    QStringList englishGenresList = originalGenres.split(",", Qt::SkipEmptyParts);
+
+    for (const QString &englishGenre : englishGenresList) {
+        QString cleanEnglishGenre = englishGenre.trimmed();
+
+        QString persianGenre = genreMap.key(cleanEnglishGenre);
+
+        if (!persianGenre.isEmpty()) {
+            // ۴. پیدا کردن آیتم در لیست ویجت (فرض می‌کنیم اسم لیست ویجت شما listWidget_genres است)
+            // Qt::MatchExactly باعث می‌شود دقیقا همان متن را پیدا کند
+            QList<QListWidgetItem *> foundItems = ui->listWidget->findItems(persianGenre,
+                                                                            Qt::MatchExactly);
+
+            // ۵. تیک زدن چک‌باکس آیتم‌های پیدا شده
+            for (QListWidgetItem *item : foundItems) {
+                item->setCheckState(Qt::Checked);
+            }
+        }
     }
 }
 
 void Userprofilepage::information(QString dataString)
 {
-    originalDataString = dataString;
-
+    QString userDataString = dataString;
     QStringList parts = dataString.split("||");
-    if (parts.size() >= 4) {
-        originalName = parts[0].trimmed();
-        originalEmail = parts[2].trimmed();
+    if (parts.size() >= 8) {
+        originalName = parts[1].trimmed();
+        originalEmail = parts[3].trimmed();
 
         ui->lineEdit_name->setText(originalName);
-        ui->lineEdit_username->setText(parts[1].trimmed());
+        ui->lineEdit_username->setText(parts[2].trimmed());
+        ui->label_balance->setText(parts[5].trimmed());
         ui->lineEdit_Email->setText(originalEmail);
 
-        // مرتب‌سازی ژانرهای سرور برای اینکه مقایسه در زمان ثبت دقیق باشد
-        QStringList serverGenresList = parts[3].trimmed().split(",");
+        QStringList serverGenresList = parts[4].trimmed().split(",");
         for (QString &g : serverGenresList)
             g = g.trimmed();
         serverGenresList.sort();
-        originalGenres = serverGenresList.join(","); // ذخیره نهایی ژانرهای اولیه
+        originalGenres = serverGenresList.join(",");
 
         int checkedCount = 0;
 
@@ -250,6 +286,53 @@ void Userprofilepage::information(QString dataString)
                 item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
             } else if (checkedCount == 3 && item->checkState() == Qt::Unchecked) {
                 item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+            }
+        }
+    }
+
+    QStringList mainParts = userDataString.split("||");
+
+    if (mainParts.size() <= 7) {
+        return;
+    }
+
+    int numberOfBooks = mainParts[6].trimmed().toInt();
+
+    ui->label_numberbook->setText(QString::number(numberOfBooks));
+
+    if (numberOfBooks == 0) {
+        ui->stackedWidget->setCurrentWidget(ui->page_khali);
+    } else {
+        ui->stackedWidget->setCurrentWidget(ui->page_2);
+
+        QLayoutItem *child;
+        while ((child = ui->verticalLayout_3->takeAt(0)) != nullptr) {
+            if (child->widget()) {
+                delete child->widget();
+            }
+            delete child;
+        }
+
+        if (mainParts.size() >= 8) {
+            QString booksString = mainParts[7].trimmed();
+            QStringList booksList = booksString.split("##", Qt::SkipEmptyParts);
+
+            for (int i = 0; i < booksList.size(); ++i) {
+                // جدا کردن فیلدهای داخل هر کتاب با "کاما" (,)
+                QStringList bookFields = booksList[i].split(",");
+
+                if (bookFields.size() >= 4) {
+                    QString bName = bookFields[0].trimmed();
+                    QString aName = bookFields[1].trimmed();
+                    QString price = bookFields[2].trimmed();
+                    QString date = bookFields[3].trimmed();
+
+                    // ساخت کارت و مقداردهی
+                    HistoryCardwidget *card = new HistoryCardwidget(this);
+                    card->setBookData(bName, aName, price, date);
+
+                    ui->verticalLayout_3->insertWidget(0, card);
+                }
             }
         }
     }

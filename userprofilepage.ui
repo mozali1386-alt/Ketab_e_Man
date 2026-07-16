@@ -135,6 +135,9 @@ font: 10pt &quot;Segoe UI&quot;;</string>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <spacer name="verticalSpacer">
                <property name="orientation">
