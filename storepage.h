@@ -23,6 +23,7 @@ private slots:
 private:
     Ui::Storepage *ui;
     QString lastsearchdisplay;
+    void processServerResponse(const QString &response);
 };
 
 #endif // STOREPAGE_H

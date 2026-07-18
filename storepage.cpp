@@ -1,5 +1,7 @@
 #include "storepage.h"
 #include <QMap>
+#include <QStringList>
+#include "storebookwidget.h"
 #include "ui_storepage.h"
 
 Storepage::Storepage(QWidget *parent)
@@ -7,6 +9,14 @@ Storepage::Storepage(QWidget *parent)
     , ui(new Ui::Storepage)
 {
     ui->setupUi(this);
+
+    QString testServerData = "STORE_BOOKS||"
+                             "book1.jpg,سمفونی مردگان,عباس معروفی,130000,4.8##"
+                             "book2.jpg,بوف کور,صادق هدایت,90000,4.5##"
+                             "book3.jpg,شازده کوچولو,آنتوان دو سنت اگزوپری,120000,4.9";
+
+    // همان رشته را به تابع پردازش پاس می‌دهیم
+    processServerResponse(testServerData);
 }
 
 Storepage::~Storepage()
@@ -42,30 +52,38 @@ void Storepage::on_pushButton_search_clicked()
 
 void Storepage::on_pushButton_display_clicked()
 {
-    QMap<QString, QString> genreMap;
-    genreMap["همه ژانرها"] = "ALL";
-    genreMap["عاشقانه"] = "ROMANCE";
-    genreMap["علمی تخیلی"] = "SCIFI";
-    genreMap["ترسناک"] = "HORROR";
-    genreMap["کلاسیک"] = "CLASSIC";
-    genreMap["جنایی"] = "ART";
-    genreMap["هنری"] = "COMEDY";
-    genreMap["طنز"] = "CLASSIC";
-    genreMap["تاریخی"] = "HISTORY";
-
-    QMap<QString, QString> displayMap;
-    displayMap["همه کتاب ها"] = "ALL";
-    displayMap["پیشنهادی ها"] = "RECOMMENDED";
-    displayMap["محبوب ها"] = "POPULAR";
-    displayMap["جدید ها"] = "NEW";
-    displayMap["پرفروش ها"] = "BESTSELLER";
-    displayMap["رایگان ها"] = "FREE";
-
     QString selectedGenreFarsi = ui->comboBox_genre->currentText().trimmed();
     QString selectedDisplayFarsi = ui->comboBox_displaytype->currentText().trimmed();
 
-    QString sendGenre = genreMap.value(selectedGenreFarsi, "ALL");
-    QString sendDisplay = displayMap.value(selectedDisplayFarsi, "ALL");
+    QString sendGenre = "ALL";
+    if (selectedGenreFarsi == "عاشقانه")
+        sendGenre = "ROMANCE";
+    else if (selectedGenreFarsi == "علمی تخیلی")
+        sendGenre = "SCIFI";
+    else if (selectedGenreFarsi == "ترسناک")
+        sendGenre = "HORROR";
+    else if (selectedGenreFarsi == "کلاسیک")
+        sendGenre = "CLASSIC";
+    else if (selectedGenreFarsi == "جنایی")
+        sendGenre = "CRIME";
+    else if (selectedGenreFarsi == "هنری")
+        sendGenre = "ART";
+    else if (selectedGenreFarsi == "طنز")
+        sendGenre = "COMEDY";
+    else if (selectedGenreFarsi == "تاریخی")
+        sendGenre = "HISTORY";
+
+    QString sendDisplay = "ALL";
+    if (selectedDisplayFarsi == "پیشنهادی ها")
+        sendDisplay = "RECOMMENDED";
+    else if (selectedDisplayFarsi == "محبوب ها")
+        sendDisplay = "POPULAR";
+    else if (selectedDisplayFarsi == "جدید ها")
+        sendDisplay = "NEW";
+    else if (selectedDisplayFarsi == "پرفروش ها")
+        sendDisplay = "BESTSELLER";
+    else if (selectedDisplayFarsi == "رایگان ها")
+        sendDisplay = "FREE";
 
     QString message = QString("DISPLAY_STOREPAGE||%1||%2").arg(sendGenre, sendDisplay);
 
@@ -73,7 +91,38 @@ void Storepage::on_pushButton_display_clicked()
         return;
 
     lastsearchdisplay = message;
-    qDebug() << message;
+    qDebug() << "Sending to server: " << message;
 
-    //client->sendMessage(message);
+    // client->sendMessage(message);
+}
+
+void Storepage::processServerResponse(const QString &response)
+{
+    while (ui->verticalLayout_5->count() > 1) {
+        QLayoutItem *child = ui->verticalLayout_5->takeAt(0);
+        if (child->widget()) {
+            delete child->widget();
+        }
+        delete child;
+    }
+
+    QStringList mainParts = response.split("||");
+    if (mainParts.size() < 2)
+        return;
+
+    QString data = mainParts[1];
+    if (data.isEmpty())
+        return;
+
+    QStringList booksList = data.split("##");
+    for (int i = 0; i < booksList.size(); ++i) {
+        QStringList fields = booksList[i].split(",");
+
+        if (fields.size() == 5) {
+            StorebookWidget *book = new StorebookWidget(this);
+            book->setBookData(fields[0], fields[1], fields[2], fields[3], fields[4]);
+
+            ui->verticalLayout_5->insertWidget(ui->verticalLayout_5->count() - 1, book);
+        }
+    }
 }
