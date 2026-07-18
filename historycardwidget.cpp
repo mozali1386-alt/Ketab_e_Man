@@ -12,3 +12,13 @@ HistoryCardwidget::~HistoryCardwidget()
 {
     delete ui;
 }
+void HistoryCardwidget::setBookData(QString bookName,
+                                    QString authorName,
+                                    QString price,
+                                    QString date)
+{
+    ui->label_bookname->setText(bookName);
+    ui->label_anothername->setText(authorName);
+    ui->label_price->setText(price + " تومان");
+    ui->label_tarikh->setText(date);
+}
