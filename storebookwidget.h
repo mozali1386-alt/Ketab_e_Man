@@ -15,6 +15,12 @@ public:
     explicit StorebookWidget(QWidget *parent = nullptr);
     ~StorebookWidget();
 
+    void setBookData(const QString &image,
+                     const QString &title,
+                     const QString &author,
+                     const QString &finalPrice,
+                     const QString &score);
+
 private:
     Ui::StorebookWidget *ui;
 };
