@@ -4,6 +4,7 @@
 #include "ServerCore.h"
 #include "../shared/Protocol.h"
 #include "../shared/Publisher.h"
+#include "../shared/PipeEscape.h"
 #include <QStringList>
 
 void ServerCore::handleLoginRequest(ClientHandler *handler, const QString &payload) {
@@ -12,8 +13,11 @@ void ServerCore::handleLoginRequest(ClientHandler *handler, const QString &paylo
         return;
     }
 
-    User *user = findUserByUsername(parts.at(0));
-    if (user == nullptr || user->getIsBlocked() || !user->authenticatePassword(parts.at(1))) {
+    QString username = PipeEscape::unescape(parts.at(0));
+    QString password = PipeEscape::unescape(parts.at(1));
+
+    User *user = findUserByUsername(username);
+    if (user == nullptr || user->getIsBlocked() || !user->authenticatePassword(password)) {
         handler->sendResponse(RES_FAIL, "Invalid username or password");
         return;
     }
@@ -39,8 +43,12 @@ void ServerCore::handleRegisterRequest(ClientHandler *handler, const QString &pa
 
     bool roleOk = false;
     int roleInt = parts.at(0).toInt(&roleOk);
-    QString fullName = parts.at(1);
-    QString username = parts.at(2);
+    QString fullName = PipeEscape::unescape(parts.at(1));
+    QString username = PipeEscape::unescape(parts.at(2));
+    QString email = PipeEscape::unescape(parts.at(3));
+    QString password = PipeEscape::unescape(parts.at(4));
+    QString securityQuestion = PipeEscape::unescape(parts.at(5));
+    QString securityAnswer = PipeEscape::unescape(parts.at(6));
 
     if (!roleOk) {
         handler->sendResponse(RES_FAIL, "Invalid role");
@@ -49,6 +57,11 @@ void ServerCore::handleRegisterRequest(ClientHandler *handler, const QString &pa
 
     if (findUserByUsername(username) != nullptr) {
         handler->sendResponse(RES_FAIL, "Username already exists");
+        return;
+    }
+
+    if (data.findUserByEmail(email) != nullptr) {
+        handler->sendResponse(RES_FAIL, "Email already exists");
         return;
     }
 
@@ -65,12 +78,14 @@ void ServerCore::handleRegisterRequest(ClientHandler *handler, const QString &pa
     newUser->assignNewId();
     newUser->setFullName(fullName);
     newUser->setUsername(username);
-    newUser->setEmail(parts.at(3));
-    newUser->setPassword(parts.at(4));
-    newUser->setSecurityQuestion(parts.at(5));
-    newUser->setSecurityAnswer(parts.at(6));
+    newUser->setEmail(email);
+    newUser->setPassword(password);
+    newUser->setSecurityQuestion(securityQuestion);
+    newUser->setSecurityAnswer(securityAnswer);
     newUser->setIsBlocked(false);
     data.getUsersMap().insert(newUser->getId(), newUser);
+    data.registerUsername(username, newUser->getId());
+    data.registerEmail(email, newUser->getId());
 
     Wallet *wallet = new Wallet();
     wallet->assignNewId();
@@ -90,7 +105,8 @@ void ServerCore::handleRegisterRequest(ClientHandler *handler, const QString &pa
 }
 
 void ServerCore::handleForgotPasswordRequest(ClientHandler *handler, const QString &payload) {
-    User *user = findUserByUsername(payload);
+    QString username = PipeEscape::unescape(payload);
+    User *user = findUserByUsername(username);
     if (user == nullptr) {
         handler->sendResponse(RES_FAIL, "User not found");
         return;
@@ -104,13 +120,18 @@ void ServerCore::handleResetPasswordRequest(ClientHandler *handler, const QStrin
         return;
     }
 
-    User *user = findUserByUsername(parts.at(0));
+    QString username = PipeEscape::unescape(parts.at(0));
+    User *user = findUserByUsername(username);
     if (user == nullptr) {
         handler->sendResponse(RES_FAIL, "User not found");
         return;
     }
 
-    if (user->resetPassword(parts.at(1), parts.at(2), parts.at(3))) {
+    QString question = PipeEscape::unescape(parts.at(1));
+    QString answer = PipeEscape::unescape(parts.at(2));
+    QString newPassword = PipeEscape::unescape(parts.at(3));
+
+    if (user->resetPassword(question, answer, newPassword)) {
         handler->sendResponse(RES_SUCCESS, "Password reset");
     } else {
         handler->sendResponse(RES_FAIL, "Incorrect security answer");
@@ -170,6 +191,14 @@ void ServerCore::handleBlockUserRequest(ClientHandler *handler, const QString &p
     }
 
     admin->blockUser(target);
+
+    ClientHandler *targetHandler = findClientHandlerByUserId(target->getId());
+    if (targetHandler != nullptr) {
+        targetHandler->setUserId(0);
+        loggedInClients.remove(target->getId());
+        targetHandler->sendResponse(RES_FAIL, "Your account has been blocked");
+    }
+
     handler->sendResponse(RES_SUCCESS, "User blocked");
 }
 

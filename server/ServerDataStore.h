@@ -5,6 +5,7 @@
 #define SERVERDATASTORE_H
 
 #include <QMap>
+#include <QHash>
 #include "../shared/User.h"
 #include "../shared/Book.h"
 #include "../shared/Author.h"
@@ -45,6 +46,24 @@ public:
 
     QMap<quint64, Purchase *> &getPurchasesMap();
 
+    User *findUserByUsername(const QString &username) const;
+
+    void registerUsername(const QString &username, quint64 userId);
+
+    User *findUserByEmail(const QString &email) const;
+
+    void registerEmail(const QString &email, quint64 userId);
+
+    Cart *findCartByOwner(quint64 ownerId) const;
+
+    void registerCartOwner(quint64 ownerId, quint64 cartId);
+
+    Author *findAuthorByName(const QString &authorName) const;
+
+    void registerAuthorName(const QString &authorName, quint64 authorId);
+
+    void rebuildAllIndexes();
+
 private:
     QMap<quint64, User *> users;
     QMap<quint64, Book *> books;
@@ -57,6 +76,10 @@ private:
     QMap<quint64, Wallet *> wallets;
     QMap<quint64, Transaction *> transactions;
     QMap<quint64, Purchase *> purchases;
+    QHash<QString, quint64> usernameIndex;
+    QHash<QString, quint64> emailIndex;
+    QHash<quint64, quint64> cartOwnerIndex;
+    QHash<QString, quint64> authorNameIndex;
 };
 
 #endif
