@@ -1,6 +1,7 @@
 #ifndef STOREBOOKWIDGET_H
 #define STOREBOOKWIDGET_H
 
+#include <QMouseEvent>
 #include <QWidget>
 
 namespace Ui {
@@ -21,8 +22,19 @@ public:
                      const QString &finalPrice,
                      const QString &score);
 
+    void setBookId(const QString &id);
+
+protected:
+    void mousePressEvent(QMouseEvent *event);
+
+signals:
+
+    void bookClicked(QString bookId);
+
 private:
     Ui::StorebookWidget *ui;
+
+    QString currentBookId;
 };
 
 #endif // STOREBOOKWIDGET_H
