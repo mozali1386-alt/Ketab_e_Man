@@ -126,6 +126,12 @@ background-color: rgb(255, 255, 0);
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QLabel" name="label">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>100</height>
+           </size>
+          </property>
           <property name="styleSheet">
            <string notr="true">font: 24pt &quot;Segoe UI&quot;;</string>
           </property>
@@ -155,46 +161,6 @@ background-color: rgb(255, 255, 0);
          <widget class="QLineEdit" name="lineEdit_publishername">
           <property name="placeholderText">
            <string>نام ناشر</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_search">
-          <property name="styleSheet">
-           <string notr="true">font: 12pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="text">
-           <string>جستجو</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="styleSheet">
-        <string notr="true">#groupBox_2{
-background-color: rgb(255, 255, 0);
-}</string>
-       </property>
-       <property name="title">
-        <string>نمایش</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="styleSheet">
-           <string notr="true">font: 24pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="text">
-           <string>ژانر ها</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
           </property>
          </widget>
         </item>
@@ -248,19 +214,6 @@ background-color: rgb(255, 255, 0);
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_3">
-          <property name="styleSheet">
-           <string notr="true">font: 24pt &quot;Segoe UI&quot;;</string>
-          </property>
-          <property name="text">
-           <string>نوع نمایش</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QComboBox" name="comboBox_displaytype">
           <item>
            <property name="text">
@@ -300,12 +253,12 @@ background-color: rgb(255, 255, 0);
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_display">
+         <widget class="QPushButton" name="pushButton_search">
           <property name="styleSheet">
            <string notr="true">font: 12pt &quot;Segoe UI&quot;;</string>
           </property>
           <property name="text">
-           <string>نمایش</string>
+           <string>جستجو</string>
           </property>
          </widget>
         </item>

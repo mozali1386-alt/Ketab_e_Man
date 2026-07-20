@@ -1,6 +1,8 @@
 #include "storepage.h"
+#include <QDebug>
 #include <QMap>
 #include <QStringList>
+#include "bookdetails.h"
 #include "storebookwidget.h"
 #include "ui_storepage.h"
 
@@ -9,14 +11,6 @@ Storepage::Storepage(QWidget *parent)
     , ui(new Ui::Storepage)
 {
     ui->setupUi(this);
-
-    QString testServerData = "STORE_BOOKS||"
-                             "book1.jpg,سمفونی مردگان,عباس معروفی,130000,4.8##"
-                             "book2.jpg,بوف کور,صادق هدایت,90000,4.5##"
-                             "book3.jpg,شازده کوچولو,آنتوان دو سنت اگزوپری,120000,4.9";
-
-    // همان رشته را به تابع پردازش پاس می‌دهیم
-    processServerResponse(testServerData);
 }
 
 Storepage::~Storepage()
@@ -30,30 +24,12 @@ void Storepage::on_pushButton_search_clicked()
     QString author = ui->lineEdit_authorname->text().trimmed();
     QString publisher = ui->lineEdit_publishername->text().trimmed();
 
-    if (bookName.isEmpty() && author.isEmpty() && publisher.isEmpty()) {
-        return; // بازگشت بی‌صدا (بدون هیچ واکنشی)
-    }
+    QString selectedGenreFarsi = ui->comboBox_genre->currentText().trimmed();
+    QString selectedDisplayFarsi = ui->comboBox_displaytype->currentText().trimmed();
 
     QString sendBook = bookName.isEmpty() ? "EMPTY" : bookName;
     QString sendAuthor = author.isEmpty() ? "EMPTY" : author;
     QString sendPublisher = publisher.isEmpty() ? "EMPTY" : publisher;
-
-    QString message = QString("SEARCH_STOREPAGE||%1||%2||%3")
-                          .arg(sendBook, sendAuthor, sendPublisher);
-
-    if (lastsearchdisplay == message)
-        return;
-
-    lastsearchdisplay = message; //ذخیره جستجوی جدید
-    qDebug() << message;
-
-    // client->sendMessage(message);
-}
-
-void Storepage::on_pushButton_display_clicked()
-{
-    QString selectedGenreFarsi = ui->comboBox_genre->currentText().trimmed();
-    QString selectedDisplayFarsi = ui->comboBox_displaytype->currentText().trimmed();
 
     QString sendGenre = "ALL";
     if (selectedGenreFarsi == "عاشقانه")
@@ -85,42 +61,89 @@ void Storepage::on_pushButton_display_clicked()
     else if (selectedDisplayFarsi == "رایگان ها")
         sendDisplay = "FREE";
 
-    QString message = QString("DISPLAY_STOREPAGE||%1||%2").arg(sendGenre, sendDisplay);
+    QString message = QString("SEARCH_STOREPAGE||%1||%2||%3||%4||%5")
+                          .arg(sendBook, sendAuthor, sendPublisher, sendGenre, sendDisplay);
 
     if (lastsearchdisplay == message)
         return;
 
     lastsearchdisplay = message;
-    qDebug() << "Sending to server: " << message;
 
+    // ارسال درخواست جستجو به سرور
     // client->sendMessage(message);
+    // ================== شروع تست (بعداً پاک کن) ==================
+    processServerResponse("SEARCH_RESULT||1,2,3");
+    // =========================================================
+}
+
+// تابع درخواست اطلاعات کامل یک کتاب با استفاده از آیدی
+void Storepage::requestBookSummary(const QString &bookId)
+{
+    // QString message = "GET_BOOK_SUMMARY||" + bookId;
+    // client->sendMessage(message);
+
+    // ================== شروع تست (بعداً پاک کن) ==================
+    if (bookId == "1") {
+        processServerResponse("BOOK_SUMMARY||1||NO_IMAGE||سمفونی مردگان||عباس معروفی||130000||4.8");
+    } else if (bookId == "2") {
+        processServerResponse("BOOK_SUMMARY||NOT_FOUND");
+    } else if (bookId == "3") {
+        processServerResponse(
+            "BOOK_SUMMARY||3||NO_IMAGE||شازده کوچولو||آنتوان دو سنت اگزوپری||120000||4.9");
+    }
+    // =========================================================
 }
 
 void Storepage::processServerResponse(const QString &response)
 {
-    while (ui->verticalLayout_5->count() > 1) {
-        QLayoutItem *child = ui->verticalLayout_5->takeAt(0);
-        if (child->widget()) {
-            delete child->widget();
-        }
-        delete child;
-    }
-
     QStringList mainParts = response.split("||");
     if (mainParts.size() < 2)
         return;
 
-    QString data = mainParts[1];
-    if (data.isEmpty())
-        return;
+    QString command = mainParts[0].trimmed();
+    QString fieldTwo = mainParts[1].trimmed();
 
-    QStringList booksList = data.split("##");
-    for (int i = 0; i < booksList.size(); ++i) {
-        QStringList fields = booksList[i].split(",");
+    if (command == "SEARCH_RESULT") {
+        while (ui->verticalLayout_5->count() > 1) {
+            QLayoutItem *child = ui->verticalLayout_5->takeAt(0);
+            if (child->widget()) {
+                delete child->widget();
+            }
+            delete child;
+        }
 
-        if (fields.size() == 5) {
+        if (fieldTwo == "NOT_FOUND" || fieldTwo.isEmpty()) {
+            return;
+        }
+        QStringList ids = fieldTwo.split(",", Qt::SkipEmptyParts);
+        for (int i = 0; i < ids.size(); ++i) {
+            requestBookSummary(ids[i].trimmed());
+        }
+    }
+
+    else if (command == "BOOK_SUMMARY") {
+        if (fieldTwo == "NOT_FOUND") {
+            return; // عبور از این آیدی بدون ساخت کارت
+        }
+
+        if (mainParts.size() >= 7) {
+            QString bookId = fieldTwo;
+            QString imageBase64 = mainParts[2].trimmed();
+            QString bookName = mainParts[3].trimmed();
+            QString author = mainParts[4].trimmed();
+            QString price = mainParts[5].trimmed();
+            QString score = mainParts[6].trimmed();
+
             StorebookWidget *book = new StorebookWidget(this);
-            book->setBookData(fields[0], fields[1], fields[2], fields[3], fields[4]);
+
+            book->setBookId(bookId);
+            book->setBookData(imageBase64, bookName, author, price, score);
+
+            connect(book, &StorebookWidget::bookClicked, this, [=](QString clickedId) {
+                Bookdetails *detailsWindow = new Bookdetails(nullptr, clickedId);
+                detailsWindow->setAttribute(Qt::WA_DeleteOnClose);
+                detailsWindow->show();
+            });
 
             ui->verticalLayout_5->insertWidget(ui->verticalLayout_5->count() - 1, book);
         }

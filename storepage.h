@@ -1,6 +1,7 @@
 #ifndef STOREPAGE_H
 #define STOREPAGE_H
 
+#include <QString>
 #include <QWidget>
 
 namespace Ui {
@@ -16,14 +17,15 @@ public:
     ~Storepage();
 
 private slots:
-    void on_pushButton_search_clicked();
 
-    void on_pushButton_display_clicked();
+    void on_pushButton_search_clicked();
 
 private:
     Ui::Storepage *ui;
+
     QString lastsearchdisplay;
     void processServerResponse(const QString &response);
+    void requestBookSummary(const QString &bookId);
 };
 
 #endif // STOREPAGE_H
