@@ -159,19 +159,6 @@
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QCheckBox" name="checkBox_choose">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>

@@ -16,16 +16,20 @@ public:
     explicit Cartpage(QWidget *parent = nullptr);
     ~Cartpage();
 
+    void requestCartItems();
+    void requestCartBookSummary(const QString &bookId);
+    void processServerResponse(const QString &response);
+
 private slots:
     void updateSummary();
     void removeBookFromCart(CartitemWidget *bookToRemove);
-    void on_checkBox_checkall_clicked();
+    void on_pushButton_sabt_clicked();
 
 private:
     Ui::Cartpage *ui;
 
     void addNewBookToCart(CartitemWidget *newBook);
-    void loadCartItems(const QString &serverResponse); // تابع پردازش رشته سرور
+    void clearCartUI();
 };
 
 #endif // CARTPAGE_H

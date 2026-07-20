@@ -1,4 +1,6 @@
 #include "cartitemwidget.h"
+#include <QByteArray>
+#include <QPixmap>
 #include "ui_cartitemwidget.h"
 
 CartitemWidget::CartitemWidget(QWidget *parent)
@@ -7,7 +9,6 @@ CartitemWidget::CartitemWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // مقداردهی اولیه و ایمن متغیرها
     mainPriceValue = 0;
     offPriceValue = 0;
     finalPriceValue = 0;
@@ -18,19 +19,36 @@ CartitemWidget::~CartitemWidget()
     delete ui;
 }
 
-void CartitemWidget::setBookData(
-    const QString &image, const QString &title, const QString &author, int mainPrice, int discount)
+void CartitemWidget::setBookData(const QString &id,
+                                 const QString &image,
+                                 const QString &title,
+                                 const QString &author,
+                                 int mainPrice,
+                                 int discount)
 {
+    currentBookId = id;
     mainPriceValue = mainPrice;
     offPriceValue = discount;
     finalPriceValue = mainPrice - discount;
 
-    ui->label_pikcherbook->setText(image);
+    // تبدیل رشته Base64 به عکس واقعی
+    if (image == "NO_IMAGE" || image.isEmpty()) {
+        ui->label_pikcherbook->setText("بدون تصویر");
+    } else {
+        QByteArray byteArray = QByteArray::fromBase64(image.toUtf8());
+        QPixmap pixmap;
+        if (pixmap.loadFromData(byteArray)) {
+            ui->label_pikcherbook->setPixmap(pixmap);
+            ui->label_pikcherbook->setScaledContents(true);
+        } else {
+            ui->label_pikcherbook->setText("خطا در عکس");
+        }
+    }
+
     ui->label_bookname->setText(title);
     ui->label_authername->setText(author);
     ui->label_pricenahaii->setText(QString::number(finalPriceValue) + " تومان");
 
-    // اگر تخفیف نداشت، لیبل‌های تخفیف و قیمت اصلی را مخفی کن
     if (discount == 0) {
         ui->label_priceasli->hide();
         ui->label_discount->hide();
@@ -42,27 +60,19 @@ void CartitemWidget::setBookData(
     }
 }
 
-bool CartitemWidget::isChecked()
+QString CartitemWidget::getBookId() const
 {
-    return ui->checkBox_choose->isChecked();
+    return currentBookId;
 }
-
-void CartitemWidget::setChecked(bool state)
-{
-    ui->checkBox_choose->setChecked(state);
-}
-
-int CartitemWidget::getMainPrice()
+int CartitemWidget::getMainPrice() const
 {
     return mainPriceValue;
 }
-
-int CartitemWidget::getOffPrice()
+int CartitemWidget::getOffPrice() const
 {
     return offPriceValue;
 }
-
-int CartitemWidget::getFinalPrice()
+int CartitemWidget::getFinalPrice() const
 {
     return finalPriceValue;
 }
@@ -70,9 +80,4 @@ int CartitemWidget::getFinalPrice()
 void CartitemWidget::on_toolButton_trash_clicked()
 {
     emit itemDeleted(this);
-}
-
-void CartitemWidget::on_checkBox_choose_clicked()
-{
-    emit itemToggled();
 }

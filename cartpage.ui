@@ -35,20 +35,7 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="page_asli">
-      <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,2,1">
-       <item>
-        <widget class="QCheckBox" name="checkBox_checkall">
-         <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::RightToLeft</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 0);</string>
-         </property>
-         <property name="text">
-          <string> انتخاب همه</string>
-         </property>
-        </widget>
-       </item>
+      <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,1">
        <item>
         <widget class="QScrollArea" name="scrollArea">
          <property name="styleSheet">
@@ -92,7 +79,7 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
             <x>0</x>
             <y>0</y>
             <width>436</width>
-            <height>307</height>
+            <height>321</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
