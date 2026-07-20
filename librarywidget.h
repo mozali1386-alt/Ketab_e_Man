@@ -36,6 +36,7 @@ private slots:
     void handleRemoveFromSaved(QString bookId);
     void handleRemoveFromShelf(QString bookId);
     void handleShelfAssignment(QString bookId, QString newShelfId);
+    void handleLastPageSave(QString bookId, int pageNumber);
 
 private:
     Ui::LibraryWidget *ui;
@@ -60,6 +61,9 @@ private:
     void updateComboBox();
     QByteArray currentPdfBuffer;
     QProgressDialog *pdfLoadingDialog = nullptr;
+
+    QString currentReadingBookId;
+    int currentBookLastPage = 0;
 };
 
 #endif // LIBRARYWIDGET_H

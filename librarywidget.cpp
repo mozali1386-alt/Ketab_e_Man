@@ -195,8 +195,10 @@ void LibraryWidget::processServerResponse(const QString &response)
     // دریافت بایت‌های PDF از سرور (منطق بهینه‌شده و ضدخرابی)
     // ==========================================
     else if (cmd == "FILE_START") {
-        if (parts.size() >= 3) {
+        if (parts.size() >= 4) {
             int totalChunks = parts[2].toInt();
+            currentBookLastPage = parts[3].toInt();
+
             if (pdfLoadingDialog) {
                 pdfLoadingDialog->setMaximum(totalChunks);
                 pdfLoadingDialog->setValue(0);
@@ -220,19 +222,22 @@ void LibraryWidget::processServerResponse(const QString &response)
             pdfLoadingDialog = nullptr;
         }
 
-        // حالا که کل متن را داریم، یک‌باره آن را به باینری تبدیل می‌کنیم (امن‌ترین روش)
         QByteArray finalPdfData = QByteArray::fromBase64(currentPdfBuffer);
 
-        // باز کردن صفحه پی دی اف
         pdfviewerWidget *viewer = new pdfviewerWidget();
         viewer->setAttribute(Qt::WA_DeleteOnClose);
+        viewer->setBookId(currentReadingBookId);
+
+        connect(viewer, &pdfviewerWidget::lastPageSaved, this, &LibraryWidget::handleLastPageSave);
+
         if (viewer->loadPdfFromData(finalPdfData)) {
             viewer->showMaximized();
+            viewer->jumpToPage(currentBookLastPage);
         } else {
             delete viewer;
         }
 
-        currentPdfBuffer.clear(); // خالی کردن رم
+        currentPdfBuffer.clear();
     }
 }
 
@@ -337,6 +342,7 @@ void LibraryWidget::handleBookDetails(QString bookId)
 
 void LibraryWidget::handleBookStudy(QString bookId)
 {
+    currentReadingBookId = bookId;
     // ساخت و نمایش دیالوگ لودینگ
     pdfLoadingDialog = new QProgressDialog("در حال دریافت کتاب از سرور...", "لغو", 0, 100, this);
     pdfLoadingDialog->setWindowTitle("لطفاً صبر کنید");
@@ -367,4 +373,9 @@ void LibraryWidget::handleShelfAssignment(QString bookId, QString newShelfId)
 {
     QString message = "ASSIGN_TO_SHELF||" + bookId + "||" + newShelfId;
     // client->sendMessage(message);
+}
+
+void LibraryWidget::handleLastPageSave(QString bookId, int pageNumber)
+{
+    QString message = "UPDATE_LAST_PAGE||" + bookId + "||" + QString::number(pageNumber);
 }

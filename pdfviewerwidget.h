@@ -16,9 +16,13 @@ class pdfviewerWidget : public QWidget
 public:
     explicit pdfviewerWidget(QWidget *parent = nullptr);
     ~pdfviewerWidget();
-
     // تابع اصلی برای دریافت کتاب
     bool loadPdfFromData(const QByteArray &pdfData);
+    void setBookId(const QString &bookId);
+    void jumpToPage(int pageIndex);
+
+signals:
+    void lastPageSaved(QString bookId, int pageNumber);
 
 private slots:
     // این همان توابعی است که کامپایلر شما گم کرده بود!
@@ -33,6 +37,7 @@ private:
     Ui::pdfviewerWidget *ui;
     QPdfDocument *m_document;
     QBuffer *m_pdfBuffer;
+    QString m_bookId;
 };
 
 #endif // PDFVIEWERWIDGET_H
