@@ -60,7 +60,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-image: url(:/images/icons8-star-48 (1).png);</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string/>
@@ -76,7 +76,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-image: url(:/images/icons8-star-48 (1).png);</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string/>
@@ -92,7 +92,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-image: url(:/images/icons8-star-48 (1).png);</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string/>
@@ -108,7 +108,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-image: url(:/images/icons8-star-48 (1).png);</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string/>
@@ -124,7 +124,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-image: url(:/images/icons8-star-48 (1).png);</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string/>
@@ -550,9 +550,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <widget class="QLabel" name="label_score">
    <property name="geometry">
     <rect>
-     <x>324</x>
+     <x>325</x>
      <y>290</y>
-     <width>62</width>
+     <width>61</width>
      <height>21</height>
     </rect>
    </property>
@@ -573,7 +573,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">border-image: url(:/images/icons8-star-48 (1).png);</string>
+    <string notr="true">border-image: url(:/images/icons8-star-48 (1).png);
+</string>
    </property>
    <property name="text">
     <string/>

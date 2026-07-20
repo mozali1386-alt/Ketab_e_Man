@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Booklibraryitem</class>
- <widget class="QWidget" name="Booklibraryitem">
+ <class>BookLibraryItem</class>
+ <widget class="QWidget" name="BookLibraryItem">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>230</width>
+    <width>224</width>
     <height>270</height>
    </rect>
   </property>
@@ -42,24 +42,24 @@
 }</string>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Shape::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <item alignment="Qt::AlignHCenter">
+      <item alignment="Qt::AlignmentFlag::AlignHCenter">
        <widget class="QLabel" name="label_picture">
         <property name="minimumSize">
          <size>
           <width>120</width>
-          <height>180</height>
+          <height>150</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>120</width>
-          <height>180</height>
+          <height>150</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -72,7 +72,7 @@
          <bool>true</bool>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -92,6 +92,9 @@ font-weight: bold;</string>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QToolButton" name="toolButton_editGhafaseh">
           <property name="sizePolicy">

@@ -7,9 +7,11 @@ ResetPasswordDialog::ResetPasswordDialog(QWidget *parent)
     , ui(new Ui::ResetPasswordDialog)
 {
     ui->setupUi(this);
-    ui->label_EmailError->setStyleSheet("color: red;");
-    ui->label_passworderror->setStyleSheet("color: red;");
-    ui->label_repeatpassworderror->setStyleSheet("color: red;");
+
+    QString errorStyle = "color: red; background-color: transparent; border: none;";
+    ui->label_passworderror->setStyleSheet(errorStyle);
+    ui->label_repeatpassworderror->setStyleSheet(errorStyle);
+    ui->label_EmailError->setStyleSheet(errorStyle);
     ui->stackedWidget->setCurrentIndex(0);
 }
 
@@ -39,9 +41,13 @@ void ResetPasswordDialog::on_pushButton_page1next_clicked()
         return;
     }
 
-    // =========================================================
-    // جای کدهای سرور: در آینده اینجا ایمیل به سرور ارسال می‌شود.
-    // =========================================================
+    QString Message = QString("FORGOT_PASS_CHECK||%1").arg(email);
+    qDebug() << Message;
+
+    //client->sendMessage(Message);
+    // ===================
+    //جواب سرور
+    //====================
 
     QString simulatedUsernameFromServer = "ali"; // فرضی برای نشان دادن نام کاربری
 
@@ -51,7 +57,11 @@ void ResetPasswordDialog::on_pushButton_page1next_clicked()
 
 void ResetPasswordDialog::on_pushButton_page2back_2_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(0);
+    if (isFromProfile) {
+        this->reject(); // اگر از پروفایل بود، کل پنجره را ببند
+    } else {
+        ui->stackedWidget->setCurrentIndex(0);
+    }
 }
 
 void ResetPasswordDialog::on_pushButton_page2next_2_clicked()
@@ -80,9 +90,19 @@ void ResetPasswordDialog::on_pushButton_page2next_2_clicked()
         return;
     }
 
-    // =========================================================
-    // جای کدهای سرور: در اینجا رمز عبور جدید به سرور ارسال می‌شود
-    // =========================================================
+    QString Message = QString("FORGOT_PASS_UPDATE||%1").arg(newPassword);
+    qDebug() << Message;
+
+    //client->sendMessage(Message);
+    // ===================
+    //جواب سرور
+    //====================
 
     this->accept();
+}
+
+void ResetPasswordDialog::setupForProfile()
+{
+    isFromProfile = true;
+    ui->stackedWidget->setCurrentIndex(1);
 }

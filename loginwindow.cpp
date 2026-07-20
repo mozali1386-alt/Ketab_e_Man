@@ -56,11 +56,11 @@ void LoginWindow::on_pushButton_signin_clicked()
     QString role = ui->comboBox_role->currentText().trimmed();
     QString englishrole;
     if (role == "مدیر")
-        englishrole = "Admin";
+        englishrole = "ADMIN";
     if (role == "کاربر عادی")
-        englishrole = "Normaluser";
+        englishrole = "NORMALUSER";
     if (role == "ناشر")
-        englishrole = "Publisher";
+        englishrole = "PUBLISHER";
 
     signinwindow *signin = new signinwindow(englishrole);
 

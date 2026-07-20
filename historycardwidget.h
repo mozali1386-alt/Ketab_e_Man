@@ -15,6 +15,8 @@ public:
     explicit HistoryCardwidget(QWidget *parent = nullptr);
     ~HistoryCardwidget();
 
+    void setBookData(QString bookName, QString authorName, QString price, QString date);
+
 private:
     Ui::HistoryCardwidget *ui;
 };

@@ -15,6 +15,11 @@ public:
     explicit CommentcardWidget(QWidget *parent = nullptr);
     ~CommentcardWidget();
 
+    void setCommentData(const QString &fullName,
+                        int score,
+                        const QString &commentText,
+                        const QString &date);
+
 private:
     Ui::CommentcardWidget *ui;
 };

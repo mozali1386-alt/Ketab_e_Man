@@ -15,6 +15,7 @@ public:
     explicit ResetPasswordDialog(QWidget *parent = nullptr);
     ~ResetPasswordDialog();
 
+    void setupForProfile();
 private slots:
     void on_pushButton_page1back_clicked();
 
@@ -26,6 +27,7 @@ private slots:
 
 private:
     Ui::ResetPasswordDialog *ui;
+    bool isFromProfile = false;
 };
 
 #endif // RESETPASSWORDDIALOG_H

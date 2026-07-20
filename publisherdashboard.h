@@ -15,6 +15,13 @@ public:
     explicit Publisherdashboard(QWidget *parent = nullptr);
     ~Publisherdashboard();
 
+private slots:
+    void on_pushButton_managmentbook_clicked();
+
+    void on_pushButton_statistic_clicked();
+
+    void on_pushButton_hesabkarbar_clicked();
+
 private:
     Ui::Publisherdashboard *ui;
 };
