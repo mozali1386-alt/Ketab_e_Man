@@ -1,7 +1,11 @@
 #ifndef LIBRARYWIDGET_H
 #define LIBRARYWIDGET_H
 
+#include <QGridLayout>
+#include <QMap>
 #include <QWidget>
+#include "booklibraryitem.h"
+#include <qprogressdialog.h>
 
 namespace Ui {
 class LibraryWidget;
@@ -15,8 +19,47 @@ public:
     explicit LibraryWidget(QWidget *parent = nullptr);
     ~LibraryWidget();
 
+    void processServerResponse(const QString &response);
+
+private slots:
+    void on_tabWidget_currentChanged(int index);
+
+    // مدیریت قفسه‌ها (دکمه‌های بالای تب ۳)
+    void on_comboBox_Ghafaseh_currentIndexChanged(int index);
+    void on_toolButton_addGhafaseh_clicked();
+    void on_toolButton_editnameGhafaseh_clicked();
+    void on_toolButton_removeGhafaseh_clicked();
+
+    // اسلات‌های متصل به BookLibraryItem
+    void handleBookDetails(QString bookId);
+    void handleBookStudy(QString bookId);
+    void handleRemoveFromSaved(QString bookId);
+    void handleRemoveFromShelf(QString bookId);
+    void handleShelfAssignment(QString bookId, QString newShelfId);
+
 private:
     Ui::LibraryWidget *ui;
+
+    QGridLayout *myBooksLayout;
+    QGridLayout *savedBooksLayout;
+    QGridLayout *shelvesBooksLayout;
+
+    QMap<QString, QString> userShelves; // نگهداری لیست قفسه‌ها (id -> name)
+
+    void setupLayouts();
+    void clearLayout(QLayout *layout);
+    void addBookToGrid(BookLibraryItem *item, QGridLayout *layout);
+
+    // توابع ارسال درخواست به سرور
+    void requestMyBooks();
+    void requestSavedBooks();
+    void requestShelves();
+    void requestShelfBooks(const QString &shelfId);
+    void requestLibraryBookInfo(const QString &bookId, BookLibraryItem::TabMode mode);
+
+    void updateComboBox();
+    QByteArray currentPdfBuffer;
+    QProgressDialog *pdfLoadingDialog = nullptr;
 };
 
 #endif // LIBRARYWIDGET_H
