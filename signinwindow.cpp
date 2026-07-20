@@ -13,7 +13,6 @@ signinwindow::signinwindow(const QString &role, QWidget *parent)
     ui->label_usernameError->setStyleSheet("color: red;");
     ui->label_passwordError->setStyleSheet("color: red;");
 
-    // حتماً این خط را اضافه کن تا با close شدن، صفحه ورود از حافظه پاک شود
     this->setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -35,15 +34,13 @@ void signinwindow::on_pushButton_Confirm_clicked()
     QString username = ui->lineEdit_UserName->text().trimmed();
     QString password = ui->lineEdit_Password->text().trimmed();
 
-    bool hasError = false; // متغیری برای اینکه بدانیم اصلاً خطایی داریم یا نه
+    bool hasError = false;
 
-    //  بررسی خالی بودن نام کاربری
     if (username.isEmpty()) {
         ui->label_usernameError->setText("نام کاربری نمی تواند خالی باشد.");
         hasError = true;
     }
 
-    //  بررسی خالی بودن رمز عبور
     if (password.isEmpty()) {
         ui->label_passwordError->setText("رمز عبور نمی تواند خالی باشد.");
         hasError = true;
@@ -59,7 +56,7 @@ void signinwindow::on_pushButton_Confirm_clicked()
     //client->sendMessage(Message);
 
     QMainWindow *dash = nullptr;
-    //بعدا که سرور درست شد باید جواب سرور را به جای role قرار دهیم
+
     if (role == "ADMIN")
         dash = new Admindashboard();
 
@@ -77,7 +74,5 @@ void signinwindow::on_pushButton_Confirm_clicked()
 void signinwindow::on_pushButton_forgetpassword_clicked()
 {
     ResetPasswordDialog dialog(this);
-    // استفاده از exec برای باز شدن پنجره در حالت modal
-
     dialog.exec();
 }

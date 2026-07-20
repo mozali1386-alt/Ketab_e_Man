@@ -62,49 +62,6 @@
         <property name="rightMargin">
          <number>0</number>
         </property>
-        <item row="1" column="0">
-         <widget class="QTableWidget" name="tableWidget_allusers">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
-          </property>
-          <column>
-           <property name="text">
-            <string>نام کاربر/انتشارات</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>نام کاربری</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>نقش</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>ایمیل</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>تاریخ ثبت نام</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>وضعیت</string>
-           </property>
-          </column>
-         </widget>
-        </item>
         <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
@@ -252,6 +209,49 @@ QPushButton:disabled{
            </widget>
           </item>
          </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QTableWidget" name="tableWidget_allusers">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <column>
+           <property name="text">
+            <string>نام کاربر/انتشارات</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>نام کاربری</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>نقش</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>ایمیل</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>تاریخ ثبت نام</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>وضعیت</string>
+           </property>
+          </column>
+         </widget>
         </item>
        </layout>
       </widget>
