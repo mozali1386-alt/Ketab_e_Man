@@ -12,6 +12,7 @@ HistoryCardwidget::~HistoryCardwidget()
 {
     delete ui;
 }
+
 void HistoryCardwidget::setBookData(QString bookName,
                                     QString authorName,
                                     QString price,
