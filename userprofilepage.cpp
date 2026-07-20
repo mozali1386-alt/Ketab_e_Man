@@ -1,4 +1,5 @@
 #include "userprofilepage.h"
+#include <QDebug>
 #include <QDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -33,15 +34,19 @@ Userprofilepage::Userprofilepage(QWidget *parent)
     genreMap["طنز"] = "COMEDY";
     genreMap["تاریخی"] = "HISTORY";
 
-    //تست
-    //client->sendMessage("GET_DATA_USERPROFILE");
-    //دریافت اطلاعات سرور (رشته تستی اصلاح شده با ۳ کتاب کامل)
-    QString dataString = "DATA_USERPROFILE||ALI||ALI1234||MOZ@GMA.CO||ROMANCE,SCIFI||1000||"
-                         "3||"
-                         "کتاب اول,نویسنده اول,150000,1402/05/12##"
-                         "کتاب دوم,نویسنده دوم,90000,1402/06/15##"
-                         "کتاب سوم,نویسنده سوم,120000,1402/07/20";
-    information(dataString);
+    // client->sendMessage("GET_DATA_USERPROFILE");
+    // client->sendMessage("GET_HISTORY_IDS");
+
+    // ================== شروع تست ۱ (لود اولیه) ==================
+    // شبیه‌سازی دریافت اطلاعات پایه کاربر
+    processServerResponse(
+        "USER_PROFILE_INFO||نام تستی||aliakbar||test@gmail.com||ROMANCE,SCIFI||150000");
+
+    // شبیه‌سازی دریافت لیست آیدی‌های تاریخچه خرید
+    processServerResponse("HISTORY_IDS||3||101,102,103");
+
+    // (نکته: اگر می‌خواهی صفحه خالی تاریخچه را ببینی، خط بالا را پاک کن و این را بنویس: processServerResponse("HISTORY_IDS||0"); )
+    // =========================================================
 }
 
 Userprofilepage::~Userprofilepage()
@@ -56,7 +61,6 @@ void Userprofilepage::on_pushButton_topUpbalance_clicked()
     popUp.setFixedSize(300, 150);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(&popUp);
-
     QLabel *labelInfo = new QLabel("مبلغ مورد نظر را وارد کنید:", &popUp);
     mainLayout->addWidget(labelInfo);
 
@@ -83,18 +87,14 @@ void Userprofilepage::on_pushButton_topUpbalance_clicked()
 
     connect(btnConfirm, &QPushButton::clicked, this, [&]() {
         int addAmount = amountSpinBox->value();
-
         QString currentText = ui->label_balance->text();
         currentText.replace(" تومان", "");
         int currentBalance = currentText.toInt();
-
         int newBalance = currentBalance + addAmount;
 
         ui->label_balance->setText(QString::number(newBalance) + " تومان");
 
         QString message = QString("UPDATE_BALANCE||%1").arg(newBalance);
-        qDebug() << message;
-
         // client->sendMessage(message);
 
         popUp.accept();
@@ -113,7 +113,6 @@ void Userprofilepage::on_pushButton_editpassword_clicked()
 void Userprofilepage::on_listWidget_itemChanged(QListWidgetItem *item)
 {
     ui->listWidget->blockSignals(true);
-
     int checkedCount = 0;
     for (int i = 0; i < ui->listWidget->count(); ++i) {
         if (ui->listWidget->item(i)->checkState() == Qt::Checked) {
@@ -123,7 +122,6 @@ void Userprofilepage::on_listWidget_itemChanged(QListWidgetItem *item)
 
     for (int i = 0; i < ui->listWidget->count(); ++i) {
         QListWidgetItem *currentItem = ui->listWidget->item(i);
-
         if (checkedCount >= 3 && currentItem->checkState() == Qt::Unchecked) {
             currentItem->setFlags(currentItem->flags() & ~Qt::ItemIsEnabled);
         } else if (checkedCount <= 1 && currentItem->checkState() == Qt::Checked) {
@@ -132,24 +130,19 @@ void Userprofilepage::on_listWidget_itemChanged(QListWidgetItem *item)
             currentItem->setFlags(currentItem->flags() | Qt::ItemIsEnabled);
         }
     }
-
     ui->listWidget->blockSignals(false);
 }
 
 void Userprofilepage::on_pushButton_sabt_clicked()
 {
-    // پاک کردن ارورها
     ui->label_errorname->clear();
     ui->label_errorEmail->clear();
-    ui->label_errorname->setStyleSheet("color: red;");
-    ui->label_errorEmail->setStyleSheet("color: red;");
 
     QString currentName = ui->lineEdit_name->text().trimmed();
     QString currentEmail = ui->lineEdit_Email->text().trimmed();
 
     bool hasError = false;
 
-    // بررسی خالی نبودن
     if (currentName.isEmpty()) {
         ui->label_errorname->setText(
             "نام و نام خانوادگی نمی‌تواند خالی باشد.");
@@ -166,43 +159,37 @@ void Userprofilepage::on_pushButton_sabt_clicked()
         }
     }
 
-    if (hasError) {
-        return; // توقف در صورت وجود ارور
-    }
+    if (hasError)
+        return;
 
     QStringList currentSelectedGenres;
     for (int i = 0; i < ui->listWidget->count(); ++i) {
         QListWidgetItem *item = ui->listWidget->item(i);
         if (item && item->checkState() == Qt::Checked) {
             QString faText = item->text().trimmed();
-            QString enText = genreMap.value(faText);
-            if (!enText.isEmpty()) {
-                currentSelectedGenres.append(enText);
-            }
+            QString gEn = genreMap.value(faText);
+            if (!gEn.isEmpty())
+                currentSelectedGenres.append(gEn);
         }
     }
-
     currentSelectedGenres.sort();
     QString currentGenresString = currentSelectedGenres.join(",");
 
-    // بررسی اینکه آیا تغییری ایجاد شده است یا خیر؟
     if (currentName == originalName && currentEmail == originalEmail
         && currentGenresString == originalGenres) {
         return;
     }
-
-    // QString Message = QString("UPDATE_PROFILE||%1||%2||%3")
-    //                       .arg(currentName, currentEmail, currentGenresString);
-    // qDebug() << Message;
-
+    QString Message = QString("UPDATE_PROFILE||%1||%2||%3")
+                          .arg(currentName, currentEmail, currentGenresString);
     // client->sendMessage(Message);
 
-    // ===================
-    // جواب سرور
-    // ====================
-    originalName = currentName;
-    originalEmail = currentEmail;
-    originalGenres = currentGenresString;
+    // ================== شروع تست خطای سرور ==================
+    // برای تست حالت خطا (ایمیل تکراری):
+    processServerResponse("UPDATE_PROFILE_RESULT||DUPLICATE_EMAIL");
+
+    // برای تست حالت موفقیت، خط بالا را کامنت کن و خط زیر را فعال کن:
+    // processServerResponse("UPDATE_PROFILE_RESULT||SUCCESS");
+    // =========================================================
 }
 
 void Userprofilepage::on_pushButton_enseraf_clicked()
@@ -214,7 +201,6 @@ void Userprofilepage::on_pushButton_enseraf_clicked()
     ui->lineEdit_Email->setText(originalEmail);
 
     ui->listWidget->blockSignals(true);
-
     for (int i = 0; i < ui->listWidget->count(); ++i) {
         QListWidgetItem *item = ui->listWidget->item(i);
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
@@ -222,101 +208,144 @@ void Userprofilepage::on_pushButton_enseraf_clicked()
     }
 
     QStringList englishGenresList = originalGenres.split(",", Qt::SkipEmptyParts);
-
     for (const QString &englishGenre : englishGenresList) {
-        QString cleanEnglishGenre = englishGenre.trimmed();
-        QString persianGenre = genreMap.key(cleanEnglishGenre);
-
+        QString persianGenre = genreMap.key(englishGenre.trimmed());
         if (!persianGenre.isEmpty()) {
             QList<QListWidgetItem *> foundItems = ui->listWidget->findItems(persianGenre,
                                                                             Qt::MatchExactly);
-
-            for (QListWidgetItem *item : foundItems) {
+            for (QListWidgetItem *item : foundItems)
                 item->setCheckState(Qt::Checked);
-            }
         }
     }
-
     ui->listWidget->blockSignals(false);
     on_listWidget_itemChanged(nullptr);
 }
 
-void Userprofilepage::information(QString dataString)
+void Userprofilepage::requestHistoryBook(const QString &bookId)
 {
-    QStringList mainParts = dataString.split("||");
+    // QString message = "GET_HISTORY_BOOK||" + bookId;
+    // client->sendMessage(message);
 
-    if (mainParts.size() < 8) {
+    // ================== شروع تست ۲ (اطلاعات کتاب‌ها) ==================
+    if (bookId == "101") {
+        processServerResponse(
+            "HISTORY_BOOK_INFO||101||سمفونی مردگان||عباس معروفی||130000||1402/05/12");
+    } else if (bookId == "102") {
+        processServerResponse("HISTORY_BOOK_INFO||102||بوف کور||صادق هدایت||90000||1402/06/15");
+    } else if (bookId == "103") {
+        processServerResponse(
+            "HISTORY_BOOK_INFO||103||شازده کوچولو||آنتوان دو سنت اگزوپری||120000||1402/07/20");
+    }
+    // =========================================================
+}
+
+void Userprofilepage::processServerResponse(const QString &response)
+{
+    QStringList mainParts = response.split("||");
+    if (mainParts.size() < 2)
         return;
+
+    QString command = mainParts[0].trimmed();
+    QString fieldTwo = mainParts[1].trimmed();
+
+    if (command == "USER_PROFILE_INFO") {
+        if (mainParts.size() < 6)
+            return;
+
+        originalName = mainParts[1].trimmed();
+        originalEmail = mainParts[3].trimmed();
+
+        ui->lineEdit_name->setText(originalName);
+        ui->lineEdit_username->setText(mainParts[2].trimmed());
+        ui->lineEdit_Email->setText(originalEmail);
+        ui->label_balance->setText(mainParts[5].trimmed() + " تومان");
+
+        QStringList serverGenresList = mainParts[4].trimmed().split(",");
+        for (QString &g : serverGenresList)
+            g = g.trimmed();
+        serverGenresList.sort();
+        originalGenres = serverGenresList.join(",");
+
+        ui->listWidget->blockSignals(true);
+        for (int i = 0; i < ui->listWidget->count(); ++i) {
+            QListWidgetItem *item = ui->listWidget->item(i);
+            item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+
+            QString enText = genreMap.value(item->text().trimmed());
+            if (serverGenresList.contains(enText)) {
+                item->setCheckState(Qt::Checked);
+            } else {
+                item->setCheckState(Qt::Unchecked);
+            }
+        }
+        ui->listWidget->blockSignals(false);
+        on_listWidget_itemChanged(nullptr);
     }
 
-    originalName = mainParts[1].trimmed();
-    originalEmail = mainParts[3].trimmed();
+    // =========================================================
+    // مدیریت پیام خطای ایمیل تکراری و موفقیت آپدیت پروفایل
+    // =========================================================
+    else if (command == "UPDATE_PROFILE_RESULT") {
+        if (fieldTwo == "SUCCESS") {
+            originalName = ui->lineEdit_name->text().trimmed();
+            originalEmail = ui->lineEdit_Email->text().trimmed();
 
-    ui->lineEdit_name->setText(originalName);
-    ui->lineEdit_username->setText(mainParts[2].trimmed());
-    ui->lineEdit_Email->setText(originalEmail);
-    ui->label_balance->setText(mainParts[5].trimmed() + " تومان");
+            QStringList currentSelectedGenres;
+            for (int i = 0; i < ui->listWidget->count(); ++i) {
+                QListWidgetItem *item = ui->listWidget->item(i);
+                if (item && item->checkState() == Qt::Checked) {
+                    currentSelectedGenres.append(genreMap.value(item->text().trimmed()));
+                }
+            }
+            currentSelectedGenres.sort();
+            originalGenres = currentSelectedGenres.join(",");
 
-    QStringList serverGenresList = mainParts[4].trimmed().split(",");
-    for (QString &g : serverGenresList)
-        g = g.trimmed();
-    serverGenresList.sort();
-    originalGenres = serverGenresList.join(",");
+            QMessageBox::information(this,
+                                     "موفقیت",
+                                     "اطلاعات کاربری شما با موفقیت به‌روزرسانی "
+                                     "شد.");
+        } else if (fieldTwo == "DUPLICATE_EMAIL") {
+            ui->label_errorEmail->setText("این ایمیل قبلاً توسط کاربر دیگری استفاده شده است.");
+        }
+    }
 
-    int checkedCount = 0;
-    ui->listWidget->blockSignals(true);
-    for (int i = 0; i < ui->listWidget->count(); ++i) {
-        QListWidgetItem *item = ui->listWidget->item(i);
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+    else if (command == "HISTORY_IDS") {
+        int numberOfBooks = fieldTwo.toInt();
+        ui->label_numberbook->setText(QString::number(numberOfBooks));
 
-        QString faText = item->text().trimmed();
-        QString enText = genreMap.value(faText);
-
-        if (serverGenresList.contains(enText)) {
-            item->setCheckState(Qt::Checked);
-            checkedCount++;
+        if (numberOfBooks == 0) {
+            ui->stackedWidget->setCurrentWidget(ui->page_khali);
         } else {
-            item->setCheckState(Qt::Unchecked);
+            ui->stackedWidget->setCurrentWidget(ui->page_2);
+
+            while (ui->verticalLayout_3->count() > 1) {
+                QLayoutItem *child = ui->verticalLayout_3->takeAt(0);
+                if (child->widget())
+                    delete child->widget();
+                delete child;
+            }
+
+            if (mainParts.size() >= 3) {
+                QStringList bookIds = mainParts[2].trimmed().split(",", Qt::SkipEmptyParts);
+                for (const QString &id : bookIds)
+                    requestHistoryBook(id.trimmed());
+            }
         }
     }
-    ui->listWidget->blockSignals(false);
-    on_listWidget_itemChanged(nullptr);
 
-    int numberOfBooks = mainParts[6].trimmed().toInt();
-    ui->label_numberbook->setText(QString::number(numberOfBooks));
+    else if (command == "HISTORY_BOOK_INFO") {
+        if (mainParts.size() >= 6) {
+            QString bName = mainParts[2].trimmed();
+            QString aName = mainParts[3].trimmed();
+            QString price = mainParts[4].trimmed();
+            QString date = mainParts[5].trimmed();
 
-    if (numberOfBooks == 0) {
-        ui->stackedWidget->setCurrentWidget(ui->page_khali);
-    } else {
-        ui->stackedWidget->setCurrentWidget(ui->page_2);
-        while (ui->verticalLayout_3->count() > 1) {
-            QLayoutItem *child = ui->verticalLayout_3->takeAt(0);
-            if (child->widget()) {
-                delete child->widget();
-            }
-            delete child;
-        }
-
-        QString booksString = mainParts[7].trimmed();
-        QStringList booksList = booksString.split("##", Qt::SkipEmptyParts);
-
-        for (int i = 0; i < booksList.size(); ++i) {
-            QStringList bookFields = booksList[i].split(",");
-
-            if (bookFields.size() >= 4) {
-                QString bName = bookFields[0].trimmed();
-                QString aName = bookFields[1].trimmed();
-                QString price = bookFields[2].trimmed();
-                QString date = bookFields[3].trimmed();
-
-                HistoryCardwidget *card = new HistoryCardwidget(this);
-                card->setBookData(bName, aName, price, date);
-
-                ui->verticalLayout_3->insertWidget(ui->verticalLayout_3->count() - 1,
-                                                   card,
-                                                   0,
-                                                   Qt::AlignTop);
-            }
+            HistoryCardwidget *card = new HistoryCardwidget(this);
+            card->setBookData(bName, aName, price, date);
+            ui->verticalLayout_3->insertWidget(ui->verticalLayout_3->count() - 1,
+                                               card,
+                                               0,
+                                               Qt::AlignTop);
         }
     }
 }

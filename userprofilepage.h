@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QListWidgetItem>
+#include <QMap>
 #include <QWidget>
 
 namespace Ui {
@@ -17,17 +18,13 @@ public:
     explicit Userprofilepage(QWidget *parent = nullptr);
     ~Userprofilepage();
 
-    void simulateServerData();
+    void processServerResponse(const QString &response);
 
 private slots:
     void on_pushButton_topUpbalance_clicked();
-
     void on_pushButton_editpassword_clicked();
-
     void on_listWidget_itemChanged(QListWidgetItem *item);
-
     void on_pushButton_sabt_clicked();
-
     void on_pushButton_enseraf_clicked();
 
 private:
@@ -37,7 +34,8 @@ private:
     QString originalEmail;
     QString originalGenres;
     QMap<QString, QString> genreMap;
-    void information(QString dataString);
+
+    void requestHistoryBook(const QString &bookId);
 };
 
 #endif // USERPROFILEPAGE_H
