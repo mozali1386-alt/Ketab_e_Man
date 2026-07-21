@@ -10,7 +10,6 @@ BookLibraryItem::BookLibraryItem(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // تنظیم منو برای باز شدن فوری با کلیک
     shelfMenu = new QMenu(this);
     ui->toolButton_editGhafaseh->setMenu(shelfMenu);
     ui->toolButton_editGhafaseh->setPopupMode(QToolButton::InstantPopup);
@@ -25,23 +24,40 @@ void BookLibraryItem::setMode(TabMode mode)
 {
     currentMode = mode;
 
+    ui->pushButton_details->hide();
+    ui->pushButton_study->hide();
+    ui->pushButton_removesavehaANDremoveasGhafaseh->hide();
+    ui->toolButton_editGhafaseh->hide();
+    ui->label->hide();
+
     if (mode == MyBooks) {
         ui->pushButton_details->show();
         ui->pushButton_study->show();
-        ui->pushButton_removesavehaANDremoveasGhafaseh->hide();
         ui->toolButton_editGhafaseh->show();
+
     } else if (mode == SavedBooks) {
         ui->pushButton_details->show();
-        ui->pushButton_study->hide();
         ui->pushButton_removesavehaANDremoveasGhafaseh->show();
         ui->pushButton_removesavehaANDremoveasGhafaseh->setText("حذف از ذخیره شده ها");
-        ui->toolButton_editGhafaseh->hide();
+
     } else if (mode == MyShelves) {
-        ui->pushButton_details->hide();
         ui->pushButton_study->show();
         ui->pushButton_removesavehaANDremoveasGhafaseh->show();
         ui->pushButton_removesavehaANDremoveasGhafaseh->setText("حذف از قفسه");
         ui->toolButton_editGhafaseh->show();
+    }
+}
+
+void BookLibraryItem::setIsPurchased(bool purchased)
+{
+    if (currentMode == SavedBooks) {
+        if (purchased) {
+            ui->pushButton_study->show();
+            ui->label->hide();
+        } else {
+            ui->pushButton_study->hide();
+            ui->label->show();
+        }
     }
 }
 
@@ -79,7 +95,6 @@ void BookLibraryItem::updateShelvesMenu(const QMap<QString, QString> &shelvesMap
         return;
     }
 
-    // اضافه کردن قفسه‌ها به منو
     for (auto it = shelvesMap.constBegin(); it != shelvesMap.constEnd(); ++it) {
         QString shelfId = it.key();
         QString shelfName = it.value();

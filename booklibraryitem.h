@@ -14,22 +14,18 @@ class BookLibraryItem : public QWidget
     Q_OBJECT
 
 public:
-    // تعریف سه حالت برای سه تب مختلف
-    enum TabMode { MyBooks, SavedBooks, MyShelves };
-
     explicit BookLibraryItem(QWidget *parent = nullptr);
     ~BookLibraryItem();
 
-    void setMode(TabMode mode);
+    enum TabMode { MyBooks = 0, SavedBooks = 1, MyShelves = 2 };
 
-    // دریافت اطلاعات کتاب و وضعیت قفسه فعلی آن (در صورت وجود)
+    void setMode(TabMode mode);
     void setBookData(const QString &id,
                      const QString &image,
                      const QString &title,
-                     const QString &currentShelfId = "NONE");
-
-    // آپدیت کردن منوی قفسه‌ها (سه‌نقطه)
+                     const QString &currentShelfId);
     void updateShelvesMenu(const QMap<QString, QString> &shelvesMap);
+    void setIsPurchased(bool purchased);
 
     QString getBookId() const;
 
@@ -38,7 +34,7 @@ signals:
     void studyRequested(QString bookId);
     void removeFromSavedRequested(QString bookId);
     void removeFromShelfRequested(QString bookId);
-    void shelfAssignmentChanged(QString bookId, QString newShelfId); // برای تغییر قفسه
+    void shelfAssignmentChanged(QString bookId, QString newShelfId);
 
 private slots:
     void on_pushButton_details_clicked();
@@ -47,10 +43,9 @@ private slots:
 
 private:
     Ui::BookLibraryItem *ui;
-
+    TabMode currentMode;
     QString currentBookId;
     QString currentShelf;
-    TabMode currentMode;
     QMenu *shelfMenu;
 };
 

@@ -2,6 +2,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QStringList>
+#include <QTimer>
 #include "bookdetails.h"
 #include "pdfviewerwidget.h"
 #include "ui_librarywidget.h"
@@ -13,7 +14,6 @@ LibraryWidget::LibraryWidget(QWidget *parent)
     ui->setupUi(this);
     setupLayouts();
 
-    // هنگام باز شدن فرم، دیتای تب اول و لیست قفسه‌ها را می‌گیریم
     requestShelves();
     requestMyBooks();
 }
@@ -54,11 +54,11 @@ void LibraryWidget::clearLayout(QLayout *layout)
     }
 }
 
-void LibraryWidget::addBookToGrid(BookLibraryItem *item, QGridLayout *layout)
+void LibraryWidget::addBookToGrid(BookLibraryItem *item, QGridLayout *layout, int maxColumns)
 {
     int count = layout->count();
-    int row = count / 3;
-    int col = count % 3;
+    int row = count / maxColumns;
+    int col = count % maxColumns;
     layout->addWidget(item, row, col);
 }
 
@@ -81,18 +81,40 @@ void LibraryWidget::requestMyBooks()
 {
     QString message = "GET_MY_BOOKS";
     // client->sendMessage(message);
+
+    // ==========================================
+    // =============== شروع کدهای تست ===============
+    QTimer::singleShot(100, this, [=]() { processServerResponse("MY_BOOKS_RESULT||2||101,102"); });
+    // =============== پایان کدهای تست ===============
+    // ==========================================
 }
 
 void LibraryWidget::requestSavedBooks()
 {
     QString message = "GET_SAVED_BOOKS";
     // client->sendMessage(message);
+
+    // ==========================================
+    // =============== شروع کدهای تست ===============
+    QTimer::singleShot(100, this, [=]() {
+        processServerResponse("SAVED_BOOKS_RESULT||2||103,104");
+    });
+    // =============== پایان کدهای تست ===============
+    // ==========================================
 }
 
 void LibraryWidget::requestShelves()
 {
     QString message = "GET_SHELVES";
     // client->sendMessage(message);
+
+    // ==========================================
+    // =============== شروع کدهای تست ===============
+    QTimer::singleShot(100, this, [=]() {
+        processServerResponse("SHELVES_RESULT||2||1:اکشن,2:علمی");
+    });
+    // =============== پایان کدهای تست ===============
+    // ==========================================
 }
 
 void LibraryWidget::requestShelfBooks(const QString &shelfId)
@@ -101,12 +123,50 @@ void LibraryWidget::requestShelfBooks(const QString &shelfId)
         return;
     QString message = "GET_SHELF_BOOKS||" + shelfId;
     // client->sendMessage(message);
+
+    // ==========================================
+    // =============== شروع کدهای تست ===============
+    QTimer::singleShot(100, this, [=]() {
+        processServerResponse("SHELF_BOOKS_RESULT||" + shelfId + "||101");
+    });
+    // =============== پایان کدهای تست ===============
+    // ==========================================
 }
 
 void LibraryWidget::requestLibraryBookInfo(const QString &bookId, BookLibraryItem::TabMode mode)
 {
-    QString message = "GET_LIBRARY_BOOK_INFO||" + bookId;
+    QString message;
+    QString mockCmd;
+
+    if (mode == BookLibraryItem::MyBooks) {
+        message = "GET_MY_BOOK_INFO||" + bookId;
+        mockCmd = "MY_BOOK_INFO_RESULT";
+    } else if (mode == BookLibraryItem::SavedBooks) {
+        message = "GET_SAVED_BOOK_INFO||" + bookId;
+        mockCmd = "SAVED_BOOK_INFO_RESULT";
+    } else if (mode == BookLibraryItem::MyShelves) {
+        message = "GET_SHELF_BOOK_INFO||" + bookId;
+        mockCmd = "SHELF_BOOK_INFO_RESULT";
+    }
+
     // client->sendMessage(message);
+
+    // ==========================================
+    // =============== شروع کدهای تست ===============
+    QString mockResponse;
+    if (mode == BookLibraryItem::SavedBooks) {
+        // پروتکل جدید ذخیره‌شده‌ها: بدون ShelfID، فقط شامل IsPurchased
+        QString isPurchased = (bookId == "103") ? "TRUE" : "FALSE";
+        mockResponse = mockCmd + "||" + bookId + "||BASE64_IMAGE||کتاب تستی " + bookId + "||"
+                       + isPurchased;
+    } else {
+        // پروتکل کتاب‌ها و قفسه‌ها: شامل ShelfID
+        mockResponse = mockCmd + "||" + bookId + "||BASE64_IMAGE||کتاب تستی " + bookId + "||1";
+    }
+
+    QTimer::singleShot(100, this, [=]() { processServerResponse(mockResponse); });
+    // =============== پایان کدهای تست ===============
+    // ==========================================
 }
 
 // ==========================================
@@ -151,14 +211,17 @@ void LibraryWidget::processServerResponse(const QString &response)
             for (const QString &id : ids)
                 requestLibraryBookInfo(id, BookLibraryItem::MyShelves);
         }
-    } else if (cmd == "LIBRARY_BOOK_INFO") {
-        if (parts.size() < 6)
+    } else if (cmd == "MY_BOOK_INFO_RESULT" || cmd == "SHELF_BOOK_INFO_RESULT") {
+        if (parts.size() < 5)
             return;
+
         QString bookId = parts[1];
         QString image = parts[2];
         QString title = parts[3];
         QString shelfId = parts[4];
-        BookLibraryItem::TabMode mode = static_cast<BookLibraryItem::TabMode>(parts[5].toInt());
+
+        BookLibraryItem::TabMode mode = (cmd == "MY_BOOK_INFO_RESULT") ? BookLibraryItem::MyBooks
+                                                                       : BookLibraryItem::MyShelves;
 
         BookLibraryItem *item = new BookLibraryItem(this);
         item->setMode(mode);
@@ -167,10 +230,6 @@ void LibraryWidget::processServerResponse(const QString &response)
 
         connect(item, &BookLibraryItem::detailsRequested, this, &LibraryWidget::handleBookDetails);
         connect(item, &BookLibraryItem::studyRequested, this, &LibraryWidget::handleBookStudy);
-        connect(item,
-                &BookLibraryItem::removeFromSavedRequested,
-                this,
-                &LibraryWidget::handleRemoveFromSaved);
         connect(item,
                 &BookLibraryItem::removeFromShelfRequested,
                 this,
@@ -181,24 +240,41 @@ void LibraryWidget::processServerResponse(const QString &response)
                 &LibraryWidget::handleShelfAssignment);
 
         if (mode == BookLibraryItem::MyBooks)
-            addBookToGrid(item, myBooksLayout);
-        else if (mode == BookLibraryItem::SavedBooks)
-            addBookToGrid(item, savedBooksLayout);
-        else if (mode == BookLibraryItem::MyShelves)
-            addBookToGrid(item, shelvesBooksLayout);
+            addBookToGrid(item, myBooksLayout, 3);
+        else
+            addBookToGrid(item, shelvesBooksLayout, 3);
+
+    } else if (cmd == "SAVED_BOOK_INFO_RESULT") {
+        if (parts.size() < 5)
+            return;
+
+        QString bookId = parts[1];
+        QString image = parts[2];
+        QString title = parts[3];
+        bool isPurchased = (parts[4] == "TRUE");
+
+        BookLibraryItem *item = new BookLibraryItem(this);
+        item->setMode(BookLibraryItem::SavedBooks);
+        item->setBookData(bookId, image, title, "NONE");
+        item->setIsPurchased(isPurchased);
+
+        connect(item, &BookLibraryItem::detailsRequested, this, &LibraryWidget::handleBookDetails);
+        connect(item, &BookLibraryItem::studyRequested, this, &LibraryWidget::handleBookStudy);
+        connect(item,
+                &BookLibraryItem::removeFromSavedRequested,
+                this,
+                &LibraryWidget::handleRemoveFromSaved);
+
+        addBookToGrid(item, savedBooksLayout, 2);
+
     } else if (cmd == "ADD_SHELF_RESULT" || cmd == "EDIT_SHELF_RESULT"
                || cmd == "DELETE_SHELF_RESULT" || cmd == "REMOVE_SAVED_RESULT"
                || cmd == "ASSIGN_SHELF_RESULT" || cmd == "REMOVE_FROM_SHELF_RESULT") {
         on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
-    }
-    // ==========================================
-    // دریافت بایت‌های PDF از سرور (منطق بهینه‌شده و ضدخرابی)
-    // ==========================================
-    else if (cmd == "FILE_START") {
+    } else if (cmd == "FILE_START") {
         if (parts.size() >= 4) {
             int totalChunks = parts[2].toInt();
             currentBookLastPage = parts[3].toInt();
-
             if (pdfLoadingDialog) {
                 pdfLoadingDialog->setMaximum(totalChunks);
                 pdfLoadingDialog->setValue(0);
@@ -206,10 +282,8 @@ void LibraryWidget::processServerResponse(const QString &response)
         }
     } else if (cmd == "FILE_CHUNK") {
         if (parts.size() >= 3) {
-            // در اینجا دیکود نمی‌کنیم! فقط رشته‌های Base64 را به هم می‌چسبانیم تا مرزها خراب نشوند
             QString base64Data = parts[2];
             currentPdfBuffer.append(base64Data.toUtf8());
-
             if (pdfLoadingDialog) {
                 pdfLoadingDialog->setValue(pdfLoadingDialog->value() + 1);
             }
@@ -223,7 +297,6 @@ void LibraryWidget::processServerResponse(const QString &response)
         }
 
         QByteArray finalPdfData = QByteArray::fromBase64(currentPdfBuffer);
-
         pdfviewerWidget *viewer = new pdfviewerWidget();
         viewer->setAttribute(Qt::WA_DeleteOnClose);
         viewer->setBookId(currentReadingBookId);
@@ -236,7 +309,6 @@ void LibraryWidget::processServerResponse(const QString &response)
         } else {
             delete viewer;
         }
-
         currentPdfBuffer.clear();
     }
 }
@@ -287,6 +359,12 @@ void LibraryWidget::on_toolButton_addGhafaseh_clicked()
     if (ok && !text.isEmpty()) {
         QString message = "ADD_SHELF||" + text;
         // client->sendMessage(message);
+
+        // ==========================================
+        // =============== شروع کدهای تست ===============
+        QTimer::singleShot(100, this, [=]() { processServerResponse("ADD_SHELF_RESULT||SUCCESS"); });
+        // =============== پایان کدهای تست ===============
+        // ==========================================
     }
 }
 
@@ -308,6 +386,14 @@ void LibraryWidget::on_toolButton_editnameGhafaseh_clicked()
     if (ok && !text.isEmpty() && text != currentName) {
         QString message = "EDIT_SHELF||" + shelfId + "||" + text;
         // client->sendMessage(message);
+
+        // ==========================================
+        // =============== شروع کدهای تست ===============
+        QTimer::singleShot(100, this, [=]() {
+            processServerResponse("EDIT_SHELF_RESULT||SUCCESS");
+        });
+        // =============== پایان کدهای تست ===============
+        // ==========================================
     }
 }
 
@@ -318,21 +404,24 @@ void LibraryWidget::on_toolButton_removeGhafaseh_clicked()
         return;
     QString shelfId = ui->comboBox_Ghafaseh->itemData(idx).toString();
 
-    auto reply = QMessageBox::question(
-        this,
-        "حذف قفسه",
-        "آیا از حذف این قفسه اطمینان دارید؟ (کتاب‌ها حذف "
-        "نمی‌شوند)",
-        QMessageBox::Yes | QMessageBox::No);
+    auto reply = QMessageBox::question(this,
+                                       "حذف قفسه",
+                                       "آیا از حذف این قفسه اطمینان دارید؟",
+                                       QMessageBox::Yes | QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         QString message = "DELETE_SHELF||" + shelfId;
         // client->sendMessage(message);
+
+        // ==========================================
+        // =============== شروع کدهای تست ===============
+        QTimer::singleShot(100, this, [=]() {
+            processServerResponse("DELETE_SHELF_RESULT||SUCCESS");
+        });
+        // =============== پایان کدهای تست ===============
+        // ==========================================
     }
 }
 
-// ==========================================
-// هندل کردن اعمال روی دکمه‌های BookLibraryItem
-// ==========================================
 void LibraryWidget::handleBookDetails(QString bookId)
 {
     Bookdetails *detailsWindow = new Bookdetails(nullptr, bookId);
@@ -343,23 +432,27 @@ void LibraryWidget::handleBookDetails(QString bookId)
 void LibraryWidget::handleBookStudy(QString bookId)
 {
     currentReadingBookId = bookId;
-    // ساخت و نمایش دیالوگ لودینگ
-    pdfLoadingDialog = new QProgressDialog("در حال دریافت کتاب از سرور...", "لغو", 0, 100, this);
+    pdfLoadingDialog = new QProgressDialog("در حال دریافت کتاب...", "لغو", 0, 100, this);
     pdfLoadingDialog->setWindowTitle("لطفاً صبر کنید");
     pdfLoadingDialog->setWindowModality(Qt::WindowModal);
     pdfLoadingDialog->setValue(0);
     pdfLoadingDialog->show();
 
-    currentPdfBuffer.clear(); // پاک کردن بافر برای کتاب جدید
-
+    currentPdfBuffer.clear();
     QString message = "DOWNLOAD_BOOK||" + bookId;
-    // client->sendMessage(message); // ارسال درخواست به سرور
+    // client->sendMessage(message);
 }
 
 void LibraryWidget::handleRemoveFromSaved(QString bookId)
 {
     QString message = "REMOVE_FROM_SAVED||" + bookId;
     // client->sendMessage(message);
+
+    // ==========================================
+    // =============== شروع کدهای تست ===============
+    QTimer::singleShot(100, this, [=]() { processServerResponse("REMOVE_SAVED_RESULT||SUCCESS"); });
+    // =============== پایان کدهای تست ===============
+    // ==========================================
 }
 
 void LibraryWidget::handleRemoveFromShelf(QString bookId)
@@ -367,15 +460,30 @@ void LibraryWidget::handleRemoveFromShelf(QString bookId)
     QString shelfId = ui->comboBox_Ghafaseh->currentData().toString();
     QString message = "REMOVE_FROM_SHELF||" + bookId + "||" + shelfId;
     // client->sendMessage(message);
+
+    // ==========================================
+    // =============== شروع کدهای تست ===============
+    QTimer::singleShot(100, this, [=]() {
+        processServerResponse("REMOVE_FROM_SHELF_RESULT||SUCCESS");
+    });
+    // =============== پایان کدهای تست ===============
+    // ==========================================
 }
 
 void LibraryWidget::handleShelfAssignment(QString bookId, QString newShelfId)
 {
     QString message = "ASSIGN_TO_SHELF||" + bookId + "||" + newShelfId;
     // client->sendMessage(message);
+
+    // ==========================================
+    // =============== شروع کدهای تست ===============
+    QTimer::singleShot(100, this, [=]() { processServerResponse("ASSIGN_SHELF_RESULT||SUCCESS"); });
+    // =============== پایان کدهای تست ===============
+    // ==========================================
 }
 
 void LibraryWidget::handleLastPageSave(QString bookId, int pageNumber)
 {
     QString message = "UPDATE_LAST_PAGE||" + bookId + "||" + QString::number(pageNumber);
+    // client->sendMessage(message);
 }

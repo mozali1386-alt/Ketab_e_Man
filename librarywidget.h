@@ -24,13 +24,10 @@ public:
 private slots:
     void on_tabWidget_currentChanged(int index);
 
-    // مدیریت قفسه‌ها (دکمه‌های بالای تب ۳)
     void on_comboBox_Ghafaseh_currentIndexChanged(int index);
     void on_toolButton_addGhafaseh_clicked();
     void on_toolButton_editnameGhafaseh_clicked();
     void on_toolButton_removeGhafaseh_clicked();
-
-    // اسلات‌های متصل به BookLibraryItem
     void handleBookDetails(QString bookId);
     void handleBookStudy(QString bookId);
     void handleRemoveFromSaved(QString bookId);
@@ -45,13 +42,12 @@ private:
     QGridLayout *savedBooksLayout;
     QGridLayout *shelvesBooksLayout;
 
-    QMap<QString, QString> userShelves; // نگهداری لیست قفسه‌ها (id -> name)
+    QMap<QString, QString> userShelves;
 
     void setupLayouts();
     void clearLayout(QLayout *layout);
-    void addBookToGrid(BookLibraryItem *item, QGridLayout *layout);
+    void addBookToGrid(BookLibraryItem *item, QGridLayout *layout, int maxColumns);
 
-    // توابع ارسال درخواست به سرور
     void requestMyBooks();
     void requestSavedBooks();
     void requestShelves();
@@ -59,9 +55,9 @@ private:
     void requestLibraryBookInfo(const QString &bookId, BookLibraryItem::TabMode mode);
 
     void updateComboBox();
+
     QByteArray currentPdfBuffer;
     QProgressDialog *pdfLoadingDialog = nullptr;
-
     QString currentReadingBookId;
     int currentBookLastPage = 0;
 };
