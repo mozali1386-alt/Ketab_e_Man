@@ -74,10 +74,10 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="BookManagement" name="page_managementbook"/>
-      <widget class="Publisherprofilepage" name="page_profile"/>
+      <widget class="PublisherProfilePage" name="page_profile"/>
       <widget class="QWidget" name="page_statistic">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="leftMargin">
@@ -108,16 +108,17 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>569</width>
-             <height>540</height>
+             <width>586</width>
+             <height>463</height>
             </rect>
            </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>540</height>
+             <height>0</height>
             </size>
            </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3"/>
           </widget>
          </widget>
         </item>
@@ -273,12 +274,6 @@ QPushButton:checked {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Publisherprofilepage</class>
-   <extends>QWidget</extends>
-   <header>publisherprofilepage.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>PublisherStatistics</class>
    <extends>QWidget</extends>
    <header>publisherstatistics.h</header>
@@ -288,6 +283,12 @@ QPushButton:checked {
    <class>BookManagement</class>
    <extends>QWidget</extends>
    <header>bookmanagement.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PublisherProfilePage</class>
+   <extends>QWidget</extends>
+   <header>publisherprofilepage.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
