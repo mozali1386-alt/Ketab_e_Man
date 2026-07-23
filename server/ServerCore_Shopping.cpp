@@ -52,19 +52,20 @@ bool ServerCore::processPurchase(ClientHandler *handler, quint64 userId, const Q
         return false;
     }
 
-    Transaction *buyerTx = new Transaction();
-    buyerTx->assignNewId();
-    buyerTx->setWalletId(buyerWallet->getId());
-    buyerTx->setAmount(total);
-    buyerTx->setType(TransactionType::PURCHASE);
-    data.getTransactionsMap().insert(buyerTx->getId(), buyerTx);
-    buyerWallet->addTransaction(buyerTx->getId());
-
     for (int i = 0; i < bookIdList.size(); i++) {
         quint64 bookId = bookIdList.at(i);
         Book *b = data.getBooksMap().value(bookId);
         b->incrementSales();
         library->addToPurchasedBooks(bookId);
+
+        Transaction *buyerTx = new Transaction();
+        buyerTx->assignNewId();
+        buyerTx->setWalletId(buyerWallet->getId());
+        buyerTx->setAmount(b->getFinalPrice());
+        buyerTx->setType(TransactionType::PURCHASE);
+        buyerTx->setBookPriceAtPurchase(bookId, b->getFinalPrice());
+        data.getTransactionsMap().insert(buyerTx->getId(), buyerTx);
+        buyerWallet->addTransaction(buyerTx->getId());
 
         Publisher *publisher = static_cast<Publisher *>(data.getUsersMap().value(b->getPublisherId()));
         publisher->receiveSaleIncome(b->getFinalPrice());
@@ -77,6 +78,7 @@ bool ServerCore::processPurchase(ClientHandler *handler, quint64 userId, const Q
         publisherTx->setWalletId(publisherWallet->getId());
         publisherTx->setAmount(b->getFinalPrice());
         publisherTx->setType(TransactionType::SALE_INCOME);
+        publisherTx->setBookPriceAtPurchase(bookId, b->getFinalPrice());
         data.getTransactionsMap().insert(publisherTx->getId(), publisherTx);
         publisherWallet->addTransaction(publisherTx->getId());
 
