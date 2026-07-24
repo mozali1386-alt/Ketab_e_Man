@@ -7,6 +7,8 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QString>
+#include <QStringList>
+#include "../../shared/Protocol.h"
 
 class ClientHandler : public QObject {
     Q_OBJECT
@@ -16,7 +18,7 @@ public:
 
     virtual ~ClientHandler();
 
-    void sendResponse(int commandId, const QString &payload);
+    void sendResponse(Command command, const QStringList &fields = QStringList());
 
     quint64 getUserId() const;
 
@@ -25,7 +27,7 @@ public:
     bool isAuthenticated() const;
 
 signals:
-    void requestReceived(ClientHandler *handler, int commandId, QString payload);
+    void requestReceived(ClientHandler *handler, Command command, QStringList fields);
 
     void clientDisconnected(ClientHandler *handler);
 
@@ -41,6 +43,8 @@ private:
     quint32 blockSize;
     quint64 userId;
     static const quint32 MAX_BLOCK_SIZE = 10485760;
+
+    QString buildMessage(Command command, const QStringList &fields) const;
 };
 
 #endif

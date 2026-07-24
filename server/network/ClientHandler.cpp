@@ -23,6 +23,14 @@ ClientHandler::ClientHandler(qintptr socketDescriptor, QObject *parent) : QObjec
 ClientHandler::~ClientHandler() {
 }
 
+QString ClientHandler::buildMessage(Command command, const QStringList &fields) const {
+    QString message = commandToString(command);
+    for (int i = 0; i < fields.size(); i++) {
+        message += PROTOCOL_SEPARATOR + fields.at(i);
+    }
+    return message;
+}
+
 void ClientHandler::onReadyRead() {
     QDataStream in(socket);
     in.setVersion(QDataStream::Qt_5_10);
@@ -44,10 +52,8 @@ void ClientHandler::onReadyRead() {
             return;
         }
 
-        int commandId = 0;
-        QString payload = "";
-        in >> commandId;
-        in >> payload;
+        QString message = "";
+        in >> message;
 
         if (in.status() != QDataStream::Ok) {
             socket->disconnectFromHost();
@@ -56,7 +62,11 @@ void ClientHandler::onReadyRead() {
 
         blockSize = 0;
 
-        emit requestReceived(this, commandId, payload);
+        QStringList parts = message.split(PROTOCOL_SEPARATOR);
+        Command command = stringToCommand(parts.at(0));
+        parts.removeFirst();
+
+        emit requestReceived(this, command, parts);
     }
 }
 
@@ -69,18 +79,19 @@ void ClientHandler::onSocketError(QAbstractSocket::SocketError socketError) {
     socket->abort();
 }
 
-void ClientHandler::sendResponse(int commandId, const QString &payload) {
+void ClientHandler::sendResponse(Command command, const QStringList &fields) {
     if (socket == nullptr || socket->state() != QAbstractSocket::ConnectedState) {
         return;
     }
+
+    QString message = buildMessage(command, fields);
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_10);
 
     out << (quint32) 0;
-    out << commandId;
-    out << payload;
+    out << message;
 
     out.device()->seek(0);
     out << (quint32) (block.size() - (int) sizeof(quint32));
