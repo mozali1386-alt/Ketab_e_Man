@@ -46,7 +46,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -63,8 +63,72 @@
          <number>0</number>
         </property>
         <item row="0" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="1">
+           <widget class="QPushButton" name="pushButton_search">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton#pushButton_search {
+    background-color: #3498DB;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    border-radius: 6px;
+    padding: 8px;
+    border: none;
+}
+QPushButton#pushButton_search:hover {
+    background-color: #2980B9;
+}
+QPushButton#pushButton_search:pressed {
+    background-color: #1F618D;
+}
+</string>
+            </property>
+            <property name="text">
+             <string>جستجو</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBox_filterusers">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <item>
+             <property name="text">
+              <string>همه</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ناشران</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>کاربران عادی</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="0">
            <widget class="QComboBox" name="comboBox_filterstatus">
             <property name="minimumSize">
              <size>
@@ -92,38 +156,14 @@
             </item>
            </widget>
           </item>
-          <item>
-           <widget class="QComboBox" name="comboBox_filterusers">
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>30</height>
-             </size>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="lineEdit_name">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <item>
-             <property name="text">
-              <string>همه</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ناشران</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>کاربران عادی</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string/>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEdit_serch">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -134,7 +174,7 @@
              <string/>
             </property>
             <property name="placeholderText">
-             <string>جستجو</string>
+             <string>نام کاربر</string>
             </property>
            </widget>
           </item>
@@ -142,10 +182,13 @@
         </item>
         <item row="2" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QPushButton" name="pushButton_deletehesab">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
@@ -154,18 +197,17 @@
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{
+             <string notr="true">QPushButton {
     background-color: #E74C3C;
     color: white;
     border-radius: 8px;
     border: none;
+    padding: 8px;
 }
-
-QPushButton:hover:!disabled{
+QPushButton:hover:!disabled {
     background-color: #C0392B;
 }
-
-QPushButton:disabled{
+QPushButton:disabled {
     background-color: #BDBDBD;
     color: #666666;
 }</string>
@@ -176,9 +218,9 @@ QPushButton:disabled{
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_status">
+           <widget class="QPushButton" name="pushButton_block">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
@@ -187,24 +229,55 @@ QPushButton:disabled{
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{
-    background-color: #F39C12;
+             <string notr="true">QPushButton {
+    background-color: #E67E22;
     color: white;
     border-radius: 8px;
     border: none;
+    padding: 8px;
 }
-
-QPushButton:hover:!disabled{
-    background-color: #D68910;
+QPushButton:hover:!disabled {
+    background-color: #D35400;
 }
-
-QPushButton:disabled{
+QPushButton:disabled {
     background-color: #BDBDBD;
     color: #666666;
 }</string>
             </property>
             <property name="text">
              <string>مسدودیت</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_unblock">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+    background-color: #2ECC71;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    padding: 8px;
+}
+QPushButton:hover:!disabled {
+    background-color: #27AE60;
+}
+QPushButton:disabled {
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>رفع مسدودیت</string>
             </property>
            </widget>
           </item>
@@ -215,8 +288,21 @@ QPushButton:disabled{
           <property name="enabled">
            <bool>true</bool>
           </property>
+          <property name="styleSheet">
+           <string notr="true">QHeaderView::section {
+    background-color: #E8ECEF;
+    color: #2C3E50;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 6px;
+    border: 1px solid #D5D8DC;
+}</string>
+          </property>
           <property name="editTriggers">
            <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
           </property>
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
@@ -275,6 +361,9 @@ QPushButton:disabled{
           <property name="editTriggers">
            <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
           </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
           </property>
@@ -300,7 +389,17 @@ QPushButton:disabled{
           </column>
           <column>
            <property name="text">
+            <string>توضیحات کتاب</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
             <string>وضعیت انتشار</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string/>
            </property>
           </column>
          </widget>
@@ -310,7 +409,7 @@ QPushButton:disabled{
           <item>
            <widget class="QPushButton" name="pushButton_deletebook">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
@@ -343,7 +442,7 @@ QPushButton:disabled{
           <item>
            <widget class="QPushButton" name="pushButton_editbook">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
@@ -374,9 +473,9 @@ QPushButton:disabled{
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="pushButton_pikther">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
@@ -408,9 +507,9 @@ QPushButton:disabled{
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="pushButton_pdf">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
@@ -461,6 +560,9 @@ QPushButton:disabled{
           <property name="editTriggers">
            <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
           </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
           </property>
@@ -491,7 +593,7 @@ QPushButton:disabled{
           <item>
            <widget class="QPushButton" name="pushButton_deletecomment">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
@@ -524,7 +626,7 @@ QPushButton:disabled{
           <item>
            <widget class="QPushButton" name="pushButton_textcomelcomment">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
