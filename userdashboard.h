@@ -1,7 +1,9 @@
 #ifndef USERDASHBOARD_H
 #define USERDASHBOARD_H
 
+#include <QLabel>
 #include <QMainWindow>
+#include "notification.h"
 
 namespace Ui {
 class UserDashboard;
@@ -24,8 +26,19 @@ private slots:
 
     void on_pushButton_profile_clicked();
 
+    void on_toolButton_notification_clicked();
+    void onNotificationClicked(const QString &notifId);
+    void onMarkAllReadClicked();
+
 private:
     Ui::UserDashboard *ui;
+
+    Notification *notifPopup;
+    QLabel *badgeLabel; // لیبل دایره قرمز برای نمایش عدد
+    int unreadCount = 0;
+
+    void updateBadge(); // تابعی برای روشن/خاموش کردن دایره قرمز
+    void processServerResponse(const QString &response);
 };
 
 #endif // USERDASHBOARD_H

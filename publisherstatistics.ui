@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>645</height>
+    <height>661</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -206,6 +206,9 @@
        <property name="editTriggers">
         <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
        </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
+       </property>
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
        </property>
@@ -270,6 +273,9 @@
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
        </property>
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
