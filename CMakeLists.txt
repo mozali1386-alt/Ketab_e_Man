@@ -49,6 +49,7 @@ set(SHARED_HEADERS
         shared/Wallet.h
         shared/Transaction.h
         shared/Purchase.h
+        shared/Protocol.cpp
 )
 
 add_executable(Ketab_e_Man_Server
