@@ -7,70 +7,103 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>379</height>
+    <height>248</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ویرایش اطلاعات کتاب</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="3">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>نام کتاب</string>
+   <item row="4" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="pushButton_sabt">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #2ecc71;
+    color: white;
+    font-family: &quot;Tahoma&quot;;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 6px; /* این خط گوشه‌ها را گرد می‌کند */
+    padding: 6px 15px;
+}
+QPushButton:hover {
+    background-color: #27ae60;
+}</string>
+       </property>
+       <property name="text">
+        <string>تایید</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_enseraf">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #95a5a6;
+    color: white;
+    font-family: &quot;Tahoma&quot;;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 6px 15px;
+}
+QPushButton:hover {
+    background-color: #7f8c8d;
+}</string>
+       </property>
+       <property name="text">
+        <string>انصراف</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLineEdit" name="lineEdit_namebook">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
      </property>
     </widget>
    </item>
-   <item row="1" column="3">
+   <item row="1" column="1">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>نام نویسنده</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="3">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>عکس کتاب</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="2" colspan="2">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>فایل پی دی اف</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="lineEdit_2">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>30</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="lineEdit">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>30</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>ناشر</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QComboBox" name="comboBox">
+   <item row="2" column="0">
+    <widget class="QComboBox" name="comboBox_genre">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -119,8 +152,8 @@
      </item>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="lineEdit_5">
+   <item row="1" column="0">
+    <widget class="QLineEdit" name="lineEdit_nameauthor">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -129,183 +162,38 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="3">
+   <item row="2" column="1">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>ژانر</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" rowspan="2" colspan="4">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="pushButton_3">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton {
-    background-color: #2ecc71;
-    color: white;
-    font-family: &quot;Tahoma&quot;;
-    font-size: 12px;
-    font-weight: bold;
-    border-radius: 6px; /* این خط گوشه‌ها را گرد می‌کند */
-    padding: 6px 15px;
-}
-QPushButton:hover {
-    background-color: #27ae60;
-}</string>
-       </property>
-       <property name="text">
-        <string>تایید</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButton_5">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton {
-    background-color: #95a5a6;
-    color: white;
-    font-family: &quot;Tahoma&quot;;
-    font-size: 12px;
-    font-weight: bold;
-    border-radius: 6px;
-    padding: 6px 15px;
-}
-QPushButton:hover {
-    background-color: #7f8c8d;
-}</string>
-       </property>
-       <property name="text">
-        <string>انصراف</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>نام کتاب</string>
+     </property>
+    </widget>
    </item>
-   <item row="7" column="0" colspan="2">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QLineEdit" name="lineEdit_3">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButton">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton {
-    background-color: #3498db;
-    color: white;
-    font-family: &quot;Tahoma&quot;;
-    font-size: 12px;
-    border-radius: 6px;
-    padding: 6px 15px;
-}
-QPushButton:hover {
-    background-color: #2980b9;
-}</string>
-       </property>
-       <property name="text">
-        <string>انتخاب فایل</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+   <item row="3" column="0">
+    <widget class="QTextEdit" name="textEdit_tozih"/>
    </item>
-   <item row="5" column="1" rowspan="2">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QLineEdit" name="lineEdit_4">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButton_2">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton {
-    background-color: #3498db;
-    color: white;
-    font-family: &quot;Tahoma&quot;;
-    font-size: 12px;
-    border-radius: 6px;
-    padding: 6px 15px;
-}
-QPushButton:hover {
-    background-color: #2980b9;
-}</string>
-       </property>
-       <property name="text">
-        <string>انتخاب عکس</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+   <item row="3" column="1">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>توضیحات</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lineEdit</tabstop>
-  <tabstop>lineEdit_2</tabstop>
-  <tabstop>comboBox</tabstop>
-  <tabstop>lineEdit_5</tabstop>
-  <tabstop>pushButton_3</tabstop>
-  <tabstop>pushButton_5</tabstop>
-  <tabstop>lineEdit_3</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>lineEdit_4</tabstop>
-  <tabstop>pushButton_2</tabstop>
+  <tabstop>lineEdit_namebook</tabstop>
+  <tabstop>lineEdit_nameauthor</tabstop>
+  <tabstop>comboBox_genre</tabstop>
+  <tabstop>pushButton_sabt</tabstop>
+  <tabstop>pushButton_enseraf</tabstop>
  </tabstops>
  <resources/>
  <connections/>
