@@ -33,8 +33,6 @@ qt_add_executable(Ketab_e_Man
     booklibraryitem.h booklibraryitem.cpp booklibraryitem.ui
     librarywidget.h librarywidget.cpp librarywidget.ui
     userdashboard.h userdashboard.cpp userdashboard.ui
-    notificationdialog.h notificationdialog.cpp notificationdialog.ui
-    notificationitem.h notificationitem.cpp notificationitem.ui
     pdfviewerwidget.h pdfviewerwidget.cpp pdfviewerwidget.ui
     publisherstatistics.h publisherstatistics.cpp publisherstatistics.ui
     bookmanagement.h bookmanagement.cpp bookmanagement.ui
@@ -42,6 +40,7 @@ qt_add_executable(Ketab_e_Man
     publisherdashboard.h publisherdashboard.cpp publisherdashboard.ui
     admindashboard.h admindashboard.cpp admindashboard.ui
     editbookdialog.h editbookdialog.cpp editbookdialog.ui
+    notification.h notification.cpp
 
 
 
