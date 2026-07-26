@@ -112,7 +112,11 @@ void Storepage::processServerResponse(const QString &response)
             delete child;
         }
 
-        if (fieldTwo == "NOT_FOUND" || fieldTwo.isEmpty()) {
+        // if (fieldTwo == "NOT_FOUND" || fieldTwo.isEmpty()) {
+        //     return;
+        // }
+
+        if (fieldTwo == "EMPTY" || fieldTwo.isEmpty()) {
             return;
         }
         QStringList ids = fieldTwo.split(",", Qt::SkipEmptyParts);
