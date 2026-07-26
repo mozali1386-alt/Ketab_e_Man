@@ -134,7 +134,7 @@ void PublisherStatistics::processServerResponse(const QString &response)
         ui->label_totalincome->setText(parts[3] + " تومان");
     } else if (cmd == "PUB_TOP_IDS_RESULT") {
         ui->tableWidget_maximum->setRowCount(0);
-        if (parts.size() >= 2 && !parts[1].isEmpty()) {
+        if (parts.size() >= 2 && !parts[1].isEmpty() && parts[1] != "EMPTY") {
             QStringList ids = parts[1].split(",", Qt::SkipEmptyParts);
             for (const QString &id : ids) {
                 requestTopBookInfo(id);
@@ -144,7 +144,7 @@ void PublisherStatistics::processServerResponse(const QString &response)
         appendToTable(ui->tableWidget_maximum, parts[2], parts[3], parts[4]);
     } else if (cmd == "PUB_LOWEST_IDS_RESULT") {
         ui->tableWidget_minimum->setRowCount(0);
-        if (parts.size() >= 2 && !parts[1].isEmpty()) {
+        if (parts.size() >= 2 && !parts[1].isEmpty() && parts[1] != "EMPTY") {
             QStringList ids = parts[1].split(",", Qt::SkipEmptyParts);
             for (const QString &id : ids) {
                 requestLowestBookInfo(id);
