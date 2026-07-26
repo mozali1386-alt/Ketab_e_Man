@@ -122,15 +122,16 @@ void Usersignupwindow::on_pushButton_confirm_clicked()
     qDebug() << Message;
 
     //client->sendMessage(Message);
-    // ===================
-    //جواب سرور
-    //====================
 
-    UserDashboard *dash = new UserDashboard();
-    dash->show();
+    // ======== کدهای تست ثبت‌نام کاربر ========
+    // تست حالت موفقیت‌آمیز:
+    //processServerResponse("SIGNUP_NORMALUSER||SUCCESS");
 
-    emit signupsuccessful();
-    this->close();
+    // تست حالت خطای دوتایی:
+    // processServerResponse("SIGNUP_NORMALUSER||FAIL||USERNAME_EXISTS,EMAIL_EXISTS");
+
+    // تست حالت خطای تکی:
+    // processServerResponse("SIGNUP_NORMALUSER||FAIL||EMAIL_EXISTS");
 }
 
 void Usersignupwindow::on_listWidget_genre_itemChanged(QListWidgetItem *item)
@@ -163,4 +164,30 @@ void Usersignupwindow::on_listWidget_genre_itemChanged(QListWidgetItem *item)
     }
     //روشن کردن مجدد سیگنال ها
     ui->listWidget_genre->blockSignals(false);
+}
+
+void Usersignupwindow::processServerResponse(const QString &response)
+{
+    QStringList parts = response.split("||");
+    if (parts.isEmpty())
+        return;
+
+    if (parts[0] == "SIGNUP_NORMALUSER") {
+        if (parts.size() >= 2 && parts[1] == "SUCCESS") {
+            UserDashboard *dash = new UserDashboard();
+            dash->show();
+            emit signupsuccessful();
+            this->close();
+        } else if (parts.size() >= 3 && parts[1] == "FAIL") {
+            // جدا کردن خطاها با ویرگول
+            QStringList errors = parts[2].split(",");
+            for (int i = 0; i < errors.size(); ++i) {
+                if (errors[i] == "USERNAME_EXISTS") {
+                    ui->label_UsernameError->setText("این نام کاربری قبلاً ثبت شده است.");
+                } else if (errors[i] == "EMAIL_EXISTS") {
+                    ui->label_EmailError->setText("این ایمیل قبلاً ثبت شده است.");
+                }
+            }
+        }
+    }
 }

@@ -25,6 +25,7 @@ private slots:
     void on_pushButton_confirm_clicked();
 
     void on_listWidget_genre_itemChanged(QListWidgetItem *item);
+    void processServerResponse(const QString &response);
 
 private:
     Ui::Usersignupwindow *ui;
