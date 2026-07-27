@@ -136,8 +136,7 @@ Admindashboard::Admindashboard(QWidget *parent)
     ui->pushButton_deletecomment->setEnabled(false);
     ui->pushButton_textcomelcomment->setEnabled(false);
 
-    requestAdminBooks();
-    requestAdminComments();
+    on_tabWidget_currentChanged(0);
 }
 
 Admindashboard::~Admindashboard()
@@ -786,4 +785,24 @@ void Admindashboard::onMarkAllReadClicked()
     // ==========================================================
     QTimer::singleShot(100, this, [=]() { processServerResponse("MARK_ALL_READ_RESULT||SUCCESS"); });
     // ==========================================================
+}
+
+void Admindashboard::closeEvent(QCloseEvent *event)
+{
+    // client->sendMessage("LOGOUT");
+    // اجازه می‌دهیم برنامه روال عادی بسته شدن خود را طی کند
+    event->accept();
+}
+
+void Admindashboard::on_tabWidget_currentChanged(int index)
+{
+    if (index == 0) {
+        on_pushButton_search_clicked();
+    } else if (index == 1) {
+        ui->tableWidget_books->setRowCount(0);
+        ui->tableWidget_comment->setRowCount(0);
+        // درخواست اطلاعات جدید برای هر دو جدول
+        requestAdminBooks();
+        requestAdminComments();
+    }
 }
