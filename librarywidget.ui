@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_mybook">
       <attribute name="title">
@@ -50,7 +50,6 @@
             <height>261</height>
            </rect>
           </property>
-          <layout class="QGridLayout" name="gridLayout"/>
          </widget>
         </widget>
        </item>
@@ -75,7 +74,6 @@
             <height>261</height>
            </rect>
           </property>
-          <layout class="QGridLayout" name="gridLayout_2"/>
          </widget>
         </widget>
        </item>
@@ -165,7 +163,6 @@
             <height>228</height>
            </rect>
           </property>
-          <layout class="QGridLayout" name="gridLayout_3"/>
          </widget>
         </widget>
        </item>

@@ -155,7 +155,7 @@ void Bookdetails::processServerResponse(const QString &response)
 
     else if (command == "COMMENTS_LIST") {
         QString data = mainParts[1].trimmed();
-        if (data == "EMPTY" || data == "NOT_FOUND") {
+        if (data == "EMPTY" || data.isEmpty()) {
             return;
         }
 
@@ -326,18 +326,15 @@ void Bookdetails::updateActionButtonsUI()
     if (isOwned) {
         ui->pushButton_cartadd->hide();
         ui->pushButton_cartremove->hide();
-        ui->pushButton_savelibrary->hide();
-        ui->pushButton_removelibrary->hide();
-        return;
-    }
-    if (isInCart) {
-        ui->pushButton_cartadd->hide();
-        ui->pushButton_cartremove->show();
     } else {
-        ui->pushButton_cartadd->show();
-        ui->pushButton_cartremove->hide();
+        if (isInCart) {
+            ui->pushButton_cartadd->hide();
+            ui->pushButton_cartremove->show();
+        } else {
+            ui->pushButton_cartadd->show();
+            ui->pushButton_cartremove->hide();
+        }
     }
-
     if (isSaved) {
         ui->pushButton_savelibrary->hide();
         ui->pushButton_removelibrary->show();

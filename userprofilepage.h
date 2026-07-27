@@ -17,8 +17,7 @@ class Userprofilepage : public QWidget
 public:
     explicit Userprofilepage(QWidget *parent = nullptr);
     ~Userprofilepage();
-
-    void processServerResponse(const QString &response);
+    void refreshProfile();
 
 private slots:
     void on_pushButton_topUpbalance_clicked();
@@ -26,6 +25,7 @@ private slots:
     void on_listWidget_itemChanged(QListWidgetItem *item);
     void on_pushButton_sabt_clicked();
     void on_pushButton_enseraf_clicked();
+    void processServerResponse(const QString &response);
 
 private:
     Ui::Userprofilepage *ui;

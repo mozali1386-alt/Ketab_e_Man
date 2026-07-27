@@ -18,8 +18,7 @@ class LibraryWidget : public QWidget
 public:
     explicit LibraryWidget(QWidget *parent = nullptr);
     ~LibraryWidget();
-
-    void processServerResponse(const QString &response);
+    void refreshCurrentTab();
 
 private slots:
     void on_tabWidget_currentChanged(int index);
@@ -34,6 +33,7 @@ private slots:
     void handleRemoveFromShelf(QString bookId);
     void handleShelfAssignment(QString bookId, QString newShelfId);
     void handleLastPageSave(QString bookId, int pageNumber);
+    void processServerResponse(const QString &response);
 
 private:
     Ui::LibraryWidget *ui;

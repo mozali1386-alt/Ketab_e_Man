@@ -15,6 +15,7 @@ class Storepage : public QWidget
 public:
     explicit Storepage(QWidget *parent = nullptr);
     ~Storepage();
+    void refreshStore();
 
 private slots:
 

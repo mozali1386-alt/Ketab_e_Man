@@ -13,9 +13,6 @@ LibraryWidget::LibraryWidget(QWidget *parent)
 {
     ui->setupUi(this);
     setupLayouts();
-
-    requestShelves();
-    requestMyBooks();
 }
 
 LibraryWidget::~LibraryWidget()
@@ -206,7 +203,7 @@ void LibraryWidget::processServerResponse(const QString &response)
         updateComboBox();
     } else if (cmd == "SHELF_BOOKS_RESULT") {
         clearLayout(shelvesBooksLayout);
-        if (parts.size() >= 3 && parts[1] != "EMPTY") {
+        if (parts.size() >= 3 && parts[1] != "EMPTY" && parts[1].isEmpty()) {
             const QStringList ids = parts[2].split(",", Qt::SkipEmptyParts);
             for (const QString &id : ids)
                 requestLibraryBookInfo(id, BookLibraryItem::MyShelves);
@@ -486,4 +483,17 @@ void LibraryWidget::handleLastPageSave(QString bookId, int pageNumber)
 {
     QString message = "UPDATE_LAST_PAGE||" + bookId + "||" + QString::number(pageNumber);
     // client->sendMessage(message);
+}
+void LibraryWidget::refreshCurrentTab()
+{
+    int index = ui->tabWidget->currentIndex();
+
+    if (index == 0) {
+        requestShelves();
+        requestMyBooks();
+    } else if (index == 1) {
+        requestSavedBooks();
+    } else if (index == 2) {
+        requestShelves();
+    }
 }

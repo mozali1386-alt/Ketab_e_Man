@@ -153,3 +153,9 @@ void Storepage::processServerResponse(const QString &response)
         }
     }
 }
+void Storepage::refreshStore()
+{
+    // پاک کردن حافظه جستجوی قبلی تا اجازه درخواست مجدد داده شود
+    lastsearchdisplay.clear();
+    on_pushButton_search_clicked();
+}

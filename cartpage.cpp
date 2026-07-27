@@ -9,8 +9,6 @@ Cartpage::Cartpage(QWidget *parent)
     , ui(new Ui::Cartpage)
 {
     ui->setupUi(this);
-
-    requestCartItems();
 }
 
 Cartpage::~Cartpage()
@@ -22,26 +20,12 @@ void Cartpage::requestCartItems()
 {
     QString message = "GET_CART_ITEMS";
     // client->sendMessage(message);
-
-    // ================== شروع تست ==================
-    processServerResponse("CART_RESULT||1,3");
-    // ==============================================
 }
 
 void Cartpage::requestCartBookSummary(const QString &bookId)
 {
     QString message = "GET_CART_BOOK_SUMMARY||" + bookId;
     // client->sendMessage(message);
-
-    // ================== شروع تست ==================
-    if (bookId == "1") {
-        processServerResponse(
-            "CART_BOOK_SUMMARY||1||NO_IMAGE||سمفونی مردگان||عباس معروفی||150000||20000");
-    } else if (bookId == "3") {
-        processServerResponse(
-            "CART_BOOK_SUMMARY||3||NO_IMAGE||شازده کوچولو||آنتوان دو سنت اگزوپری||120000||0");
-    }
-    // ==============================================
 }
 
 void Cartpage::processServerResponse(const QString &response)
@@ -54,16 +38,26 @@ void Cartpage::processServerResponse(const QString &response)
     QString fieldTwo = mainParts[1].trimmed();
 
     if (command == "CART_RESULT") {
-        clearCartUI();
+        clearCartUI(); // ابتدا ظاهر سبد را پاک می‌کنیم
 
-        if (fieldTwo == "EMPTY" || fieldTwo.isEmpty()) {
-            updateSummary();
+        QString itemCountStr = (mainParts.size() > 1) ? mainParts[1].trimmed() : "0";
+
+        if (itemCountStr == "0" || itemCountStr == "EMPTY") {
+            expectedCartItems = 0;
+            loadedCartItems = 0;
+            isCheckingOut = false; // لغو حالت خرید
+            updateSummary();       // نمایش صفحه "سبد خرید خالی است"
             return;
         }
+        // گرفتن تعداد کل آیتم‌ها
+        expectedCartItems = itemCountStr.toInt();
+        loadedCartItems = 0;
 
-        QStringList ids = fieldTwo.split(",", Qt::SkipEmptyParts);
-        for (int i = 0; i < ids.size(); ++i) {
-            requestCartBookSummary(ids[i].trimmed());
+        if (mainParts.size() >= 3) {
+            QStringList ids = mainParts[2].split(",", Qt::SkipEmptyParts);
+            for (int i = 0; i < ids.size(); ++i) {
+                requestCartBookSummary(ids[i].trimmed());
+            }
         }
     }
 
@@ -80,23 +74,54 @@ void Cartpage::processServerResponse(const QString &response)
                              mainParts[6].toInt());
 
         addNewBookToCart(newBook);
+
+        // یک کتاب اضافه شد، شمارنده را بالا می‌بریم
+        loadedCartItems++;
+
+        // وقتی همه کتاب‌ها کامل از سرور دریافت شدند
+        if (loadedCartItems == expectedCartItems) {
+            // چک می‌کنیم آیا کاربر دکمه ثبت خرید را زده بود؟
+            if (isCheckingOut) {
+                // استخراج قیمت جدید پس از آپدیت
+                QString newPriceStr = ui->label_totalprice_discountnext->text();
+                newPriceStr.remove("مبلغ نهایی: ").remove(" تومان").trimmed();
+                int newTotalPrice = newPriceStr.toInt();
+
+                if (newTotalPrice == savedOldPrice) {
+                    // قیمت تغییر نکرده! ارسال درخواست کسر از کیف پول به سرور
+                    QString message = "CHECKOUT_CART";
+                    // client->sendMessage(message);
+
+                } else {
+                    // قیمت تغییر کرده! توقف عملیات و نمایش پیام (خرید لغو می‌شود)
+                    QMessageBox::warning(this,
+                                         "تغییر قیمت",
+                                         "قیمت یا موجودی کتاب‌ها تغییر کرده است. سبد خرید "
+                                         "شما "
+                                         "به‌روزرسانی شد.");
+                }
+
+                // در هر دو صورت، حالت خرید تمام می‌شود
+                isCheckingOut = false;
+            }
+        }
     }
 
     else if (command == "CHECKOUT_RESULT") {
+        isCheckingOut = false; // اطمینان از خروج از حالت اعتبارسنجی
+
         if (fieldTwo == "SUCCESS") {
             QMessageBox::information(this,
                                      "موفقیت",
-                                     "خرید شما با موفقیت انجام شد و کتاب‌ها به "
-                                     "کتابخانه "
+                                     "خرید شما با موفقیت انجام شد و کتاب‌ها به کتابخانه "
                                      "شما "
                                      "اضافه شدند.");
-            clearCartUI();   // خالی کردن گرافیکی سبد
-            updateSummary(); // آپدیت مبالغ به صفر و نمایش صفحه خالی
+            clearCartUI();
+            updateSummary();
         } else if (fieldTwo == "FAILED") {
             QMessageBox::warning(this,
                                  "خطا در پرداخت",
-                                 "موجودی کیف پول شما کافی نمی‌باشد. لطفاً موجودی خود "
-                                 "را "
+                                 "موجودی کیف پول شما کافی نمی‌باشد. لطفاً موجودی خود را "
                                  "افزایش "
                                  "دهید.");
         }
@@ -128,17 +153,13 @@ void Cartpage::removeBookFromCart(CartitemWidget *bookToRemove)
 // دکمه ثبت و نهایی سازی
 void Cartpage::on_pushButton_sabt_clicked()
 {
-    // ارسال درخواست خرید کل سبد به سرور
-    QString message = "CHECKOUT_CART";
-    // client->sendMessage(message);
+    QString currentPriceStr = ui->label_totalprice_discountnext->text();
+    currentPriceStr.remove("مبلغ نهایی: ").remove(" تومان").trimmed();
+    savedOldPrice = currentPriceStr.toInt();
 
-    // ================== شروع تست ==================
-    // برای تست موجودی کافی:
-    //processServerResponse("CHECKOUT_RESULT||SUCCESS");
-
-    // برای تست موجودی ناکافی، خط بالا را کامنت کن و خط پایین را اجرا کن:
-    processServerResponse("CHECKOUT_RESULT||FAILED");
-    // =============================================
+    // فعال کردن حالت خرید
+    isCheckingOut = true;
+    requestCartItems();
 }
 
 // تابع کمکی برای پاکسازی کامل لیست (جلوگیری از کدهای تکراری)
