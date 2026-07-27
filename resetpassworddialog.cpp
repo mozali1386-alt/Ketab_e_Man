@@ -48,7 +48,7 @@ void ResetPasswordDialog::on_pushButton_page1next_clicked()
 
     // ======== تست بررسی ایمیل ========
     // // تست ایمیل موجود:
-    // //processServerResponse("FORGOT_PASS_CHECK||SUCCESS||Ali_Moazed");
+    processServerResponse("FORGOT_PASS_CHECK||SUCCESS||Ali_Moazed");
 
     // // تست ایمیل ناموجود:
     // processServerResponse("FORGOT_PASS_CHECK||FAIL");
@@ -96,7 +96,7 @@ void ResetPasswordDialog::on_pushButton_page2next_2_clicked()
 
     // // ======== تست تغییر رمز ========
     // // تست آپدیت موفق:
-    // processServerResponse("FORGOT_PASS_UPDATE||SUCCESS");
+    processServerResponse("FORGOT_PASS_UPDATE||SUCCESS");
 }
 
 void ResetPasswordDialog::setupForProfile()

@@ -95,7 +95,7 @@ void publishersignupwindow::on_pushButton_confirm_clicked()
 
     // ======== کدهای تست ثبت‌نام ناشر ========
     // تست حالت موفقیت‌آمیز:
-    //processServerResponse("SIGNUP_PUBLISHER||SUCCESS");
+    processServerResponse("SIGNUP_PUBLISHER||SUCCESS");
 
     // تست حالت خطای دوتایی:
     //processServerResponse("SIGNUP_PUBLISHER||FAIL||USERNAME_EXISTS,EMAIL_EXISTS");

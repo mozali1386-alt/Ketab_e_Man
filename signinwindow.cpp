@@ -57,7 +57,7 @@ void signinwindow::on_pushButton_Confirm_clicked()
 
     // ======== کدهای تست لاگین ========
     // // تست حالت موفقیت‌آمیز:
-    // //processServerResponse("LOGIN||SUCCESS||101");
+    processServerResponse("LOGIN||SUCCESS||101");
 
     // // تست حالت رمز اشتباه (برای تست، خط بالا را کامنت و این خط را فعال کن):
     // processServerResponse("LOGIN||FAIL||Invalid username or password");

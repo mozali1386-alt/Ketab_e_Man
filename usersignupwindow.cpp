@@ -125,7 +125,7 @@ void Usersignupwindow::on_pushButton_confirm_clicked()
 
     // ======== کدهای تست ثبت‌نام کاربر ========
     // تست حالت موفقیت‌آمیز:
-    //processServerResponse("SIGNUP_NORMALUSER||SUCCESS");
+    processServerResponse("SIGNUP_NORMALUSER||SUCCESS");
 
     // تست حالت خطای دوتایی:
     // processServerResponse("SIGNUP_NORMALUSER||FAIL||USERNAME_EXISTS,EMAIL_EXISTS");
