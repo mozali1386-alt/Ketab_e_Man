@@ -86,7 +86,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="BookManagement" name="page_managementbook"/>
       <widget class="PublisherProfilePage" name="page_profile"/>
@@ -120,8 +120,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>586</width>
+             <height>445</height>
             </rect>
            </property>
            <property name="minimumSize">

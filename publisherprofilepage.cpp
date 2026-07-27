@@ -15,9 +15,6 @@ PublisherProfilePage::PublisherProfilePage(QWidget *parent)
     ui->label_error_entesharat->clear();
     ui->label_error_email->clear();
 
-    // ارسال درخواست اولیه به سرور برای دریافت اطلاعات ناشر
-    // client->sendMessage("GET_PUB_PROFILE_INFO");
-
     // ================== شروع تست ۱ (لود اولیه صفحه) ==================
     // این خط را وقتی سرور واقعی وصل شد پاک کن
     processServerResponse(
@@ -158,4 +155,8 @@ void PublisherProfilePage::processServerResponse(const QString &response)
         ui->label_balance->setText("0 تومان");
         QMessageBox::information(this, "موفقیت", "مبلغ برداشت شد.");
     }
+}
+void PublisherProfilePage::refreshProfile()
+{
+    // client->sendMessage("GET_PUB_PROFILE_INFO");
 }

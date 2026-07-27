@@ -10,12 +10,6 @@ PublisherStatistics::PublisherStatistics(QWidget *parent)
 
     ui->tableWidget_maximum->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget_minimum->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    requestGeneralStats();
-    requestTopBooksIds();
-    requestLowestBooksIds();
-    requestSalesChartData();
-    requestScoreChartData();
 }
 
 PublisherStatistics::~PublisherStatistics()
@@ -250,4 +244,12 @@ void PublisherStatistics::drawBarChart(const QStringList &dataParts)
 
     int barCount = categories.size();
     ui->tab_avgscore->setMinimumWidth(qMax(600, barCount * 80));
+}
+void PublisherStatistics::refreshStatistics()
+{
+    requestGeneralStats();
+    requestTopBooksIds();
+    requestLowestBooksIds();
+    requestSalesChartData();
+    requestScoreChartData();
 }

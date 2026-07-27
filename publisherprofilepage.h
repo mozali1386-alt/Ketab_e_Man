@@ -15,15 +15,14 @@ class PublisherProfilePage : public QWidget
 public:
     explicit PublisherProfilePage(QWidget *parent = nullptr);
     ~PublisherProfilePage();
-
-    void processServerResponse(const QString &response);
+    void refreshProfile();
 
 private slots:
     void on_pushButton_save_clicked();
     void on_pushButton_enseraf_clicked();
     void on_pushButton_withdrawbalance_clicked();
-
     void on_pushButton_editusername_clicked();
+    void processServerResponse(const QString &response);
 
 private:
     Ui::PublisherProfilePage *ui;

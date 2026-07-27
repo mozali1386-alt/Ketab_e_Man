@@ -87,16 +87,19 @@ Publisherdashboard::~Publisherdashboard()
 void Publisherdashboard::on_pushButton_managmentbook_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page_managementbook);
+    ui->page_managementbook->refreshBooksList();
 }
 
 void Publisherdashboard::on_pushButton_statistic_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page_statistic);
+    ui->scrollAreaWidgetContents->refreshStatistics();
 }
 
 void Publisherdashboard::on_pushButton_hesabkarbar_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page_profile);
+    ui->page_profile->refreshProfile();
 }
 void Publisherdashboard::updateBadge()
 {
@@ -213,4 +216,11 @@ void Publisherdashboard::processServerResponse(const QString &response)
             }
         }
     }
+}
+
+void Publisherdashboard::closeEvent(QCloseEvent *event)
+{
+    // client->sendMessage("LOGOUT");
+    // اجازه می‌دهیم برنامه روال عادی بسته شدن خود را طی کند
+    event->accept();
 }
