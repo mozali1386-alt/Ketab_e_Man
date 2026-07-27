@@ -93,9 +93,35 @@ void publishersignupwindow::on_pushButton_confirm_clicked()
 
     //client->sendMessage(Message);
 
-    Publisherdashboard *dash = new Publisherdashboard();
+    // ======== کدهای تست ثبت‌نام ناشر ========
+    // تست حالت موفقیت‌آمیز:
+    processServerResponse("SIGNUP_PUBLISHER||SUCCESS");
 
-    dash->show();
-    emit signupsuccessful();
-    this->close();
+    // تست حالت خطای دوتایی:
+    //processServerResponse("SIGNUP_PUBLISHER||FAIL||USERNAME_EXISTS,EMAIL_EXISTS");
+}
+
+void publishersignupwindow::processServerResponse(const QString &response)
+{
+    QStringList parts = response.split("||");
+    if (parts.isEmpty())
+        return;
+
+    if (parts[0] == "SIGNUP_PUBLISHER") {
+        if (parts.size() >= 2 && parts[1] == "SUCCESS") {
+            Publisherdashboard *dash = new Publisherdashboard();
+            dash->show();
+            emit signupsuccessful();
+            this->close();
+        } else if (parts.size() >= 3 && parts[1] == "FAIL") {
+            QStringList errors = parts[2].split(",");
+            for (int i = 0; i < errors.size(); ++i) {
+                if (errors[i] == "USERNAME_EXISTS") {
+                    ui->label_errorusername->setText("این نام کاربری از قبل وجود دارد.");
+                } else if (errors[i] == "EMAIL_EXISTS") {
+                    ui->label_erroremail->setText("این ایمیل از قبل ثبت شده است.");
+                }
+            }
+        }
+    }
 }

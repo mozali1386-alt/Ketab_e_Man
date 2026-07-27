@@ -23,6 +23,7 @@ private slots:
     void on_pushButton_back_clicked();
 
     void on_pushButton_confirm_clicked();
+    void processServerResponse(const QString &response);
 
 private:
     Ui::publishersignupwindow *ui;

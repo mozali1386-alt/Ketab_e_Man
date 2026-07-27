@@ -17,8 +17,6 @@ public:
     explicit Bookdetails(QWidget *parent = nullptr, QString bookId = "");
     ~Bookdetails();
 
-    void processServerResponse(const QString &response);
-
 private slots:
     void on_pushButton_cartadd_clicked();
     void on_pushButton_cartremove_clicked();
@@ -34,6 +32,7 @@ private slots:
     void on_pushButton_commentadd_clicked();
     void on_pushButton_commentedit_clicked();
     void on_pushButton_commentremove_clicked();
+    void processServerResponse(const QString &response);
 
 private:
     Ui::Bookdetails *ui;

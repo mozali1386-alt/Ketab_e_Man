@@ -88,21 +88,25 @@ UserDashboard::~UserDashboard()
 void UserDashboard::on_pushButton_store_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page_store);
+    ui->page_store->refreshStore();
 }
 
 void UserDashboard::on_pushButton_cart_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page_cart);
+    ui->page_cart->requestCartItems();
 }
 
 void UserDashboard::on_pushButton_mylibrary_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page_library);
+    ui->page_library->refreshCurrentTab();
 }
 
 void UserDashboard::on_pushButton_profile_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page_profile);
+    ui->page_profile->refreshProfile();
 }
 
 void UserDashboard::updateBadge()
@@ -220,4 +224,10 @@ void UserDashboard::processServerResponse(const QString &response)
             }
         }
     }
+}
+void UserDashboard::closeEvent(QCloseEvent *event)
+{
+    // client->sendMessage("LOGOUT");
+    // اجازه می‌دهیم برنامه روال عادی بسته شدن خود را طی کند
+    event->accept();
 }

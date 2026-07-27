@@ -22,7 +22,9 @@ class PublisherStatistics : public QWidget
 public:
     explicit PublisherStatistics(QWidget *parent = nullptr);
     ~PublisherStatistics();
+    void refreshStatistics();
 
+private slots:
     void processServerResponse(const QString &response);
 
 private:

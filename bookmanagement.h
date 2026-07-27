@@ -16,8 +16,7 @@ class BookManagement : public QWidget
 public:
     explicit BookManagement(QWidget *parent = nullptr);
     ~BookManagement();
-
-    void processServerResponse(const QString &message);
+    void refreshBooksList();
 
 private slots:
     void on_comboBox_tipe_currentIndexChanged(int index);
@@ -27,6 +26,7 @@ private slots:
     void on_pushButton_edit_clicked();
     void on_pushButton_disable_clicked();
     void on_pushButton_enable_clicked();
+    void processServerResponse(const QString &message);
 
 private:
     Ui::BookManagement *ui;

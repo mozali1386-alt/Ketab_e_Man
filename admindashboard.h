@@ -1,6 +1,7 @@
 #ifndef ADMINDASHBOARD_H
 #define ADMINDASHBOARD_H
 
+#include <QCloseEvent>
 #include <QMainWindow>
 #include <QProgressDialog>
 #include <QQuickWidget>
@@ -18,6 +19,9 @@ class Admindashboard : public QMainWindow
 public:
     explicit Admindashboard(QWidget *parent = nullptr);
     ~Admindashboard();
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void onBellClicked();
@@ -39,6 +43,9 @@ private slots:
     void on_tableWidget_comment_itemSelectionChanged();
     void on_pushButton_deletecomment_clicked();
     void on_pushButton_textcomelcomment_clicked();
+
+    // برای ریل تایم بودن
+    void on_tabWidget_currentChanged(int index);
 
 private:
     Ui::Admindashboard *ui;

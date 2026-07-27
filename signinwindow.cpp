@@ -55,24 +55,53 @@ void signinwindow::on_pushButton_Confirm_clicked()
     qDebug() << Message;
     //client->sendMessage(Message);
 
-    QMainWindow *dash = nullptr;
+    // ======== کدهای تست لاگین ========
+    // // تست حالت موفقیت‌آمیز:
+    processServerResponse("LOGIN||SUCCESS||101");
 
-    if (role == "ADMIN")
-        dash = new Admindashboard();
-
-    else if (role == "NORMALUSER")
-        dash = new UserDashboard();
-
-    else if (role == "PUBLISHER")
-        dash = new Publisherdashboard();
-
-    dash->show();
-    emit signinsuccessful();
-    this->close();
+    // // تست حالت رمز اشتباه (برای تست، خط بالا را کامنت و این خط را فعال کن):
+    // processServerResponse("LOGIN||FAIL||Invalid username or password");
 }
 
 void signinwindow::on_pushButton_forgetpassword_clicked()
 {
     ResetPasswordDialog dialog(this);
     dialog.exec();
+}
+
+void signinwindow::processServerResponse(const QString &response)
+{
+    QStringList parts = response.split("||");
+    if (parts.isEmpty())
+        return;
+
+    if (parts[0] == "LOGIN") {
+        if (parts.size() >= 2 && parts[1] == "SUCCESS") {
+            QMainWindow *dash = nullptr;
+            if (role == "ADMIN")
+                dash = new Admindashboard();
+            else if (role == "NORMALUSER")
+                dash = new UserDashboard();
+            else if (role == "PUBLISHER")
+                dash = new Publisherdashboard();
+
+            if (dash != nullptr) {
+                dash->show();
+                emit signinsuccessful();
+                this->close();
+            }
+        } else if (parts.size() >= 3 && parts[1] == "FAIL") {
+            // دریافت متن خطای انگلیسی از سرور
+            QString serverError = parts[2].trimmed();
+            QString persianError;
+            if (serverError == "Invalid username or password") {
+                persianError = "نام کاربری یا رمز عبور اشتباه است.";
+            } else if (serverError == "Role mismatch" || serverError == "Invalid role") {
+                persianError = "نقش انتخاب شده با حساب کاربری شما مطابقت ندارد.";
+            } else {
+                persianError = "خطایی در ورود رخ داد. لطفاً دوباره تلاش کنید.";
+            }
+            ui->label_passwordError->setText(persianError);
+        }
+    }
 }

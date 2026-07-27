@@ -13,12 +13,6 @@ BookManagement::BookManagement(QWidget *parent)
     , ui(new Ui::BookManagement)
 {
     ui->setupUi(this);
-
-    // در ابتدا فرم روی حالت "افزودن کتاب" ریست می‌شود
-    resetForm();
-
-    // درخواست اولیه از سرور برای گرفتن لیست کتاب‌های این ناشر
-    // client->sendMessage("GET_PUBLISHER_BOOKS");
 }
 
 BookManagement::~BookManagement()
@@ -54,7 +48,7 @@ void BookManagement::processServerResponse(const QString &message)
         ui->comboBox_tipe->blockSignals(false);
     }
 
-    else if (cmd == "BOOK_DETAILS_RESULT") {
+    else if (cmd == "PUB_BOOK_DETAILS_RESULT") {
         if (parts.size() >= 10) {
             ui->lineEdit_bookname->setText(parts[2]);
             ui->lineEdit_anuturename->setText(parts[3]);
@@ -132,7 +126,7 @@ void BookManagement::on_comboBox_tipe_currentIndexChanged(int index)
         ui->pushButton_pikcher->setIcon(QIcon());
 
         // درخواست اطلاعات از سرور (پس از دریافت، تابع processServerResponse فراخوانی می‌شود)
-        // client->sendMessage("GET_BOOK_DETAILS||" + currentSelectedBookId);
+        // client->sendMessage("GET_PUB_BOOK_DETAILS||" + currentSelectedBookId);
     }
 }
 
@@ -334,4 +328,11 @@ void BookManagement::on_pushButton_enable_clicked()
     // client->sendMessage("TOGGLE_BOOK_STATUS||" + currentSelectedBookId + "||ENABLE");
     ui->pushButton_enable->hide();
     ui->pushButton_disable->show();
+}
+
+void BookManagement::refreshBooksList()
+{
+    // در ابتدا فرم روی حالت "افزودن کتاب" ریست می‌شود
+    resetForm();
+    // client->sendMessage("GET_PUBLISHER_BOOKS");
 }

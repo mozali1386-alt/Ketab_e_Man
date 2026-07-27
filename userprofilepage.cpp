@@ -34,9 +34,6 @@ Userprofilepage::Userprofilepage(QWidget *parent)
     genreMap["طنز"] = "COMEDY";
     genreMap["تاریخی"] = "HISTORY";
 
-    // client->sendMessage("GET_DATA_USERPROFILE");
-    // client->sendMessage("GET_HISTORY_IDS");
-
     // ================== شروع تست ۱ (لود اولیه) ==================
     // شبیه‌سازی دریافت اطلاعات پایه کاربر
     processServerResponse(
@@ -65,7 +62,7 @@ void Userprofilepage::on_pushButton_topUpbalance_clicked()
     mainLayout->addWidget(labelInfo);
 
     QSpinBox *amountSpinBox = new QSpinBox(&popUp);
-    amountSpinBox->setRange(1000, 5000000);
+    amountSpinBox->setRange(1000, 50000000);
     amountSpinBox->setSingleStep(5000);
     amountSpinBox->setSuffix(" تومان");
     mainLayout->addWidget(amountSpinBox);
@@ -348,4 +345,9 @@ void Userprofilepage::processServerResponse(const QString &response)
                                                Qt::AlignTop);
         }
     }
+}
+void Userprofilepage::refreshProfile()
+{
+    // client->sendMessage("GET_DATA_USERPROFILE");
+    // client->sendMessage("GET_HISTORY_IDS");
 }

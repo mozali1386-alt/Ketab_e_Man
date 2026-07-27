@@ -24,6 +24,7 @@ private slots:
     void on_pushButton_page2back_2_clicked();
 
     void on_pushButton_page2next_2_clicked();
+    void processServerResponse(const QString &response);
 
 private:
     Ui::ResetPasswordDialog *ui;

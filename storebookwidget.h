@@ -25,7 +25,7 @@ public:
     void setBookId(const QString &id);
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
 
 signals:
 

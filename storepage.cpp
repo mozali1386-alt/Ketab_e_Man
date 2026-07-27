@@ -112,7 +112,11 @@ void Storepage::processServerResponse(const QString &response)
             delete child;
         }
 
-        if (fieldTwo == "NOT_FOUND" || fieldTwo.isEmpty()) {
+        // if (fieldTwo == "NOT_FOUND" || fieldTwo.isEmpty()) {
+        //     return;
+        // }
+
+        if (fieldTwo == "EMPTY" || fieldTwo.isEmpty()) {
             return;
         }
         QStringList ids = fieldTwo.split(",", Qt::SkipEmptyParts);
@@ -148,4 +152,10 @@ void Storepage::processServerResponse(const QString &response)
             ui->verticalLayout_5->insertWidget(ui->verticalLayout_5->count() - 1, book);
         }
     }
+}
+void Storepage::refreshStore()
+{
+    // پاک کردن حافظه جستجوی قبلی تا اجازه درخواست مجدد داده شود
+    lastsearchdisplay.clear();
+    on_pushButton_search_clicked();
 }

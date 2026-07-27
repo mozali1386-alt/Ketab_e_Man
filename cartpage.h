@@ -18,18 +18,23 @@ public:
 
     void requestCartItems();
     void requestCartBookSummary(const QString &bookId);
-    void processServerResponse(const QString &response);
 
 private slots:
     void updateSummary();
     void removeBookFromCart(CartitemWidget *bookToRemove);
     void on_pushButton_sabt_clicked();
+    void processServerResponse(const QString &response);
 
 private:
     Ui::Cartpage *ui;
 
     void addNewBookToCart(CartitemWidget *newBook);
     void clearCartUI();
+
+    int expectedCartItems = 0;
+    int loadedCartItems = 0;
+    int savedOldPrice = 0;
+    bool isCheckingOut = false;
 };
 
 #endif // CARTPAGE_H

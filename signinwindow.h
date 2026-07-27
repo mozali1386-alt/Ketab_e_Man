@@ -26,6 +26,8 @@ private slots:
 
     void on_pushButton_forgetpassword_clicked();
 
+    void processServerResponse(const QString &response);
+
 private:
     Ui::signinwindow *ui;
     QString role;

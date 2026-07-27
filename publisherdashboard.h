@@ -1,6 +1,7 @@
 #ifndef PUBLISHERDASHBOARD_H
 #define PUBLISHERDASHBOARD_H
 
+#include <QCloseEvent>
 #include <QLabel>
 #include <QMainWindow>
 #include "notification.h"
@@ -17,6 +18,8 @@ public:
     explicit Publisherdashboard(QWidget *parent = nullptr);
     ~Publisherdashboard();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
 private slots:
     void on_pushButton_managmentbook_clicked();
 
