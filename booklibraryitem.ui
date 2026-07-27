@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>224</width>
+    <width>285</width>
     <height>270</height>
    </rect>
   </property>
@@ -156,6 +156,44 @@ QPushButton:hover {
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pushButton_details">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: #64748B; /* رنگ خاکستری-سرمه‌ای شیک */
+    color: white;
+    border-radius: 8px; /* گوشه‌های گرد هماهنگ با بقیه بخش‌ها */
+    padding: 6px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #475569; /* تیره‌تر شدن هنگام هاور شدن موس */
+}</string>
+          </property>
+          <property name="text">
+           <string>جزئیات</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pushButton_study">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -194,7 +232,7 @@ QPushButton:hover {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_details">
+         <widget class="QLabel" name="label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -207,27 +245,19 @@ QPushButton:hover {
             <height>30</height>
            </size>
           </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
-    background-color: #64748B; /* رنگ خاکستری-سرمه‌ای شیک */
-    color: white;
-    border-radius: 8px; /* گوشه‌های گرد هماهنگ با بقیه بخش‌ها */
-    padding: 6px;
+           <string notr="true">QLabel {
+    background-color: #f8f9fa; /* پس‌زمینه خاکستری بسیار روشن (نزدیک به سفید) */
+    color: #6c757d;            /* رنگ متن سربی/خاکستری تیره */
+    border: 1px solid #ced4da; /* یک حاشیه نازک برای اینکه تخت و برچسب‌مانند شود */
+    border-radius: 5px;        /* گوشه‌های کمی گرد */
+    padding: 4px 10px;         /* فاصله‌گذاری داخلی */
+    font-family: &quot;Segoe UI&quot;, Tahoma, Arial;
     font-weight: bold;
-}
-
-QPushButton:hover {
-    background-color: #475569; /* تیره‌تر شدن هنگام هاور شدن موس */
 }</string>
           </property>
           <property name="text">
-           <string>جزئیات</string>
+           <string>خریداری نشده</string>
           </property>
          </widget>
         </item>

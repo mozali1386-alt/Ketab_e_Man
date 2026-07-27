@@ -1,6 +1,8 @@
 #ifndef BOOKMANAGEMENT_H
 #define BOOKMANAGEMENT_H
 
+#include <QByteArray>
+#include <QString>
 #include <QWidget>
 
 namespace Ui {
@@ -15,8 +17,37 @@ public:
     explicit BookManagement(QWidget *parent = nullptr);
     ~BookManagement();
 
+    void processServerResponse(const QString &message);
+
+private slots:
+    void on_comboBox_tipe_currentIndexChanged(int index);
+    void on_pushButton_pikcher_clicked();
+    void on_pushButton_pdf_clicked();
+    void on_pushButton_save_clicked();
+    void on_pushButton_edit_clicked();
+    void on_pushButton_disable_clicked();
+    void on_pushButton_enable_clicked();
+
 private:
     Ui::BookManagement *ui;
+
+    QString m_base64Image;
+    QString m_base64Pdf;
+    QString currentSelectedBookId;
+
+    QString orig_bookName;
+    QString orig_authorName;
+    QString orig_genre;
+    int orig_price;
+    int orig_discount;
+    QString orig_explanation;
+    bool orig_hasNewImage;
+
+    // توابع کمکی
+    void resetForm();
+    void sendPdfChunks(const QString &bookId);
+    void setButtonImageFit(const QString &imagePath);
+    bool hasFormChanged();
 };
 
 #endif // BOOKMANAGEMENT_H
