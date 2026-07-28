@@ -10,6 +10,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QPieSeries>
 #include <QtCharts/QValueAxis>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class PublisherStatistics;
@@ -23,12 +24,14 @@ public:
     explicit PublisherStatistics(QWidget *parent = nullptr);
     ~PublisherStatistics();
     void refreshStatistics();
+    void setClient(ClientSocketManager *client);
 
 private slots:
     void processServerResponse(const QString &response);
 
 private:
     Ui::PublisherStatistics *ui;
+    ClientSocketManager *m_client = nullptr;
 
     void requestGeneralStats();
     void requestTopBooksIds();

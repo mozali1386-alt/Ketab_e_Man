@@ -19,10 +19,6 @@ BookManagement::~BookManagement()
 {
     delete ui;
 }
-
-// ==========================================
-// پردازش پیام‌های دریافتی از سرور (منطق اصلی شبکه)
-// ==========================================
 void BookManagement::processServerResponse(const QString &message)
 {
     QStringList parts = message.split("||");
@@ -97,9 +93,6 @@ void BookManagement::processServerResponse(const QString &message)
     }
 }
 
-// ==========================================
-// مدیریت رابط کاربری (تغییر وضعیت کمبوباکس)
-// ==========================================
 void BookManagement::on_comboBox_tipe_currentIndexChanged(int index)
 {
     if (index < 0)
@@ -125,8 +118,7 @@ void BookManagement::on_comboBox_tipe_currentIndexChanged(int index)
         ui->pushButton_pikcher->setText("در حال دریافت...");
         ui->pushButton_pikcher->setIcon(QIcon());
 
-        // درخواست اطلاعات از سرور (پس از دریافت، تابع processServerResponse فراخوانی می‌شود)
-        // client->sendMessage("GET_PUB_BOOK_DETAILS||" + currentSelectedBookId);
+        m_client->sendMessage("GET_PUB_BOOK_DETAILS||" + currentSelectedBookId);
     }
 }
 
@@ -158,9 +150,6 @@ void BookManagement::resetForm()
     ui->pushButton_pikcher->show();
 }
 
-// ==========================================
-// چک کردن تغییرات فرم (برای جلوگیری از درخواست الکی)
-// ==========================================
 bool BookManagement::hasFormChanged()
 {
     if (ui->lineEdit_bookname->text() != orig_bookName)
@@ -181,9 +170,6 @@ bool BookManagement::hasFormChanged()
     return false;
 }
 
-// ==========================================
-// انتخاب فایل‌ها و مدیریت کیفیت عکس
-// ==========================================
 void BookManagement::setButtonImageFit(const QString &imagePath)
 {
     QPixmap pixmap(imagePath);
@@ -232,9 +218,6 @@ void BookManagement::on_pushButton_pdf_clicked()
     }
 }
 
-// ==========================================
-// عملیات شبکه (ثبت، ویرایش و ارسال)
-// ==========================================
 void BookManagement::on_pushButton_save_clicked()
 {
     if (ui->lineEdit_bookname->text().trimmed().isEmpty()
@@ -252,7 +235,7 @@ void BookManagement::on_pushButton_save_clicked()
                   + QString::number(ui->spinBox_discount->value()) + "||"
                   + ui->textEdit_explanation->toPlainText() + "||" + m_base64Image;
 
-    // client->sendMessage(msg);
+    m_client->sendMessage(msg);
 }
 
 void BookManagement::sendPdfChunks(const QString &bookId)
@@ -263,14 +246,14 @@ void BookManagement::sendPdfChunks(const QString &bookId)
     int chunkSize = 32768;
     int totalChunks = (m_base64Pdf.length() + chunkSize - 1) / chunkSize;
 
-    // client->sendMessage("UPLOAD_PDF_START||" + bookId + "||" + QString::number(totalChunks));
+    m_client->sendMessage("UPLOAD_PDF_START||" + bookId + "||" + QString::number(totalChunks));
 
     for (int i = 0; i < totalChunks; ++i) {
         QString chunk = m_base64Pdf.mid(i * chunkSize, chunkSize);
-        // client->sendMessage("UPLOAD_PDF_CHUNK||" + bookId + "||" + chunk);
+        m_client->sendMessage("UPLOAD_PDF_CHUNK||" + bookId + "||" + chunk);
     }
 
-    // client->sendMessage("UPLOAD_PDF_END||" + bookId);
+    m_client->sendMessage("UPLOAD_PDF_END||" + bookId);
 
     QMessageBox::information(this, "موفق", "کتاب با موفقیت آپلود شد.");
     resetForm();
@@ -303,10 +286,9 @@ void BookManagement::on_pushButton_edit_clicked()
                   + QString::number(ui->spinBox_discount->value()) + "||"
                   + ui->textEdit_explanation->toPlainText() + "||" + imageToSend;
 
-    // client->sendMessage(msg);
+    m_client->sendMessage(msg);
     QMessageBox::information(this, "ارسال", "درخواست ویرایش به سرور ارسال شد.");
 
-    // آپدیت کردن متغیرهای اصلی
     orig_bookName = ui->lineEdit_bookname->text();
     orig_authorName = ui->lineEdit_anuturename->text();
     orig_genre = ui->comboBox_genre->currentText();
@@ -318,14 +300,14 @@ void BookManagement::on_pushButton_edit_clicked()
 
 void BookManagement::on_pushButton_disable_clicked()
 {
-    // client->sendMessage("TOGGLE_BOOK_STATUS||" + currentSelectedBookId + "||DISABLE");
+    m_client->sendMessage("TOGGLE_BOOK_STATUS||" + currentSelectedBookId + "||DISABLE");
     ui->pushButton_disable->hide();
     ui->pushButton_enable->show();
 }
 
 void BookManagement::on_pushButton_enable_clicked()
 {
-    // client->sendMessage("TOGGLE_BOOK_STATUS||" + currentSelectedBookId + "||ENABLE");
+    m_client->sendMessage("TOGGLE_BOOK_STATUS||" + currentSelectedBookId + "||ENABLE");
     ui->pushButton_enable->hide();
     ui->pushButton_disable->show();
 }
@@ -334,5 +316,13 @@ void BookManagement::refreshBooksList()
 {
     // در ابتدا فرم روی حالت "افزودن کتاب" ریست می‌شود
     resetForm();
-    // client->sendMessage("GET_PUBLISHER_BOOKS");
+    m_client->sendMessage("GET_PUBLISHER_BOOKS");
+}
+void BookManagement::setClient(ClientSocketManager *client)
+{
+    m_client = client;
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &BookManagement::processServerResponse);
 }
