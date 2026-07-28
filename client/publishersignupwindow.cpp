@@ -1,6 +1,5 @@
 #include "publishersignupwindow.h"
 #include <QRegularExpression>
-#include "publisherdashboard.h"
 #include "ui_publishersignupwindow.h"
 
 publishersignupwindow::publishersignupwindow(ClientSocketManager *client, QWidget *parent)
@@ -111,8 +110,6 @@ void publishersignupwindow::processServerResponse(const QString &response)
 
     if (parts[0] == "SIGNUP_PUBLISHER") {
         if (parts.size() >= 2 && parts[1] == "SUCCESS") {
-            Publisherdashboard *dash = new Publisherdashboard(m_client);
-            dash->show();
             emit signupsuccessful();
             this->close();
         } else if (parts.size() >= 3 && parts[1] == "FAIL") {

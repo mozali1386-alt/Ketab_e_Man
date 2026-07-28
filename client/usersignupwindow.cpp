@@ -1,7 +1,6 @@
 #include "usersignupwindow.h"
 #include <QRegularExpression>
 #include "ui_usersignupwindow.h"
-#include "userdashboard.h"
 
 Usersignupwindow::Usersignupwindow(ClientSocketManager *client, QWidget *parent)
     : QMainWindow(parent)
@@ -177,11 +176,11 @@ void Usersignupwindow::processServerResponse(const QString &response)
 
     if (parts[0] == "SIGNUP_NORMALUSER") {
         if (parts.size() >= 2 && parts[1] == "SUCCESS") {
-            UserDashboard *dash = new UserDashboard(m_client);
-            dash->show();
             emit signupsuccessful();
             this->close();
+
         } else if (parts.size() >= 3 && parts[1] == "FAIL") {
+            // ... بقیه کدهای ارور دست نخورده باقی بماند ...
             QStringList errors = parts[2].split(",");
             for (int i = 0; i < errors.size(); ++i) {
                 if (errors[i] == "USERNAME_EXISTS") {

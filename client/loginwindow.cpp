@@ -29,17 +29,19 @@ void LoginWindow::on_pushButton_signup_clicked()
     } else if (role == "ناشر") {
         publishersignupwindow *publishersignup = new publishersignupwindow(m_client);
         publishersignup->show();
+        this->hide();
 
         connect(publishersignup,
                 &publishersignupwindow::backtologinwindow,
                 this,
                 &LoginWindow::show);
-        connect(publishersignup,
-                &publishersignupwindow::signupsuccessful,
-                this,
-                &LoginWindow::close);
 
-        this->hide();
+        connect(publishersignup, &publishersignupwindow::signupsuccessful, this, [=]() {
+            signinwindow *signin = new signinwindow(m_client, "PUBLISHER");
+            signin->show();
+            connect(signin, &signinwindow::backtologinwindow, this, &LoginWindow::show);
+            connect(signin, &signinwindow::signinsuccessful, this, &LoginWindow::close);
+        });
 
     } else if (role == "کاربر عادی") {
         Usersignupwindow *usersignup = new Usersignupwindow(m_client);
@@ -47,7 +49,13 @@ void LoginWindow::on_pushButton_signup_clicked()
         this->hide();
 
         connect(usersignup, &Usersignupwindow::backtologinwindow, this, &LoginWindow::show);
-        connect(usersignup, &Usersignupwindow::signupsuccessful, this, &LoginWindow::close);
+
+        connect(usersignup, &Usersignupwindow::signupsuccessful, this, [=]() {
+            signinwindow *signin = new signinwindow(m_client, "NORMALUSER");
+            signin->show();
+            connect(signin, &signinwindow::backtologinwindow, this, &LoginWindow::show);
+            connect(signin, &signinwindow::signinsuccessful, this, &LoginWindow::close);
+        });
     }
 }
 
