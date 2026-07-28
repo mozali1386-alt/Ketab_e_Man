@@ -57,6 +57,7 @@ private:
     void updateActionButtonsUI();
     void updateCommentFormUI(bool hasCommented, bool isEditing);
     void updateStarsUI(int score);
+    QString englishToPersianGenre(const QString &english);
 
     void loadAndSetImage(QLabel *imageLabel, const QString &base64Data);
     ClientSocketManager *m_client = nullptr;

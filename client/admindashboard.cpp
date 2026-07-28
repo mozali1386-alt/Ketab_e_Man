@@ -21,7 +21,9 @@ Admindashboard::Admindashboard(ClientSocketManager *client, QWidget *parent)
     ui->statusbar->setLayoutDirection(Qt::RightToLeft);
     ui->statusbar->setStyleSheet("color: red; font-weight: bold;");
 
+    ui->tabWidget->blockSignals(true);
     ui->tabWidget->setCurrentIndex(0);
+    ui->tabWidget->blockSignals(false);
 
     ui->quickWidget->setSource(QUrl(QStringLiteral("qrc:/AdminStats.qml")));
     ui->quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -198,7 +200,6 @@ void Admindashboard::processServerResponse(const QString &response)
     QString cmd = parts[0];
 
     if (cmd == "USERS_LIST_RESULT") {
-        ui->tableWidget_allusers->setRowCount(0);
         if (parts.size() >= 3 && parts[1].toInt() > 0) {
             QString idString = parts[2].trimmed();
             if (!idString.isEmpty()) {
@@ -212,6 +213,7 @@ void Admindashboard::processServerResponse(const QString &response)
         if (parts.size() < 8)
             return;
         QString userId = parts[1], displayName = parts[2], username = parts[3];
+
         QString role = parts[4], email = parts[5], regDate = parts[6], statusCode = parts[7];
 
         int row = ui->tableWidget_allusers->rowCount();
@@ -262,7 +264,6 @@ void Admindashboard::processServerResponse(const QString &response)
             }
         }
     } else if (cmd == "ALL_BOOKS_ADMIN_RESULT") {
-        ui->tableWidget_books->setRowCount(0);
         if (parts.size() >= 3 && parts[1].toInt() > 0) {
             QString idString = parts[2].trimmed();
             if (!idString.isEmpty()) {
@@ -347,7 +348,6 @@ void Admindashboard::processServerResponse(const QString &response)
             QMessageBox::information(this, "موفق", "ویرایش کتاب با موفقیت انجام شد.");
         }
     } else if (cmd == "ALL_COMMENTS_ADMIN_RESULT") {
-        ui->tableWidget_comment->setRowCount(0);
         if (parts.size() >= 3 && parts[1].toInt() > 0) {
             QString idString = parts[2].trimmed();
             if (!idString.isEmpty()) {
@@ -509,6 +509,7 @@ void Admindashboard::processServerResponse(const QString &response)
 
 void Admindashboard::on_pushButton_search_clicked()
 {
+    ui->tableWidget_allusers->setRowCount(0);
     QString nameFilter = ui->lineEdit_name->text().trimmed();
     if (nameFilter.isEmpty())
         nameFilter = "EMPTY";
