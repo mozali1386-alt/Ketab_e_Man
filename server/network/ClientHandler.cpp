@@ -7,6 +7,7 @@
 ClientHandler::ClientHandler(qintptr socketDescriptor, QObject *parent) : QObject(parent) {
     blockSize = 0;
     userId = 0;
+    recoveryUserId = 0;
 
     socket = new QTcpSocket(this);
 
@@ -112,4 +113,12 @@ bool ClientHandler::isAuthenticated() const {
         return false;
     }
     return true;
+}
+
+quint64 ClientHandler::getRecoveryUserId() const {
+    return recoveryUserId;
+}
+
+void ClientHandler::setRecoveryUserId(quint64 newRecoveryUserId) {
+    recoveryUserId = newRecoveryUserId;
 }
