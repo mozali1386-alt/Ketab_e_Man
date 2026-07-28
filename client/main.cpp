@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     // ساختن شیء اصلی شبکه
     ClientSocketManager clientManager;
 
-    clientManager.connectToServer("127.0.0.1", 5555);
+    clientManager.connectToServer("127.0.0.1", 5050);
     LoginWindow w(&clientManager);
     w.show();
 
