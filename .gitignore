@@ -78,3 +78,5 @@ git_update.sh
 /S/assets/data/notifications.txt
 /S/assets/data/purchases.txt
 /S/assets/data/reviews.txt
+/CMakeLists.txt
+/client/cm.txt
