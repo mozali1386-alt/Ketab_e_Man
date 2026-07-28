@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Admindashboard</class>
+ <widget class="QMainWindow" name="Admindashboard">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>590</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QQuickWidget" name="quickWidget">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>80</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>80</height>
+       </size>
+      </property>
+      <property name="resizeMode">
+       <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>مدیریت کاربران</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="1">
+           <widget class="QPushButton" name="pushButton_search">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton#pushButton_search {
+    background-color: #3498DB;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    border-radius: 6px;
+    padding: 8px;
+    border: none;
+}
+QPushButton#pushButton_search:hover {
+    background-color: #2980B9;
+}
+QPushButton#pushButton_search:pressed {
+    background-color: #1F618D;
+}
+</string>
+            </property>
+            <property name="text">
+             <string>جستجو</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBox_filterusers">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <item>
+             <property name="text">
+              <string>همه</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ناشران</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>کاربران عادی</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QComboBox" name="comboBox_filterstatus">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="currentText">
+             <string>همه</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>همه</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>فعال</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>مسدود</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="lineEdit_name">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>نام کاربر</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="pushButton_deletehesab">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+    background-color: #E74C3C;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    padding: 8px;
+}
+QPushButton:hover:!disabled {
+    background-color: #C0392B;
+}
+QPushButton:disabled {
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string> حذف حساب کاربری</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_block">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+    background-color: #E67E22;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    padding: 8px;
+}
+QPushButton:hover:!disabled {
+    background-color: #D35400;
+}
+QPushButton:disabled {
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>مسدودیت</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_unblock">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+    background-color: #2ECC71;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    padding: 8px;
+}
+QPushButton:hover:!disabled {
+    background-color: #27AE60;
+}
+QPushButton:disabled {
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>رفع مسدودیت</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QTableWidget" name="tableWidget_allusers">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QHeaderView::section {
+    background-color: #E8ECEF;
+    color: #2C3E50;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 6px;
+    border: 1px solid #D5D8DC;
+}</string>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <column>
+           <property name="text">
+            <string>نام کاربر/انتشارات</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>نام کاربری</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>نقش</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>ایمیل</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>تاریخ ثبت نام</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>وضعیت</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>مدیریت کتاب ها و محتوا</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>لیست کتاب ها</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tableWidget_books">
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <column>
+           <property name="text">
+            <string>نام کتاب</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>نام نویسنده</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>ناشر</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>ژانر</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>توضیحات کتاب</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>وضعیت انتشار</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string/>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="pushButton_deletebook">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton{
+    background-color: #E74C3C;
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+QPushButton:hover:!disabled{
+    background-color: #C0392B;
+}
+
+QPushButton:disabled{
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>حذف کتاب</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_editbook">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton{
+    background-color: #F39C12;
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+QPushButton:hover:!disabled{
+    background-color: #D68910;
+}
+
+QPushButton:disabled{
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>ویرایش</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_pikther">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton{
+  
+	background-color: rgb(0, 85, 255);
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+QPushButton:hover:!disabled{
+    background-color: #D68910;
+}
+
+QPushButton:disabled{
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>مشاهده عکس روی جلد</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_pdf">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton{
+  
+	background-color: rgb(0, 85, 255);
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+QPushButton:hover:!disabled{
+    background-color: #D68910;
+}
+
+QPushButton:disabled{
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>مشاهده پی دی دف کتاب</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>نظرات</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tableWidget_comment">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <column>
+           <property name="text">
+            <string>نام کاربر</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>نام کتاب</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>متن نظر</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>تاریخ ثبت</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QPushButton" name="pushButton_deletecomment">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton{
+    background-color: #E74C3C;
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+QPushButton:hover:!disabled{
+    background-color: #C0392B;
+}
+
+QPushButton:disabled{
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>حذف نظر</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_textcomelcomment">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton{
+   
+	background-color: rgb(0, 170, 255);
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+QPushButton:hover:!disabled{
+    background-color: #C0392B;
+}
+
+QPushButton:disabled{
+    background-color: #BDBDBD;
+    color: #666666;
+}</string>
+            </property>
+            <property name="text">
+             <string>مشاهده متن کامل</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
