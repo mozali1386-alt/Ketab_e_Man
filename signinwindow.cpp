@@ -4,12 +4,18 @@
 #include "resetpassworddialog.h"
 #include "ui_signinwindow.h"
 #include "userdashboard.h"
-signinwindow::signinwindow(const QString &role, QWidget *parent)
+signinwindow::signinwindow(ClientSocketManager *client, const QString &role, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::signinwindow)
     , role(role)
+    , m_client(client)
 {
     ui->setupUi(this);
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &signinwindow::processServerResponse);
+
     ui->label_usernameError->setStyleSheet("color: red;");
     ui->label_passwordError->setStyleSheet("color: red;");
 
@@ -53,11 +59,11 @@ void signinwindow::on_pushButton_Confirm_clicked()
     QString Message = QString("LOGIN||%1||%2||%3").arg(role, username, password);
 
     qDebug() << Message;
-    //client->sendMessage(Message);
+    m_client->sendMessage(Message);
 
     // ======== کدهای تست لاگین ========
     // // تست حالت موفقیت‌آمیز:
-    processServerResponse("LOGIN||SUCCESS||101");
+    //processServerResponse("LOGIN||SUCCESS||101");
 
     // // تست حالت رمز اشتباه (برای تست، خط بالا را کامنت و این خط را فعال کن):
     // processServerResponse("LOGIN||FAIL||Invalid username or password");
@@ -65,7 +71,7 @@ void signinwindow::on_pushButton_Confirm_clicked()
 
 void signinwindow::on_pushButton_forgetpassword_clicked()
 {
-    ResetPasswordDialog dialog(this);
+    ResetPasswordDialog dialog(m_client, this);
     dialog.exec();
 }
 
@@ -79,11 +85,11 @@ void signinwindow::processServerResponse(const QString &response)
         if (parts.size() >= 2 && parts[1] == "SUCCESS") {
             QMainWindow *dash = nullptr;
             if (role == "ADMIN")
-                dash = new Admindashboard();
+                dash = new Admindashboard(m_client);
             else if (role == "NORMALUSER")
-                dash = new UserDashboard();
+                dash = new UserDashboard(m_client);
             else if (role == "PUBLISHER")
-                dash = new Publisherdashboard();
+                dash = new Publisherdashboard(m_client);
 
             if (dash != nullptr) {
                 dash->show();

@@ -3,11 +3,16 @@
 #include "publisherdashboard.h"
 #include "ui_publishersignupwindow.h"
 
-publishersignupwindow::publishersignupwindow(QWidget *parent)
+publishersignupwindow::publishersignupwindow(ClientSocketManager *client, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::publishersignupwindow)
+    , m_client(client)
 {
     ui->setupUi(this);
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &publishersignupwindow::processServerResponse);
     ui->label_errornashr->setStyleSheet("color: red;");
     ui->label_errorusername->setStyleSheet("color: red;");
     ui->label_erroremail->setStyleSheet("color: red;");
@@ -44,7 +49,6 @@ void publishersignupwindow::on_pushButton_confirm_clicked()
 
     bool hasError = false;
 
-    // بررسی خالی بودن فیلدها
     if (publisher.isEmpty()) {
         ui->label_errornashr->setText("نام انتشارات نمی تواند خالی باشد");
         hasError = true;
@@ -55,7 +59,6 @@ void publishersignupwindow::on_pushButton_confirm_clicked()
         hasError = true;
     }
 
-    //  بررسی ایمیل (هم خالی نبودن و هم فرمت صحیح)
     if (email.isEmpty()) {
         ui->label_erroremail->setText("ایمیل نمی تواند خالی باشد.");
         hasError = true;
@@ -74,7 +77,6 @@ void publishersignupwindow::on_pushButton_confirm_clicked()
         hasError = true;
     }
 
-    //  بررسی تکرار رمز عبور (خالی نبودن و برابری با رمز عبور)
     if (confirmPassword.isEmpty()) {
         ui->label_errorrepeatpassword->setText("لطفاً رمز عبور را تکرار کنید.");
         hasError = true;
@@ -91,11 +93,11 @@ void publishersignupwindow::on_pushButton_confirm_clicked()
                           .arg(publisher, username, email, password);
     qDebug() << Message;
 
-    //client->sendMessage(Message);
+    m_client->sendMessage(Message);
 
     // ======== کدهای تست ثبت‌نام ناشر ========
     // تست حالت موفقیت‌آمیز:
-    processServerResponse("SIGNUP_PUBLISHER||SUCCESS");
+    //processServerResponse("SIGNUP_PUBLISHER||SUCCESS");
 
     // تست حالت خطای دوتایی:
     //processServerResponse("SIGNUP_PUBLISHER||FAIL||USERNAME_EXISTS,EMAIL_EXISTS");
@@ -109,7 +111,7 @@ void publishersignupwindow::processServerResponse(const QString &response)
 
     if (parts[0] == "SIGNUP_PUBLISHER") {
         if (parts.size() >= 2 && parts[1] == "SUCCESS") {
-            Publisherdashboard *dash = new Publisherdashboard();
+            Publisherdashboard *dash = new Publisherdashboard(m_client);
             dash->show();
             emit signupsuccessful();
             this->close();

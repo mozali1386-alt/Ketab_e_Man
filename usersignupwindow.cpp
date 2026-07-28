@@ -3,12 +3,18 @@
 #include "ui_usersignupwindow.h"
 #include "userdashboard.h"
 
-Usersignupwindow::Usersignupwindow(QWidget *parent)
+Usersignupwindow::Usersignupwindow(ClientSocketManager *client, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Usersignupwindow)
+    , m_client(client)
 {
     ui->setupUi(this);
     this->setAttribute(Qt::WA_DeleteOnClose);
+
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &Usersignupwindow::processServerResponse);
 
     // قرمز کردن تمام لیبل‌های خطا
     ui->label_NameError->setStyleSheet("color: red;");
@@ -114,18 +120,17 @@ void Usersignupwindow::on_pushButton_confirm_clicked()
         }
     }
 
-    // چسباندن کلمات با ویرگول
     QString genresString = selectedGenres.join(",");
 
     QString Message = QString("SIGNUP_NORMALUSER||%1||%2||%3||%4||%5")
                           .arg(name, username, email, password, genresString);
-    qDebug() << Message;
+    //qDebug() << Message;
 
-    //client->sendMessage(Message);
+    m_client->sendMessage(Message);
 
     // ======== کدهای تست ثبت‌نام کاربر ========
     // تست حالت موفقیت‌آمیز:
-    processServerResponse("SIGNUP_NORMALUSER||SUCCESS");
+    //processServerResponse("SIGNUP_NORMALUSER||SUCCESS");
 
     // تست حالت خطای دوتایی:
     // processServerResponse("SIGNUP_NORMALUSER||FAIL||USERNAME_EXISTS,EMAIL_EXISTS");
@@ -136,7 +141,6 @@ void Usersignupwindow::on_pushButton_confirm_clicked()
 
 void Usersignupwindow::on_listWidget_genre_itemChanged(QListWidgetItem *item)
 {
-    //خاموش کردن موقت سیگنال ها برای جلوگیری از حلقه بی نهایت
     ui->listWidget_genre->blockSignals(true);
     int checkedCount = 0;
     for (int i = 0; i < ui->listWidget_genre->count(); ++i) {
@@ -145,7 +149,6 @@ void Usersignupwindow::on_listWidget_genre_itemChanged(QListWidgetItem *item)
         }
     }
 
-    // بررسی محدودیت ۳ تایی
     if (checkedCount >= 3) {
         for (int i = 0; i < ui->listWidget_genre->count(); ++i) {
             QListWidgetItem *currentItem = ui->listWidget_genre->item(i);
@@ -174,12 +177,11 @@ void Usersignupwindow::processServerResponse(const QString &response)
 
     if (parts[0] == "SIGNUP_NORMALUSER") {
         if (parts.size() >= 2 && parts[1] == "SUCCESS") {
-            UserDashboard *dash = new UserDashboard();
+            UserDashboard *dash = new UserDashboard(m_client);
             dash->show();
             emit signupsuccessful();
             this->close();
         } else if (parts.size() >= 3 && parts[1] == "FAIL") {
-            // جدا کردن خطاها با ویرگول
             QStringList errors = parts[2].split(",");
             for (int i = 0; i < errors.size(); ++i) {
                 if (errors[i] == "USERNAME_EXISTS") {
