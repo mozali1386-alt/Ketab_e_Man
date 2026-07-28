@@ -4,21 +4,29 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+#include <QString>
+
 enum class Role {
     USER = 0,
     PUBLISHER = 1,
     ADMIN = 2
 };
 
+
 enum class Genre {
-    FICTION = 0,
-    SCIENCE = 1,
-    HISTORY = 2,
-    FANTASY = 3,
-    ROMANCE = 4,
-    MYSTERY = 5,
-    TECH = 6
+    ROMANCE,
+    CRIME,
+    SCIFI,
+    HORROR,
+    CLASSIC,
+    ART,
+    COMEDY,
+    HISTORY
 };
+
+QString genreToString(Genre genre);
+
+bool stringToGenre(const QString &text, Genre &out);
 
 enum class NotificationType {
     NEW_BOOK_IN_FAVORITE_GENRE = 0,
