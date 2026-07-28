@@ -131,7 +131,7 @@ void ServerCore::handleGetBookDetailsRequest(ClientHandler *handler, const QStri
                               publisherName,
                               genreToString(book->getGenre()),
                               QString::number(book->getPrice()),
-                              QString::number(book->getFinalPrice()),
+                              QString::number(book->getDiscountPercent() * book->getPrice()),
                               QString::number(average, 'f', 1),
                               book->getDescription(),
                               isInCart ? "1" : "0",

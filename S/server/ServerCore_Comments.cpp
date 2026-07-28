@@ -64,27 +64,27 @@ void ServerCore::handleUpdateCommentRequest(ClientHandler *handler, const QStrin
         return;
     }
 
-    if (fields.size() < 3) {
+    if (fields.size() < 2) {
         handler->sendResponse(Command::FAIL, {});
         return;
     }
 
     quint64 bookId = fields.at(0).toULongLong();
-    QString text = fields.at(1);
 
     bool starsOk = false;
-    int stars = fields.at(2).toInt(&starsOk);
+    int stars = fields.at(1).toInt(&starsOk);
     if (!starsOk) {
         handler->sendResponse(Command::FAIL, {});
         return;
     }
+
+    QString text = (fields.size() >= 3) ? fields.at(2) : QString();
 
     Book *book = data.getBooksMap().value(bookId, nullptr);
     if (book == nullptr) {
         handler->sendResponse(Command::FAIL, {});
         return;
     }
-
 
     Review *existingReview = nullptr;
     QSet<quint64> reviewIds = book->getReviewIds();
@@ -100,11 +100,6 @@ void ServerCore::handleUpdateCommentRequest(ClientHandler *handler, const QStrin
         existingReview->editStars(stars);
         existingReview->editText(text);
     } else {
-        if (!userHasPurchasedBook(userId, bookId)) {
-            handler->sendResponse(Command::FAIL, {});
-            return;
-        }
-
         Review *newReview = new Review();
         newReview->assignNewId();
         newReview->setUserId(userId);
@@ -117,7 +112,6 @@ void ServerCore::handleUpdateCommentRequest(ClientHandler *handler, const QStrin
     }
 
     handler->sendResponse(Command::SUCCESS, {});
-
 
     QString bookIdText = QString::number(bookId);
     for (ClientHandler *onlineHandler: connectedClients) {
