@@ -1,0 +1,38 @@
+//in the name of ALLAH
+//YA MAHDI
+
+#ifndef AUTHOR_H
+#define AUTHOR_H
+
+#include "BaseEntity.h"
+#include <QString>
+#include <QSet>
+
+class Author : public BaseEntity {
+public:
+    Author();
+
+    virtual ~Author();
+
+    QString getFullName() const;
+
+    QSet<quint64> getBookIds() const;
+
+    void setFullName(const QString &newFullName);
+
+    void addBook(quint64 bookId);
+
+    void removeBook(quint64 bookId);
+
+    static quint64 generateId();
+
+    QString serialize() const override;
+
+    void deserialize(const QString &data) override;
+
+private:
+    QString fullName;
+    QSet<quint64> bookIds;
+};
+
+#endif

@@ -67,3 +67,14 @@ git_update.sh
 *.swp
 *.swo
 .DS_Store
+/S/assets/data/shelves.txt
+/S/assets/data/transactions.txt
+/S/assets/data/users.txt
+/S/assets/data/wallets.txt
+/S/assets/data/authors.txt
+/S/assets/data/books.txt
+/S/assets/data/carts.txt
+/S/assets/data/libraries.txt
+/S/assets/data/notifications.txt
+/S/assets/data/purchases.txt
+/S/assets/data/reviews.txt
