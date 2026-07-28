@@ -2,270 +2,618 @@
 //YA MAHDI
 
 #include "ServerCore.h"
-#include "../shared/Protocol.h"
+#include "../shared/Author.h"
 #include "../shared/Publisher.h"
-#include <QStringList>
+#include "../shared/Review.h"
+#include "../shared/Cart.h"
+#include <QVector>
+#include <algorithm>
 
-void ServerCore::handlePublishRequest(ClientHandler *handler, const QString &payload) {
-    quint64 publisherId = requireAuthentication(handler);
-    if (publisherId == 0) {
+void ServerCore::handleGetPublisherBooksRequest(ClientHandler *handler, const QStringList &fields) {
+    Q_UNUSED(fields);
+
+    User *user = requireRole(handler, Role::PUBLISHER);
+    if (user == nullptr) {
         return;
     }
 
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 7, parts)) {
-        return;
-    }
+    Publisher *publisher = static_cast<Publisher *>(user);
+    QSet<quint64> bookIds = publisher->getMyBookIds();
 
-    User *publisherUser = data.getUsersMap().value(publisherId, nullptr);
-    if (publisherUser == nullptr || publisherUser->getRole() != Role::PUBLISHER) {
-        handler->sendResponse(RES_FAIL, "Not authorized");
-        return;
-    }
-    Publisher *publisher = static_cast<Publisher *>(publisherUser);
-
-    QString authorName = parts.at(1);
-    Author *author = nullptr;
-    QList<quint64> authorKeys = data.getAuthorsMap().keys();
-    for (int i = 0; i < authorKeys.size(); i++) {
-        Author *candidate = data.getAuthorsMap().value(authorKeys.at(i));
-        if (candidate->getFullName() == authorName) {
-            author = candidate;
-            break;
+    QStringList entries;
+    for (quint64 bookId: bookIds) {
+        Book *book = data.getBooksMap().value(bookId, nullptr);
+        if (book == nullptr) {
+            continue;
         }
+        entries.append(QString::number(bookId) + ":" + book->getTitle());
     }
-    if (author == nullptr) {
-        author = new Author();
-        author->assignNewId();
-        author->setFullName(authorName);
-        data.getAuthorsMap().insert(author->getId(), author);
+
+    handler->sendResponse(Command::PUBLISHER_BOOKS_RESULT, {QString::number(entries.size()), entries.join(",")});
+}
+
+void ServerCore::handleGetPubBookDetailsRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
     }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }
+
+    User *user = data.getUsersMap().value(userId, nullptr);
+    bool isOwnerPublisher = (user != nullptr && user->getRole() == Role::PUBLISHER && book->getPublisherId() == userId);
+    bool isAdmin = (user != nullptr && user->getRole() == Role::ADMIN);
+    if (!isOwnerPublisher && !isAdmin) {
+        handler->sendResponse(Command::FAIL, {"Not authorized"});
+        return;
+    }
+
+    QString authorName = getAuthorName(book->getAuthorId());
+    QString imageBase64 = getCoverImageOrPlaceholder(book->getCoverImagePath());
+
+    handler->sendResponse(Command::PUB_BOOK_DETAILS_RESULT, {
+                              QString::number(book->getId()),
+                              book->getTitle(),
+                              authorName,
+                              genreToString(book->getGenre()),
+                              QString::number(book->getPrice()),
+                              QString::number(book->getDiscountPercent()),
+                              book->getDescription(),
+                              book->getIsActive() ? "1" : "0",
+                              imageBase64
+                          });
+}
+
+void ServerCore::handleGetBookDetailsRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }
+
+    if (!book->getIsActive() && !canViewInactiveBook(handler, book)) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }
+
+    User *requester = data.getUsersMap().value(userId, nullptr);
+    QString username = (requester != nullptr) ? requester->getUsername() : "";
+
+    QString imageBase64 = getCoverImageOrPlaceholder(book->getCoverImagePath());
+    QString authorName = getAuthorName(book->getAuthorId());
+
+    User *publisherUser = data.getUsersMap().value(book->getPublisherId(), nullptr);
+    QString publisherName = (publisherUser != nullptr) ? publisherUser->getFullName() : "";
+
+    double average = averageStarsForBook(bookId);
+
+    bool isInCart = false;
+    Cart *cart = data.findCartByOwner(userId);
+    if (cart != nullptr) {
+        isInCart = cart->getBookIds().contains(bookId);
+    }
+
+    bool isInSaveBook = false;
+    Library *library = getLibraryForUser(userId);
+    if (library != nullptr) {
+        isInSaveBook = library->getSavedBooks().contains(bookId);
+    }
+
+    bool isPurchase = userHasPurchasedBook(userId, bookId);
+
+    handler->sendResponse(Command::BOOK_DETAILS_RESULT, {
+                              QString::number(userId),
+                              username,
+                              imageBase64,
+                              book->getTitle(),
+                              authorName,
+                              publisherName,
+                              genreToString(book->getGenre()),
+                              QString::number(book->getPrice()),
+                              QString::number(book->getFinalPrice()),
+                              QString::number(average, 'f', 1),
+                              book->getDescription(),
+                              isInCart ? "1" : "0",
+                              isInSaveBook ? "1" : "0",
+                              isPurchase ? "1" : "0"
+                          });
+}
+
+void ServerCore::handleAddBookMetadataRequest(ClientHandler *handler, const QStringList &fields) {
+    User *user = requireRole(handler, Role::PUBLISHER);
+    if (user == nullptr) {
+        return;
+    }
+
+    if (fields.size() < 7) {
+        handler->sendResponse(Command::ADD_BOOK_RESULT, {"FAIL"});
+        return;
+    }
+
+    QString bookName = fields.at(0);
+    QString authorName = fields.at(1);
 
     Genre genre;
-    double price = 0.0;
-    if (!parseGenre(parts.at(2), genre) || !parseDouble(parts.at(4), price)) {
-        handler->sendResponse(RES_FAIL, "Invalid genre or price");
+    if (!stringToGenre(fields.at(2), genre)) {
+        handler->sendResponse(Command::ADD_BOOK_RESULT, {"FAIL"});
         return;
     }
+
+    bool priceOk = false;
+    qint64 price = fields.at(3).toLongLong(&priceOk);
+    bool discountOk = false;
+    double discount = fields.at(4).toDouble(&discountOk);
+    if (!priceOk || !discountOk) {
+        handler->sendResponse(Command::ADD_BOOK_RESULT, {"FAIL"});
+        return;
+    }
+
+    QString explanation = fields.at(5);
+    QString coverImageBase64 = fields.at(6);
+
+    quint64 authorId = findOrCreateAuthorByName(authorName);
 
     Book *book = new Book();
     book->assignNewId();
-    book->setTitle(parts.at(0));
-    book->setAuthorId(author->getId());
-    book->setPublisherId(publisherId);
+    book->setTitle(bookName);
+    book->setAuthorId(authorId);
+    book->setPublisherId(user->getId());
     book->setGenre(genre);
-    book->setDescription(parts.at(3));
+    book->setDescription(explanation);
     book->setPrice(price);
-    book->setCoverImagePath(parts.at(5));
-    book->setPdfFilePath(parts.at(6));
+    book->applyDiscount(discount);
+
+    QString coverPath = saveBase64File(coverImageBase64, "covers", QString::number(book->getId()), "img");
+    book->setCoverImagePath(coverPath);
+
     data.getBooksMap().insert(book->getId(), book);
 
-    author->addBook(book->getId());
+    Author *author = data.getAuthorsMap().value(authorId, nullptr);
+    if (author != nullptr) {
+        author->addBook(book->getId());
+    }
+
+    Publisher *publisher = static_cast<Publisher *>(user);
     publisher->publishBook(book->getId());
-    searchEngine.addBookToIndex(book);
-    notifyUsersAboutNewBook(book);
 
-    handler->sendResponse(RES_SUCCESS, QString::number(book->getId()));
-}
 
-void ServerCore::handleUpdateBookRequest(ClientHandler *handler, const QString &payload) {
-    quint64 userId = requireAuthentication(handler);
-    if (userId == 0) {
-        return;
-    }
-
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 3, parts)) {
-        return;
-    }
-
-    Book *book = requireOwnedBook(parts.at(0).toULongLong(), userId, handler);
-    if (book == nullptr) {
-        return;
-    }
-
-    double newPrice = 0.0;
-    double newDiscount = 0.0;
-    if (!parseDouble(parts.at(1), newPrice) || !parseDouble(parts.at(2), newDiscount)) {
-        handler->sendResponse(RES_FAIL, "Invalid price or discount");
-        return;
-    }
-
-    book->setPrice(newPrice);
-    book->applyDiscount(newDiscount);
-
-    handler->sendResponse(RES_SUCCESS, "Book updated");
-}
-
-void ServerCore::handleDeactivateBookRequest(ClientHandler *handler, const QString &payload) {
-    quint64 userId = requireAuthentication(handler);
-    if (userId == 0) {
-        return;
-    }
-
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 2, parts)) {
-        return;
-    }
-
-    Book *book = requireOwnedBook(parts.at(0).toULongLong(), userId, handler);
-    if (book == nullptr) {
-        return;
-    }
-
-    if (parts.at(1).toInt() == 1) {
-        Publisher *publisher = static_cast<Publisher *>(data.getUsersMap().value(userId));
-        if (!publisher->getMyBookIds().contains(book->getId())) {
-            handler->sendResponse(RES_FAIL, "This book was removed by an administrator and cannot be reactivated");
-            return;
+    QMap<quint64, User *> &allUsers = data.getUsersMap();
+    for (auto it = allUsers.constBegin(); it != allUsers.constEnd(); ++it) {
+        User *candidate = it.value();
+        if (candidate->getRole() != Role::USER) {
+            continue;
         }
+        NormalUser *normalCandidate = static_cast<NormalUser *>(candidate);
+        if (normalCandidate->getFavoriteGenres().contains(genre)) {
+            pushNotification(candidate->getId(), NotificationType::NEW_BOOK_IN_FAVORITE_GENRE,
+                             "کتاب جدیدی در ژانر موردعلاقه‌ی شما منتشر شد: " + bookName);
+        }
+    }
+
+    handler->sendResponse(Command::ADD_BOOK_RESULT, {"SUCCESS", QString::number(book->getId())});
+}
+
+void ServerCore::handleUploadPdfStartRequest(ClientHandler *handler, const QStringList &fields) {
+    User *user = requireRole(handler, Role::PUBLISHER);
+    if (user == nullptr) {
+        return;
+    }
+
+    if (fields.size() < 2) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    bool totalOk = false;
+    int totalChunks = fields.at(1).toInt(&totalOk);
+
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr || book->getPublisherId() != user->getId() || !totalOk || totalChunks <= 0) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    PdfUploadState state;
+    state.totalChunks = totalChunks;
+    pdfUploads.insert(bookId, state);
+}
+
+void ServerCore::handleUploadPdfChunkRequest(ClientHandler *handler, const QStringList &fields) {
+    User *user = requireRole(handler, Role::PUBLISHER);
+    if (user == nullptr) {
+        return;
+    }
+
+    if (fields.size() < 2) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    QString chunkData = fields.at(1);
+
+    if (!pdfUploads.contains(bookId)) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    pdfUploads[bookId].chunks.append(chunkData);
+}
+
+void ServerCore::handleUploadPdfEndRequest(ClientHandler *handler, const QStringList &fields) {
+    User *user = requireRole(handler, Role::PUBLISHER);
+    if (user == nullptr) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+
+    if (!pdfUploads.contains(bookId)) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    PdfUploadState state = pdfUploads.value(bookId);
+    pdfUploads.remove(bookId);
+
+    if (state.chunks.size() != state.totalChunks) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr || book->getPublisherId() != user->getId()) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    QString fullBase64 = state.chunks.join("");
+    QString pdfPath = saveBase64File(fullBase64, "pdfs", QString::number(bookId), "pdf");
+    if (pdfPath.isEmpty()) {
+        handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"FAIL"});
+        return;
+    }
+
+    book->setPdfFilePath(pdfPath);
+
+    handler->sendResponse(Command::UPLOAD_PDF_RESULT, {"SUCCESS"});
+}
+
+void ServerCore::handleEditBookRequest(ClientHandler *handler, const QStringList &fields) {
+    User *user = requireRole(handler, Role::PUBLISHER);
+    if (user == nullptr) {
+        return;
+    }
+
+    if (fields.size() < 8) {
+        handler->sendResponse(Command::EDIT_BOOK_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr || book->getPublisherId() != user->getId()) {
+        handler->sendResponse(Command::EDIT_BOOK_RESULT, {"FAIL"});
+        return;
+    }
+
+    QString bookName = fields.at(1);
+    QString authorName = fields.at(2);
+
+    Genre genre;
+    if (!stringToGenre(fields.at(3), genre)) {
+        handler->sendResponse(Command::EDIT_BOOK_RESULT, {"FAIL"});
+        return;
+    }
+
+    bool priceOk = false;
+    qint64 price = fields.at(4).toLongLong(&priceOk);
+    bool discountOk = false;
+    double discount = fields.at(5).toDouble(&discountOk);
+    if (!priceOk || !discountOk) {
+        handler->sendResponse(Command::EDIT_BOOK_RESULT, {"FAIL"});
+        return;
+    }
+
+    QString explanation = fields.at(6);
+    QString coverImageBase64 = fields.at(7);
+
+    quint64 oldAuthorId = book->getAuthorId();
+    quint64 newAuthorId = findOrCreateAuthorByName(authorName);
+    if (newAuthorId != oldAuthorId) {
+        Author *oldAuthor = data.getAuthorsMap().value(oldAuthorId, nullptr);
+        if (oldAuthor != nullptr) {
+            oldAuthor->removeBook(bookId);
+        }
+        Author *newAuthor = data.getAuthorsMap().value(newAuthorId, nullptr);
+        if (newAuthor != nullptr) {
+            newAuthor->addBook(bookId);
+        }
+        book->setAuthorId(newAuthorId);
+    }
+
+    book->setTitle(bookName);
+    book->setGenre(genre);
+    book->setPrice(price);
+    book->applyDiscount(discount);
+    book->setDescription(explanation);
+
+
+    if (coverImageBase64 != "EMPTY") {
+        QString coverPath = saveBase64File(coverImageBase64, "covers", QString::number(bookId), "img");
+        if (!coverPath.isEmpty()) {
+            book->setCoverImagePath(coverPath);
+        }
+    }
+
+    handler->sendResponse(Command::EDIT_BOOK_RESULT, {"SUCCESS"});
+}
+
+void ServerCore::handleToggleBookStatusRequest(ClientHandler *handler, const QStringList &fields) {
+    User *user = requireRole(handler, Role::PUBLISHER);
+    if (user == nullptr) {
+        return;
+    }
+
+    if (fields.size() < 2) {
+        handler->sendResponse(Command::TOGGLE_STATUS_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    QString action = fields.at(1);
+
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr || book->getPublisherId() != user->getId()) {
+        handler->sendResponse(Command::TOGGLE_STATUS_RESULT, {"FAIL"});
+        return;
+    }
+
+
+    if (book->getIsDeletedByAdmin()) {
+        handler->sendResponse(Command::TOGGLE_STATUS_RESULT, {"FAIL"});
+        return;
+    }
+
+    if (action == "ENABLE") {
         book->reactivate();
-        searchEngine.addBookToIndex(book);
     } else {
         book->deactivate();
-        purgeBookFromNonOwnerPlaces(book->getId());
     }
 
-    handler->sendResponse(RES_SUCCESS, "Book state updated");
+    handler->sendResponse(Command::TOGGLE_STATUS_RESULT, {"SUCCESS"});
 }
 
-void ServerCore::handleDeleteBookRequest(ClientHandler *handler, const QString &payload) {
-    quint64 adminId = requireAuthentication(handler);
-    if (adminId == 0) {
+void ServerCore::handleDeleteBookRequest(ClientHandler *handler, const QStringList &fields) {
+    User *user = requireRole(handler, Role::ADMIN);
+    if (user == nullptr) {
         return;
     }
 
-    Admin *admin = requireAdmin(adminId, handler);
-    if (admin == nullptr) {
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
         return;
     }
 
-    quint64 bookId = payload.toULongLong();
+    quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
     if (book == nullptr) {
-        handler->sendResponse(RES_FAIL, "Book not found");
+        handler->sendResponse(Command::DELETE_BOOK_RESULT, {QString::number(bookId), "FAILED"});
         return;
     }
 
-    Author *author = data.getAuthorsMap().value(book->getAuthorId(), nullptr);
-    if (author != nullptr) {
-        author->removeBook(bookId);
-    }
 
-    User *publisherUser = data.getUsersMap().value(book->getPublisherId(), nullptr);
-    if (publisherUser != nullptr && publisherUser->getRole() == Role::PUBLISHER) {
-        static_cast<Publisher *>(publisherUser)->removeBook(bookId);
-    }
+    book->markDeletedByAdmin();
 
-    deleteAllReviewsForBook(bookId, book);
-    book->deactivate();
-    purgeBookFromNonOwnerPlaces(bookId);
-
-    handler->sendResponse(RES_SUCCESS, "Book deleted");
-    emit logMessageGenerated("Book permanently removed by admin: " + QString::number(bookId));
-}
-
-void ServerCore::handleSearchRequest(ClientHandler *handler, const QString &payload) {
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 2, parts)) {
-        return;
-    }
-
-    QString type = parts.at(0);
-    QString query = parts.at(1);
-    QSet<quint64> result;
-
-    if (type == "title") {
-        result = searchEngine.searchByTitle(query);
-    } else if (type == "author") {
-        result = searchEngine.searchByAuthor(query.toULongLong());
-    } else if (type == "publisher") {
-        result = searchEngine.searchByPublisher(query.toULongLong());
-    } else if (type == "genre") {
-        Genre genre;
-        if (parseGenre(query, genre)) {
-            result = searchEngine.filterByGenre(genre);
+    QSet<quint64> reviewIds = book->getReviewIds();
+    for (quint64 reviewId: reviewIds) {
+        Review *review = data.getReviewsMap().value(reviewId, nullptr);
+        if (review != nullptr) {
+            data.getReviewsMap().remove(reviewId);
+            delete review;
         }
+        book->removeReview(reviewId);
     }
 
-    QStringList idList;
-    for (quint64 bookId: result) {
-        idList.append(QString::number(bookId));
-    }
 
-    handler->sendResponse(RES_SEARCH_RESULT, idList.join(","));
+    handler->sendResponse(Command::DELETE_BOOK_RESULT, {QString::number(bookId), "SUCCESS"});
 }
 
-void ServerCore::notifyUsersAboutNewBook(Book *book) {
-    QList<quint64> userKeys = data.getUsersMap().keys();
-    for (int i = 0; i < userKeys.size(); i++) {
-        User *user = data.getUsersMap().value(userKeys.at(i));
-        if (user->getRole() != Role::USER) {
+void ServerCore::handleSearchStorepageRequest(ClientHandler *handler, const QStringList &fields) {
+    if (fields.size() < 5) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    QString bookFilter = fields.at(0);
+    QString authorFilter = fields.at(1);
+    QString publisherFilter = fields.at(2);
+    QString genreFilter = fields.at(3);
+    QString display = fields.at(4);
+
+    if (bookFilter == "EMPTY") bookFilter = "";
+    if (authorFilter == "EMPTY") authorFilter = "";
+    if (publisherFilter == "EMPTY") publisherFilter = "";
+    if (genreFilter == "EMPTY") genreFilter = "";
+    if (display == "EMPTY") display = "ALL";
+
+    Genre parsedGenre;
+    bool hasGenreFilter = !genreFilter.isEmpty() && stringToGenre(genreFilter, parsedGenre);
+
+    QMap<quint64, Book *> &books = data.getBooksMap();
+
+    QSet<quint64> baseSet;
+    for (auto it = books.constBegin(); it != books.constEnd(); ++it) {
+        Book *book = it.value();
+        if (!book->getIsActive()) {
             continue;
+        }
+        if (!bookFilter.isEmpty() && !book->getTitle().contains(bookFilter, Qt::CaseInsensitive)) {
+            continue;
+        }
+        if (!authorFilter.isEmpty() && QString::number(book->getAuthorId()) != authorFilter) {
+            continue;
+        }
+        if (!publisherFilter.isEmpty() && QString::number(book->getPublisherId()) != publisherFilter) {
+            continue;
+        }
+        if (hasGenreFilter && book->getGenre() != parsedGenre) {
+            continue;
+        }
+        baseSet.insert(book->getId());
+    }
+
+    const int maxResults = 20;
+
+    if (display == "RECOMMENDED") {
+        quint64 userId = requireAuthentication(handler);
+        if (userId == 0) {
+            return;
+        }
+
+        User *user = data.getUsersMap().value(userId, nullptr);
+        if (user == nullptr || user->getRole() != Role::USER) {
+            handler->sendResponse(Command::FAIL, {"Not authenticated"});
+            return;
         }
 
         NormalUser *normalUser = static_cast<NormalUser *>(user);
-        if (normalUser->getFavoriteGenres().contains(book->getGenre())) {
-            QString message = "A new book '" + book->getTitle() + "' was added in your favorite genre!";
-            sendNotificationToUser(user->getId(), NotificationType::NEW_BOOK_IN_FAVORITE_GENRE, message);
+        QSet<Genre> favoriteGenres = normalUser->getFavoriteGenres();
+
+        QSet<quint64> recommendedSet;
+        for (auto it = books.constBegin(); it != books.constEnd(); ++it) {
+            Book *book = it.value();
+            if (favoriteGenres.contains(book->getGenre())) {
+                recommendedSet.insert(book->getId());
+            }
         }
+
+        baseSet.intersect(recommendedSet);
+
+        QStringList idsList;
+        for (quint64 id: baseSet) {
+            if (idsList.size() >= maxResults) {
+                break;
+            }
+            idsList.append(QString::number(id));
+        }
+        handler->sendResponse(Command::SEARCH_RESULT, {idsList.join(",")});
+        return;
     }
+
+    if (display == "FREE") {
+        QStringList idsList;
+        for (quint64 id: baseSet) {
+            if (idsList.size() >= maxResults) {
+                break;
+            }
+            Book *book = books.value(id, nullptr);
+            if (book != nullptr && book->getFinalPrice() == 0) {
+                idsList.append(QString::number(id));
+            }
+        }
+        handler->sendResponse(Command::SEARCH_RESULT, {idsList.join(",")});
+        return;
+    }
+
+    if (display == "NEW" || display == "BESTSELLER" || display == "POPULAR") {
+        QVector<quint64> sortedIds;
+        for (quint64 id: baseSet) {
+            sortedIds.append(id);
+        }
+
+        if (display == "NEW") {
+            std::sort(sortedIds.begin(), sortedIds.end(), [&](quint64 a, quint64 b) {
+                return books.value(a)->getCreatedAt() > books.value(b)->getCreatedAt();
+            });
+        } else if (display == "BESTSELLER") {
+            std::sort(sortedIds.begin(), sortedIds.end(), [&](quint64 a, quint64 b) {
+                return books.value(a)->getSalesCount() > books.value(b)->getSalesCount();
+            });
+        } else {
+            std::sort(sortedIds.begin(), sortedIds.end(), [&](quint64 a, quint64 b) {
+                return averageStarsForBook(a) > averageStarsForBook(b);
+            });
+        }
+
+        QStringList idsList;
+        for (quint64 id: sortedIds) {
+            if (idsList.size() >= maxResults) {
+                break;
+            }
+            idsList.append(QString::number(id));
+        }
+        handler->sendResponse(Command::SEARCH_RESULT, {idsList.join(",")});
+        return;
+    }
+
+
+    QStringList idsList;
+    for (quint64 id: baseSet) {
+        if (idsList.size() >= maxResults) {
+            break;
+        }
+        idsList.append(QString::number(id));
+    }
+    handler->sendResponse(Command::SEARCH_RESULT, {idsList.join(",")});
 }
 
-bool ServerCore::libraryOwnerHasPurchasedBook(quint64 ownerId, quint64 bookId) {
-    QList<quint64> libraryKeys = data.getLibrariesMap().keys();
-    for (int i = 0; i < libraryKeys.size(); i++) {
-        Library *library = data.getLibrariesMap().value(libraryKeys.at(i));
-        if (library->getOwnerId() == ownerId) {
-            return library->getPurchasedBooks().contains(bookId);
-        }
-    }
-    return false;
-}
-
-void ServerCore::purgeBookFromNonOwnerPlaces(quint64 bookId) {
-    searchEngine.removeBookFromIndex(bookId);
-
-    QList<quint64> cartKeys = data.getCartsMap().keys();
-    for (int i = 0; i < cartKeys.size(); i++) {
-        data.getCartsMap().value(cartKeys.at(i))->removeItem(bookId);
+void ServerCore::handleGetBookSummaryRequest(ClientHandler *handler, const QStringList &fields) {
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
     }
 
-    QList<quint64> libraryKeys = data.getLibrariesMap().keys();
-    for (int i = 0; i < libraryKeys.size(); i++) {
-        Library *library = data.getLibrariesMap().value(libraryKeys.at(i));
-        if (!library->getPurchasedBooks().contains(bookId)) {
-            library->removeFromSavedBooks(bookId);
-        }
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
     }
 
-    QList<quint64> shelfKeys = data.getShelvesMap().keys();
-    for (int i = 0; i < shelfKeys.size(); i++) {
-        Shelf *shelf = data.getShelvesMap().value(shelfKeys.at(i));
-        if (!libraryOwnerHasPurchasedBook(shelf->getOwnerId(), bookId)) {
-            shelf->removeBook(bookId);
-        }
+    if (!book->getIsActive() && !canViewInactiveBook(handler, book)) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
     }
-}
 
-void ServerCore::deleteAllReviewsForBook(quint64 bookId, Book *book) {
-    QList<quint64> reviewKeys = data.getReviewsMap().keys();
-    for (int i = 0; i < reviewKeys.size(); i++) {
-        quint64 reviewId = reviewKeys.at(i);
-        Review *review = data.getReviewsMap().value(reviewId);
-        if (review->getBookId() != bookId) {
-            continue;
-        }
+    QString coverImageBase64 = getCoverImageOrPlaceholder(book->getCoverImagePath());
+    QString authorName = getAuthorName(book->getAuthorId());
 
-        User *reviewOwner = data.getUsersMap().value(review->getUserId(), nullptr);
-        if (reviewOwner != nullptr) {
-            reviewOwner->removeReview(reviewId);
-        }
-        if (book != nullptr) {
-            book->removeReview(reviewId);
-        }
+    double average = averageStarsForBook(bookId);
 
-        data.getReviewsMap().remove(reviewId);
-        delete review;
-    }
+    handler->sendResponse(Command::BOOK_SUMMARY, {
+                              QString::number(book->getId()),
+                              coverImageBase64,
+                              book->getTitle(),
+                              authorName,
+                              QString::number(book->getFinalPrice()),
+                              QString::number(average, 'f', 1)
+                          });
 }
