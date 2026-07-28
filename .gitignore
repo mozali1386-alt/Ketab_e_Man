@@ -79,3 +79,4 @@ git_update.sh
 /S/assets/data/purchases.txt
 /S/assets/data/reviews.txt
 /CMakeLists.txt
+/client/cm.txt

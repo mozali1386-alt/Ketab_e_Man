@@ -352,6 +352,14 @@ void ServerCore::handleAssignToShelfRequest(ClientHandler *handler, const QStrin
         return;
     }
 
+    quint64 currentShelfId = findShelfContainingBook(userId, bookId);
+    if (currentShelfId != 0 && currentShelfId != newShelfId) {
+        Shelf *currentShelf = data.getShelvesMap().value(currentShelfId, nullptr);
+        if (currentShelf != nullptr) {
+            currentShelf->removeBook(bookId);
+        }
+    }
+
     shelf->addBook(bookId);
 
     handler->sendResponse(Command::ASSIGN_SHELF_RESULT, {"SUCCESS"});
