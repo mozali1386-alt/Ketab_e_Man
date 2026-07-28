@@ -60,6 +60,20 @@ void Library::addToPurchasedBooks(quint64 bookId) {
     touchUpdatedAt();
 }
 
+void Library::removeFromPurchasedBooks(quint64 bookId) {
+    purchasedBookIds.remove(bookId);
+    touchUpdatedAt();
+}
+
+int Library::getLastReadPage(quint64 bookId) const {
+    return lastReadPages.value(bookId, 0);
+}
+
+void Library::setLastReadPage(quint64 bookId, int pageNumber) {
+    lastReadPages.insert(bookId, pageNumber);
+    touchUpdatedAt();
+}
+
 quint64 Library::generateId() {
     return BaseEntity::generateId();
 }
@@ -80,6 +94,11 @@ QString Library::serialize() const {
         savedList.append(QString::number(bookId));
     }
 
+    QStringList lastPageList;
+    for (auto it = lastReadPages.constBegin(); it != lastReadPages.constEnd(); ++it) {
+        lastPageList.append(QString::number(it.key()) + ":" + QString::number(it.value()));
+    }
+
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
@@ -87,7 +106,8 @@ QString Library::serialize() const {
     result += QString::number(ownerId) + "|";
     result += shelfList.join(",") + "|";
     result += purchasedList.join(",") + "|";
-    result += savedList.join(",");
+    result += savedList.join(",") + "|";
+    result += lastPageList.join(",");
 
     return result;
 }
@@ -132,6 +152,22 @@ void Library::deserialize(const QString &data) {
         QStringList parts = savedToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
             savedBookIds.insert(parts.at(i).toULongLong());
+        }
+    }
+
+
+    lastReadPages.clear();
+    if (index < tokens.size()) {
+        QString lastPageToken = tokens.at(index);
+        index++;
+        if (lastPageToken.length() > 0) {
+            QStringList entries = lastPageToken.split(",");
+            for (int i = 0; i < entries.size(); i++) {
+                QStringList pair = entries.at(i).split(":");
+                if (pair.size() == 2) {
+                    lastReadPages.insert(pair.at(0).toULongLong(), pair.at(1).toInt());
+                }
+            }
         }
     }
 }

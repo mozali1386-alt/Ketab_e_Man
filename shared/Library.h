@@ -6,6 +6,7 @@
 
 #include "BaseEntity.h"
 #include <QSet>
+#include <QMap>
 
 class Library : public BaseEntity {
 public:
@@ -33,6 +34,12 @@ public:
 
     void addToPurchasedBooks(quint64 bookId);
 
+    void removeFromPurchasedBooks(quint64 bookId);
+
+    int getLastReadPage(quint64 bookId) const;
+
+    void setLastReadPage(quint64 bookId, int pageNumber);
+
     static quint64 generateId();
 
     QString serialize() const override;
@@ -44,6 +51,7 @@ private:
     QSet<quint64> shelfIds;
     QSet<quint64> purchasedBookIds;
     QSet<quint64> savedBookIds;
+    QMap<quint64, int> lastReadPages;
 };
 
 #endif
