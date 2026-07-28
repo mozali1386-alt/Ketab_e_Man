@@ -2,17 +2,19 @@
 //YA MAHDI
 
 #include "Publisher.h"
+#include "PipeEscape.h"
 #include <QStringList>
 
 Publisher::Publisher() {
     role = Role::PUBLISHER;
     revenue = 0.0;
+    bio = "";
 }
 
 Publisher::~Publisher() {
 }
 
-QVector<quint64> Publisher::getMyBookIds() const {
+QSet<quint64> Publisher::getMyBookIds() const {
     return myBookIds;
 }
 
@@ -20,23 +22,27 @@ double Publisher::getRevenue() const {
     return revenue;
 }
 
+QString Publisher::getBio() const {
+    return bio;
+}
+
 void Publisher::publishBook(quint64 bookId) {
-    myBookIds.append(bookId);
+    myBookIds.insert(bookId);
     touchUpdatedAt();
 }
 
 void Publisher::removeBook(quint64 bookId) {
-    for (int i = 0; i < myBookIds.size(); i++) {
-        if (myBookIds.at(i) == bookId) {
-            myBookIds.remove(i);
-            break;
-        }
-    }
+    myBookIds.remove(bookId);
     touchUpdatedAt();
 }
 
 void Publisher::receiveSaleIncome(double amount) {
     revenue = revenue + amount;
+    touchUpdatedAt();
+}
+
+void Publisher::setBio(const QString &newBio) {
+    bio = newBio;
     touchUpdatedAt();
 }
 
@@ -46,13 +52,16 @@ quint64 Publisher::generateId() {
 
 QString Publisher::serialize() const {
     QStringList bookList;
-    for (int i = 0; i < myBookIds.size(); i++) {
-        bookList.append(QString::number(myBookIds.at(i)));
+    for (quint64 bookId: myBookIds) {
+        bookList.append(QString::number(bookId));
     }
+
+    QString safeBio = PipeEscape::escape(bio);
 
     QString result = serializeUserFields();
     result += "|" + bookList.join(",");
     result += "|" + QString::number(revenue);
+    result += "|" + safeBio;
 
     return result;
 }
@@ -68,10 +77,19 @@ void Publisher::deserialize(const QString &data) {
     if (bookToken.length() > 0) {
         QStringList parts = bookToken.split(",");
         for (int i = 0; i < parts.size(); i++) {
-            myBookIds.append(parts.at(i).toULongLong());
+            myBookIds.insert(parts.at(i).toULongLong());
         }
     }
 
     revenue = tokens.at(nextIndex).toDouble();
     nextIndex++;
+
+
+    if (nextIndex < tokens.size()) {
+        bio = tokens.at(nextIndex);
+        nextIndex++;
+        bio = PipeEscape::unescape(bio);
+    } else {
+        bio = "";
+    }
 }

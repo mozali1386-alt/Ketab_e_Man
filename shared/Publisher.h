@@ -5,7 +5,7 @@
 #define PUBLISHER_H
 
 #include "User.h"
-#include <QVector>
+#include <QSet>
 
 class Publisher : public User {
 public:
@@ -13,15 +13,19 @@ public:
 
     virtual ~Publisher();
 
-    QVector<quint64> getMyBookIds() const;
+    QSet<quint64> getMyBookIds() const;
 
     double getRevenue() const;
+
+    QString getBio() const;
 
     void publishBook(quint64 bookId);
 
     void removeBook(quint64 bookId);
 
     void receiveSaleIncome(double amount);
+
+    void setBio(const QString &newBio);
 
     static quint64 generateId();
 
@@ -30,8 +34,9 @@ public:
     void deserialize(const QString &data) override;
 
 private:
-    QVector<quint64> myBookIds;
+    QSet<quint64> myBookIds;
     double revenue;
+    QString bio;
 };
 
 #endif
