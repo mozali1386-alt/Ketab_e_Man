@@ -12,10 +12,6 @@ public:
 
     virtual ~Admin();
 
-    void blockUser(User *target);
-
-    void unblockUser(User *target);
-
     static quint64 generateId();
 
     QString serialize() const override;

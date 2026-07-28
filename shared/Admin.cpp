@@ -11,20 +11,6 @@ Admin::Admin() {
 Admin::~Admin() {
 }
 
-void Admin::blockUser(User *target) {
-    if (target != nullptr) {
-        target->setIsBlocked(true);
-    }
-    touchUpdatedAt();
-}
-
-void Admin::unblockUser(User *target) {
-    if (target != nullptr) {
-        target->setIsBlocked(false);
-    }
-    touchUpdatedAt();
-}
-
 quint64 Admin::generateId() {
     return BaseEntity::generateId();
 }
