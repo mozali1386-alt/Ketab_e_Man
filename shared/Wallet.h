@@ -15,15 +15,15 @@ public:
 
     quint64 getOwnerId() const;
 
-    double getBalance() const;
+    qint64 getBalance() const;
 
     QVector<quint64> getTransactionIds() const;
 
     void setOwnerId(quint64 newOwnerId);
 
-    void deposit(double amount);
+    void deposit(qint64 amount);
 
-    bool withdraw(double amount);
+    bool withdraw(qint64 amount);
 
     void addTransaction(quint64 transactionId);
 
@@ -35,7 +35,7 @@ public:
 
 private:
     quint64 ownerId;
-    double balance;
+    qint64 balance;
     QVector<quint64> transactionIds;
 };
 

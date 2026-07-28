@@ -30,7 +30,7 @@ void ServerCore::handleGetDataUserProfileRequest(ClientHandler *handler, const Q
         genresList = genreParts.join(",");
     }
 
-    double walletBalance = 0.0;
+    qint64 walletBalance = 0;
     Wallet *wallet = data.getWalletsMap().value(user->getWalletId(), nullptr);
     if (wallet != nullptr) {
         walletBalance = wallet->getBalance();
@@ -118,7 +118,7 @@ void ServerCore::handleGetHistoryBookRequest(ClientHandler *handler, const QStri
     QString authorName = getAuthorName(book->getAuthorId());
 
 
-    double buyPrice = book->getFinalPrice();
+    qint64 buyPrice = book->getFinalPrice();
     qint64 bestDiffSeconds = -1;
 
     QMap<quint64, Transaction *> &transactions = data.getTransactionsMap();
@@ -128,7 +128,7 @@ void ServerCore::handleGetHistoryBookRequest(ClientHandler *handler, const QStri
             continue;
         }
 
-        QPair<quint64, double> priceInfo = transaction->getBookPriceAtPurchase();
+        QPair<quint64, qint64> priceInfo = transaction->getBookPriceAtPurchase();
         if (priceInfo.first != bookId) {
             continue;
         }
@@ -161,8 +161,8 @@ void ServerCore::handleUpdateBalanceRequest(ClientHandler *handler, const QStrin
     }
 
     bool ok = false;
-    double newBalance = fields.at(0).toDouble(&ok);
-    if (!ok || newBalance < 0.0) {
+    qint64 newBalance = fields.at(0).toLongLong(&ok);
+    if (!ok || newBalance < 0) {
         handler->sendResponse(Command::FAIL, {});
         return;
     }
@@ -179,7 +179,7 @@ void ServerCore::handleUpdateBalanceRequest(ClientHandler *handler, const QStrin
         return;
     }
 
-    double currentBalance = wallet->getBalance();
+    qint64 currentBalance = wallet->getBalance();
     if (newBalance > currentBalance) {
         wallet->deposit(newBalance - currentBalance);
     } else if (newBalance < currentBalance) {

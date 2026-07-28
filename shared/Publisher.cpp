@@ -7,7 +7,7 @@
 
 Publisher::Publisher() {
     role = Role::PUBLISHER;
-    revenue = 0.0;
+    revenue = 0;
     bio = "";
 }
 
@@ -18,7 +18,7 @@ QSet<quint64> Publisher::getMyBookIds() const {
     return myBookIds;
 }
 
-double Publisher::getRevenue() const {
+qint64 Publisher::getRevenue() const {
     return revenue;
 }
 
@@ -36,7 +36,7 @@ void Publisher::removeBook(quint64 bookId) {
     touchUpdatedAt();
 }
 
-void Publisher::receiveSaleIncome(double amount) {
+void Publisher::receiveSaleIncome(qint64 amount) {
     revenue = revenue + amount;
     touchUpdatedAt();
 }
@@ -81,7 +81,7 @@ void Publisher::deserialize(const QString &data) {
         }
     }
 
-    revenue = tokens.at(nextIndex).toDouble();
+    revenue = tokens.at(nextIndex).toLongLong();
     nextIndex++;
 
 
