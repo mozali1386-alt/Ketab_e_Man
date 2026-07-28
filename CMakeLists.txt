@@ -14,6 +14,8 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
 
 set(SHARED_SOURCES
+        shared/Protocol.cpp
+        shared/Enums.cpp
         shared/BaseEntity.cpp
         shared/User.cpp
         shared/NormalUser.cpp
@@ -29,6 +31,7 @@ set(SHARED_SOURCES
         shared/Wallet.cpp
         shared/Transaction.cpp
         shared/Purchase.cpp
+        shared/PipeEscape.cpp
 )
 
 set(SHARED_HEADERS
@@ -49,7 +52,7 @@ set(SHARED_HEADERS
         shared/Wallet.h
         shared/Transaction.h
         shared/Purchase.h
-        shared/Protocol.cpp
+        shared/PipeEscape.h
 )
 
 add_executable(Ketab_e_Man_Server
@@ -62,6 +65,13 @@ add_executable(Ketab_e_Man_Server
         server/ServerCore_Books.cpp
         server/ServerCore_Shopping.cpp
         server/ServerCore_Library.cpp
+        server/ServerCore_Publisher.cpp
+        server/ServerCore_Notification.cpp
+        server/ServerCore_Pdf.cpp
+        server/ServerCore_Comments.cpp
+        server/ServerCore_Admin.cpp
+        server/ServerCore_AdminBooks.cpp
+        server/ServerCore_Profile.cpp
         server/ServerStats.cpp
         server/ServerStats.h
         server/network/ServerNetwork.cpp
@@ -70,10 +80,6 @@ add_executable(Ketab_e_Man_Server
         server/network/ClientHandler.h
         server/database/FileManager.cpp
         server/database/FileManager.h
-        server/logic/SearchEngine.cpp
-        server/logic/SearchEngine.h
-        server/logic/TrieNode.cpp
-        server/logic/TrieNode.h
         server/gui/ServerDashboard.cpp
         server/gui/ServerDashboard.h
         server/gui/ServerLogModel.cpp
@@ -87,21 +93,10 @@ target_link_libraries(Ketab_e_Man_Server Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Ne
 target_compile_definitions(Ketab_e_Man_Server PRIVATE PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
 set_target_properties(Ketab_e_Man_Server PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/server")
 
-#add_executable(Ketab_e_Man_Client
-#        client/main.cpp
-#        client/network/ClientNetwork.cpp
-#        client/network/ClientNetwork.h
-#        ${SHARED_HEADERS}
-#)
-
-#target_include_directories(Ketab_e_Man_Client PRIVATE shared)
-#target_link_libraries(Ketab_e_Man_Client Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
-#set_target_properties(Ketab_e_Man_Client PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/client")
-
 if (WIN32)
     find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${Qt6_DIR}/../../../bin")
 
-    foreach(TARGET_NAME Ketab_e_Man_Server )
+    foreach (TARGET_NAME Ketab_e_Man_Server)
         if (WINDEPLOYQT_EXECUTABLE)
             add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
                     COMMAND ${WINDEPLOYQT_EXECUTABLE}
@@ -110,6 +105,6 @@ if (WIN32)
                     --no-opengl-sw
                     "$<TARGET_FILE:${TARGET_NAME}>"
             )
-        endif()
-    endforeach()
-endif()
+        endif ()
+    endforeach ()
+endif ()
