@@ -2,20 +2,23 @@
 //YA MAHDI
 
 #include "Book.h"
+#include "PipeEscape.h"
 #include <QStringList>
+#include <QtGlobal>
 
 Book::Book() {
     title = "";
     authorId = 0;
     publisherId = 0;
-    genre = Genre::FICTION;
+    genre = Genre::ROMANCE;
     description = "";
-    price = 0.0;
+    price = 0;
     discountPercent = 0.0;
     coverImagePath = "";
     pdfFilePath = "";
     salesCount = 0;
     isActive = true;
+    deletedByAdmin = false;
 }
 
 Book::~Book() {
@@ -41,7 +44,7 @@ QString Book::getDescription() const {
     return description;
 }
 
-double Book::getPrice() const {
+qint64 Book::getPrice() const {
     return price;
 }
 
@@ -63,6 +66,10 @@ int Book::getSalesCount() const {
 
 bool Book::getIsActive() const {
     return isActive;
+}
+
+bool Book::getIsDeletedByAdmin() const {
+    return deletedByAdmin;
 }
 
 QSet<quint64> Book::getReviewIds() const {
@@ -94,7 +101,7 @@ void Book::setDescription(const QString &newDescription) {
     touchUpdatedAt();
 }
 
-void Book::setPrice(double newPrice) {
+void Book::setPrice(qint64 newPrice) {
     price = newPrice;
     touchUpdatedAt();
 }
@@ -121,15 +128,15 @@ void Book::applyDiscount(double percent) {
     touchUpdatedAt();
 }
 
-double Book::getFinalPrice() const {
-    double discountAmount = (price * discountPercent) / 100.0;
-    double finalPrice = price - discountAmount;
+qint64 Book::getFinalPrice() const {
+    double discountAmount = ((double) price * discountPercent) / 100.0;
+    double finalPriceDouble = (double) price - discountAmount;
 
-    if (finalPrice < 0.0) {
-        finalPrice = 0.0;
+    if (finalPriceDouble < 0.0) {
+        finalPriceDouble = 0.0;
     }
 
-    return finalPrice;
+    return (qint64) qRound(finalPriceDouble);
 }
 
 void Book::incrementSales() {
@@ -144,6 +151,12 @@ void Book::deactivate() {
 
 void Book::reactivate() {
     isActive = true;
+    touchUpdatedAt();
+}
+
+void Book::markDeletedByAdmin() {
+    isActive = false;
+    deletedByAdmin = true;
     touchUpdatedAt();
 }
 
@@ -167,18 +180,10 @@ QString Book::serialize() const {
         reviewList.append(QString::number(reviewId));
     }
 
-    QString safeTitle = title;
-    safeTitle.replace("&pipe;", "&amp;pipe;");
-    safeTitle.replace("|", "&pipe;");
-    QString safeDescription = description;
-    safeDescription.replace("&pipe;", "&amp;pipe;");
-    safeDescription.replace("|", "&pipe;");
-    QString safeCoverPath = coverImagePath;
-    safeCoverPath.replace("&pipe;", "&amp;pipe;");
-    safeCoverPath.replace("|", "&pipe;");
-    QString safePdfPath = pdfFilePath;
-    safePdfPath.replace("&pipe;", "&amp;pipe;");
-    safePdfPath.replace("|", "&pipe;");
+    QString safeTitle = PipeEscape::escape(title);
+    QString safeDescription = PipeEscape::escape(description);
+    QString safeCoverPath = PipeEscape::escape(coverImagePath);
+    QString safePdfPath = PipeEscape::escape(pdfFilePath);
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
@@ -194,7 +199,8 @@ QString Book::serialize() const {
     result += safePdfPath + "|";
     result += QString::number(salesCount) + "|";
     result += QString(isActive ? "1" : "0") + "|";
-    result += reviewList.join(",");
+    result += reviewList.join(",") + "|";
+    result += QString(deletedByAdmin ? "1" : "0");
 
     return result;
 }
@@ -212,8 +218,7 @@ void Book::deserialize(const QString &data) {
 
     title = tokens.at(index);
     index++;
-    title.replace("&pipe;", "|");
-    title.replace("&amp;pipe;", "&pipe;");
+    title = PipeEscape::unescape(title);
     authorId = tokens.at(index).toULongLong();
     index++;
     publisherId = tokens.at(index).toULongLong();
@@ -223,21 +228,18 @@ void Book::deserialize(const QString &data) {
 
     description = tokens.at(index);
     index++;
-    description.replace("&pipe;", "|");
-    description.replace("&amp;pipe;", "&pipe;");
-    price = tokens.at(index).toDouble();
+    description = PipeEscape::unescape(description);
+    price = tokens.at(index).toLongLong();
     index++;
     discountPercent = tokens.at(index).toDouble();
     index++;
 
     coverImagePath = tokens.at(index);
     index++;
-    coverImagePath.replace("&pipe;", "|");
-    coverImagePath.replace("&amp;pipe;", "&pipe;");
+    coverImagePath = PipeEscape::unescape(coverImagePath);
     pdfFilePath = tokens.at(index);
     index++;
-    pdfFilePath.replace("&pipe;", "|");
-    pdfFilePath.replace("&amp;pipe;", "&pipe;");
+    pdfFilePath = PipeEscape::unescape(pdfFilePath);
     salesCount = tokens.at(index).toInt();
     index++;
     isActive = (tokens.at(index) == "1");
@@ -251,5 +253,13 @@ void Book::deserialize(const QString &data) {
         for (int i = 0; i < parts.size(); i++) {
             reviewIds.insert(parts.at(i).toULongLong());
         }
+    }
+
+
+    if (index < tokens.size()) {
+        deletedByAdmin = (tokens.at(index) == "1");
+        index++;
+    } else {
+        deletedByAdmin = false;
     }
 }

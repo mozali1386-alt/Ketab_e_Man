@@ -25,7 +25,7 @@ public:
 
     QString getDescription() const;
 
-    double getPrice() const;
+    qint64 getPrice() const;
 
     double getDiscountPercent() const;
 
@@ -36,6 +36,8 @@ public:
     int getSalesCount() const;
 
     bool getIsActive() const;
+
+    bool getIsDeletedByAdmin() const;
 
     QSet<quint64> getReviewIds() const;
 
@@ -49,7 +51,7 @@ public:
 
     void setDescription(const QString &newDescription);
 
-    void setPrice(double newPrice);
+    void setPrice(qint64 newPrice);
 
     void setCoverImagePath(const QString &path);
 
@@ -57,13 +59,15 @@ public:
 
     void applyDiscount(double percent);
 
-    double getFinalPrice() const;
+    qint64 getFinalPrice() const;
 
     void incrementSales();
 
     void deactivate();
 
     void reactivate();
+
+    void markDeletedByAdmin();
 
     void addReview(quint64 reviewId);
 
@@ -81,12 +85,13 @@ private:
     quint64 publisherId;
     Genre genre;
     QString description;
-    double price;
+    qint64 price;
     double discountPercent;
     QString coverImagePath;
     QString pdfFilePath;
     int salesCount;
     bool isActive;
+    bool deletedByAdmin;
     QSet<quint64> reviewIds;
 };
 
