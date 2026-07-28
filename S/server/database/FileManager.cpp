@@ -10,13 +10,10 @@
 #include <QTextStream>
 #include <QDir>
 #include <QStringList>
+#include <QCoreApplication>
 
 FileManager::FileManager() {
-#ifdef PROJECT_ROOT_DIR
-    baseDirectory = QString(PROJECT_ROOT_DIR) + "/assets/data/";
-#else
-    baseDirectory = "assets/data/";
-#endif
+    baseDirectory = QCoreApplication::applicationDirPath() + "/assets/data/";
 }
 
 void FileManager::ensureBaseDirectoryExists() {

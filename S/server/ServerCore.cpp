@@ -7,7 +7,7 @@
 #include <QStringList>
 #include <QDir>
 #include <QFile>
-
+#include <QCoreApplication>
 ServerCore::ServerCore(QObject *parent) : QObject(parent) {
     network = new ServerNetwork(this);
 
@@ -352,7 +352,8 @@ QString ServerCore::saveBase64File(const QString &base64Data, const QString &sub
 
     QByteArray rawBytes = QByteArray::fromBase64(base64Data.toUtf8());
 
-    QString directoryPath = "assets/data/" + subDirectory + "/";
+    QString directoryPath = QCoreApplication::applicationDirPath() + "/assets/data/" + subDirectory + "/";
+
     QDir dir;
     dir.mkpath(directoryPath);
 
