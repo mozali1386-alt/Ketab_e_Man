@@ -33,4 +33,4 @@ private:
     ClientSocketManager *m_client;
 };
 
-#endif // RESETPASSWORDDIALOG_H
+#endif

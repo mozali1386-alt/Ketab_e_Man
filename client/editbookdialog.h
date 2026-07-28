@@ -33,4 +33,4 @@ private:
     Ui::EditbookDialog *ui;
 };
 
-#endif // EDITBOOKDIALOG_H
+#endif

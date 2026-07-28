@@ -42,4 +42,4 @@ private:
     int finalPriceValue;
 };
 
-#endif // CARTITEMWIDGET_H
+#endif

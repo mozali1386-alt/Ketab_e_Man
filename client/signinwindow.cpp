@@ -60,13 +60,6 @@ void signinwindow::on_pushButton_Confirm_clicked()
 
     qDebug() << Message;
     m_client->sendMessage(Message);
-
-    // ======== کدهای تست لاگین ========
-    // // تست حالت موفقیت‌آمیز:
-    //processServerResponse("LOGIN||SUCCESS||101");
-
-    // // تست حالت رمز اشتباه (برای تست، خط بالا را کامنت و این خط را فعال کن):
-    // processServerResponse("LOGIN||FAIL||Invalid username or password");
 }
 
 void signinwindow::on_pushButton_forgetpassword_clicked()

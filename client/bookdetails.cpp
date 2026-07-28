@@ -66,25 +66,6 @@ void Bookdetails::requestBookDetails()
 {
     QString message = "GET_BOOK_DETAILS||" + currentBookId;
     m_client->sendMessage(message);
-
-    // ================== شروع تست (بعداً پاک کن) ==================
-    // if (currentBookId == "1") {
-    //     processServerResponse("BOOK_DETAILS_RESULT||1||ali123||NO_IMAGE||"
-    //                           "سمفونی مردگان||عباس معروفی||نشر ققنوس||کلاسیک||150000||20000||4.8||"
-    //                           "این کتاب داستان یک خانواده اردبیلی را روایت "
-    //                           "می‌کند...||0||1||1");
-
-    //     processServerResponse("COMMENTS_LIST||C_1,C_2");
-    // } else if (currentBookId == "3") {
-    //     processServerResponse(
-    //         "BOOK_DETAILS_RESULT||3||ali123||NO_IMAGE||"
-    //         "شازده کوچولو||آنتوان دو سنت اگزوپری||نشر...||کلاسیک||120000||0||4.9||"
-    //         "داستان شازده کوچولو...||1||0||0");
-
-    //     processServerResponse("COMMENTS_LIST||C_3_1,C_3_2,C_3_3");
-    // }
-
-    // پایان تست------------------------------------------
 }
 void Bookdetails::requestCommentsList()
 {
@@ -96,28 +77,6 @@ void Bookdetails::requestCommentDetails(const QString &commentId)
 {
     QString message = "GET_COMMENT_DETAILS||" + commentId;
     m_client->sendMessage(message);
-
-    // ================== شروع تست (بعداً پاک کن) ==================
-
-    // if (commentId == "C_1") {
-    //     processServerResponse(
-    //         "COMMENT_DETAILS||C_1||reza99||رضا کریمی||4||خیلی خوب بود||1402/05/10");
-    // } else if (commentId == "C_2") {
-    //     processServerResponse("COMMENT_DETAILS||C_2||ali123||علی محمدی||5||شاهکار بود||1402/06/12");
-    // }
-
-    // else if (commentId == "C_3_1") {
-    //     processServerResponse(
-    //         "COMMENT_DETAILS||C_3_1||user1||امیر حسینی||1||اصلا جالب نبود||1402/07/01");
-    // } else if (commentId == "C_3_2") {
-    //     processServerResponse("COMMENT_DETAILS||C_3_2||user2||سارا احمدی||2||معمولی بود، انتظار "
-    //                           "بیشتری داشتم||1402/07/05");
-    // } else if (commentId == "C_3_3") {
-    //     processServerResponse(
-    //         "COMMENT_DETAILS||C_3_3||user3||محمد رضایی||4||کتاب خوبی بود، لذت بردم||1402/07/10");
-    // }
-
-    // پایان تست--------------------------------------------------------------------
 }
 
 void Bookdetails::processServerResponse(const QString &response)
@@ -298,7 +257,6 @@ void Bookdetails::on_pushButton_commentadd_clicked()
         return;
     }
 
-    // پیام با همان متغیر currentText ساخته می‌شود. اگر خالی باشد، بعد از || چیزی نمی‌افتد.
     QString message = QString("UPDATE_COMMENT||%1||%2||%3")
                           .arg(currentBookId, QString::number(currentUserRating), currentText);
     m_client->sendMessage(message);

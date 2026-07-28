@@ -44,8 +44,6 @@ private slots:
     void on_tableWidget_comment_itemSelectionChanged();
     void on_pushButton_deletecomment_clicked();
     void on_pushButton_textcomelcomment_clicked();
-
-    // برای ریل تایم بودن
     void on_tabWidget_currentChanged(int index);
 
 private:
@@ -66,8 +64,6 @@ private:
     QString currentPdfBookId;
 
     ClientSocketManager *m_client;
-
-    // Client *client;
 };
 
-#endif // ADMINDASHBOARD_H
+#endif

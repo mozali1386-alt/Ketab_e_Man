@@ -16,7 +16,7 @@ class pdfviewerWidget : public QWidget
 public:
     explicit pdfviewerWidget(QWidget *parent = nullptr);
     ~pdfviewerWidget();
-    // تابع اصلی برای دریافت کتاب
+
     bool loadPdfFromData(const QByteArray &pdfData);
     void setBookId(const QString &bookId);
     void jumpToPage(int pageIndex);
@@ -39,4 +39,4 @@ private:
     QString m_bookId;
 };
 
-#endif // PDFVIEWERWIDGET_H
+#endif

@@ -24,4 +24,4 @@ private:
     Ui::CommentcardWidget *ui;
 };
 
-#endif // COMMENTCARDWIDGET_H
+#endif

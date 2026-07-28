@@ -37,4 +37,4 @@ private:
     QString currentBookId;
 };
 
-#endif // STOREBOOKWIDGET_H
+#endif

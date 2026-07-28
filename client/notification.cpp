@@ -106,7 +106,6 @@ void Notification::clearNotifications()
 }
 void Notification::markAllAsReadUI()
 {
-    // روی تمام آیتم‌های لیست می‌چرخد و رنگ دایره‌هایشان را خاکستری می‌کند
     for (int i = 0; i < listWidget->count(); ++i) {
         QListWidgetItem *item = listWidget->item(i);
         QWidget *widget = listWidget->itemWidget(item);
@@ -127,11 +126,10 @@ void Notification::markAsReadUI(const QString &id)
             if (widget) {
                 QLabel *dot = widget->findChild<QLabel *>("dotLabel");
                 if (dot) {
-                    // فقط رنگ دایره همین پیام را خاکستری می‌کند
                     dot->setStyleSheet("background-color: #b2bec3; border-radius: 6px;");
                 }
             }
-            break; // چون پیام پیدا شد، حلقه را متوقف می‌کنیم
+            break;
         }
     }
 }

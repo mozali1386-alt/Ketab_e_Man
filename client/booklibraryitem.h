@@ -49,4 +49,4 @@ private:
     QMenu *shelfMenu;
 };
 
-#endif // BOOKLIBRARYITEM_H
+#endif

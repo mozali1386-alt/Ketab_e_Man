@@ -17,98 +17,46 @@ PublisherStatistics::~PublisherStatistics()
     delete ui;
 }
 
-// ==========================================
-// ارسال درخواست‌ها به سرور (همراه با کدهای تست)
-// ==========================================
-
 void PublisherStatistics::requestGeneralStats()
 {
     QString message = "GET_PUB_GENERAL_STATS";
     m_client->sendMessage(message);
-
-    // =============== شروع کدهای تست ===============
-    // QTimer::singleShot(100, this, [=]() {
-    //     processServerResponse("PUB_GENERAL_RESULT||15||4.2||2500000");
-    // });
-    // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestTopBooksIds()
 {
     QString message = "GET_PUB_TOP_BOOKS_IDS";
     m_client->sendMessage(message);
-
-    // =============== شروع کدهای تست ===============
-    // QTimer::singleShot(150, this, [=]() {
-    //     processServerResponse("PUB_TOP_IDS_RESULT||101,102,103");
-    // });
-    // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestTopBookInfo(const QString &bookId)
 {
     QString message = "GET_PUB_BOOK_INFO_TOP||" + bookId;
     m_client->sendMessage(message);
-
-    // =============== شروع کدهای تست ===============
-    // QTimer::singleShot(200, this, [=]() {
-    //     QString mockResponse = "PUB_BOOK_INFO_TOP_RESULT||" + bookId + "||کتاب برتر " + bookId
-    //                            + "||150||4.8";
-    //     processServerResponse(mockResponse);
-    // });
-    // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestLowestBooksIds()
 {
     QString message = "GET_PUB_LOWEST_BOOKS_IDS";
     m_client->sendMessage(message);
-
-    // =============== شروع کدهای تست ===============
-    // QTimer::singleShot(150, this, [=]() {
-    //     processServerResponse("PUB_LOWEST_IDS_RESULT||201,202");
-    // });
-    // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestLowestBookInfo(const QString &bookId)
 {
     QString message = "GET_PUB_BOOK_INFO_LOWEST||" + bookId;
     m_client->sendMessage(message);
-
-    // =============== شروع کدهای تست ===============
-    // QTimer::singleShot(200, this, [=]() {
-    //     QString mockResponse = "PUB_BOOK_INFO_LOWEST_RESULT||" + bookId + "||کتاب کم فروش " + bookId
-    //                            + "||5||2.1";
-    //     processServerResponse(mockResponse);
-    // });
-    // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestSalesChartData()
 {
     QString message = "GET_PUB_SALES_CHART";
     m_client->sendMessage(message);
-
-    // =============== شروع کدهای تست ===============
-    // QTimer::singleShot(300, this, [=]() {
-    //     processServerResponse("PUB_SALES_CHART_RESULT||کتاب الف:500,کتاب ب:350,کتاب ج:200,سایر "
-    //                           "کتاب‌ها:150");
-    // });
-    // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestScoreChartData()
 {
     QString message = "GET_PUB_SCORE_CHART";
     m_client->sendMessage(message);
-
-    // =============== شروع کدهای تست ===============
-    // QTimer::singleShot(350, this, [=]() {
-    //     processServerResponse("PUB_SCORE_CHART_RESULT||کتاب ۱:4.5,کتاب ۲:3.2,کتاب ۳:4.8,کتاب "
-    //                           "۴:2.5,کتاب ۵:3.9,کتاب ۶:4.1,کتاب ۷:2.9,کتاب ۸:5.0");
-    // });
-    // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::processServerResponse(const QString &response)
@@ -147,6 +95,10 @@ void PublisherStatistics::processServerResponse(const QString &response)
         drawPieChart(parts);
     } else if (cmd == "PUB_SCORE_CHART_RESULT") {
         drawBarChart(parts);
+    } else if (cmd == "PUB_SCORE_CHART_RESULT") {
+        drawBarChart(parts);
+    } else if (cmd == "PUB_DAILY_SALES_RESULT") { // <--- اضافه شد
+        drawDailySalesChart(parts);
     }
 }
 
@@ -246,6 +198,7 @@ void PublisherStatistics::refreshStatistics()
     requestLowestBooksIds();
     requestSalesChartData();
     requestScoreChartData();
+    requestDailySalesChartData();
 }
 void PublisherStatistics::setClient(ClientSocketManager *client)
 {
@@ -254,4 +207,56 @@ void PublisherStatistics::setClient(ClientSocketManager *client)
             &ClientSocketManager::messageReceived,
             this,
             &PublisherStatistics::processServerResponse);
+}
+void PublisherStatistics::requestDailySalesChartData()
+{
+    QString message = "GET_PUB_DAILY_SALES_CHART";
+    //m_client->sendMessage(message);
+
+    // شبیه‌سازی جواب سرور
+    QTimer::singleShot(400, this, [=]() {
+        // داده‌های فرضی برای ۷ روز
+        processServerResponse("PUB_DAILY_SALES_RESULT||روز ۱:12,روز ۲:18,روز ۳:14,روز ۴:25,روز "
+                              "۵:20,روز ۶:30,روز ۷:28");
+    });
+}
+void PublisherStatistics::drawDailySalesChart(const QStringList &dataParts)
+{
+    if (dataParts.size() < 2)
+        return;
+    QStringList points = dataParts[1].split(",", Qt::SkipEmptyParts);
+    QLineSeries *series = new QLineSeries();
+    series->setName("تعداد فروش");
+    QStringList categories;
+
+    int maxSales = 0;
+    for (int i = 0; i < points.size(); ++i) {
+        QStringList info = points[i].split(":");
+        if (info.size() == 2) {
+            categories << info[0];
+            int sales = info[1].toInt();
+            series->append(i, sales);
+
+            if (sales > maxSales)
+                maxSales = sales;
+        }
+    }
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle("نمودار فروش روزانه (۷ روز اخیر)");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+
+    QBarCategoryAxis *axisX = new QBarCategoryAxis();
+    axisX->append(categories);
+    chart->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setRange(0, maxSales + 5);
+    axisY->setLabelFormat("%d");
+    chart->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisY);
+    ui->tab_dailysales->setChart(chart);
+    ui->tab_dailysales->setRenderHint(QPainter::Antialiasing);
 }

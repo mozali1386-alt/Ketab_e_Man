@@ -15,7 +15,6 @@ Usersignupwindow::Usersignupwindow(ClientSocketManager *client, QWidget *parent)
             this,
             &Usersignupwindow::processServerResponse);
 
-    // قرمز کردن تمام لیبل‌های خطا
     ui->label_NameError->setStyleSheet("color: red;");
     ui->label_UsernameError->setStyleSheet("color: red;");
     ui->label_EmailError->setStyleSheet("color: red;");
@@ -123,19 +122,8 @@ void Usersignupwindow::on_pushButton_confirm_clicked()
 
     QString Message = QString("SIGNUP_NORMALUSER||%1||%2||%3||%4||%5")
                           .arg(name, username, email, password, genresString);
-    //qDebug() << Message;
 
     m_client->sendMessage(Message);
-
-    // ======== کدهای تست ثبت‌نام کاربر ========
-    // تست حالت موفقیت‌آمیز:
-    //processServerResponse("SIGNUP_NORMALUSER||SUCCESS");
-
-    // تست حالت خطای دوتایی:
-    // processServerResponse("SIGNUP_NORMALUSER||FAIL||USERNAME_EXISTS,EMAIL_EXISTS");
-
-    // تست حالت خطای تکی:
-    // processServerResponse("SIGNUP_NORMALUSER||FAIL||EMAIL_EXISTS");
 }
 
 void Usersignupwindow::on_listWidget_genre_itemChanged(QListWidgetItem *item)
@@ -157,7 +145,6 @@ void Usersignupwindow::on_listWidget_genre_itemChanged(QListWidgetItem *item)
             }
         }
     } else {
-        // اگر کاربر تیکِ یکی را برداشت و تعداد کمتر از ۳ شد، دوباره همه را فعال کن
         for (int i = 0; i < ui->listWidget_genre->count(); ++i) {
             QListWidgetItem *currentItem = ui->listWidget_genre->item(i);
 
@@ -180,7 +167,6 @@ void Usersignupwindow::processServerResponse(const QString &response)
             this->close();
 
         } else if (parts.size() >= 3 && parts[1] == "FAIL") {
-            // ... بقیه کدهای ارور دست نخورده باقی بماند ...
             QStringList errors = parts[2].split(",");
             for (int i = 0; i < errors.size(); ++i) {
                 if (errors[i] == "USERNAME_EXISTS") {

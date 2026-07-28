@@ -49,11 +49,10 @@ private:
     QString persianToEnglishGenre(const QString &persian);
     QString englishToPersianGenre(const QString &english);
 
-    // توابع کمکی
     void resetForm();
     void sendPdfChunks(const QString &bookId);
     void setButtonImageFit(const QString &imagePath);
     bool hasFormChanged();
 };
 
-#endif // BOOKMANAGEMENT_H
+#endif

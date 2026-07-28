@@ -32,4 +32,4 @@ private:
     ClientSocketManager *m_client = nullptr;
 };
 
-#endif // STOREPAGE_H
+#endif

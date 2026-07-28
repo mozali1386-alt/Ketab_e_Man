@@ -27,4 +27,4 @@ private:
     Ui::LoginWindow *ui;
     ClientSocketManager *m_client;
 };
-#endif // LOGINWINDOW_H
+#endif

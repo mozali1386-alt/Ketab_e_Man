@@ -33,16 +33,6 @@ Userprofilepage::Userprofilepage(QWidget *parent)
     genreMap["هنری"] = "ART";
     genreMap["طنز"] = "COMEDY";
     genreMap["تاریخی"] = "HISTORY";
-
-    // ================== شروع تست ۱ (لود اولیه) ==================
-    // شبیه‌سازی دریافت اطلاعات پایه کاربر
-    //processServerResponse("USER_PROFILE_INFO||نام تستی||aliakbar||test@gmail.com||ROMANCE,SCIFI||150000");
-
-    // شبیه‌سازی دریافت لیست آیدی‌های تاریخچه خرید
-    //processServerResponse("HISTORY_IDS||3||101,102,103");
-
-    // (نکته: اگر می‌خواهی صفحه خالی تاریخچه را ببینی، خط بالا را پاک کن و این را بنویس: processServerResponse("HISTORY_IDS||0"); )
-    // =========================================================
 }
 
 Userprofilepage::~Userprofilepage()
@@ -178,14 +168,6 @@ void Userprofilepage::on_pushButton_sabt_clicked()
     QString Message = QString("UPDATE_PROFILE||%1||%2||%3")
                           .arg(currentName, currentEmail, currentGenresString);
     m_client->sendMessage(Message);
-
-    // ================== شروع تست خطای سرور ==================
-    // برای تست حالت خطا (ایمیل تکراری):
-    //processServerResponse("UPDATE_PROFILE_RESULT||DUPLICATE_EMAIL");
-
-    // برای تست حالت موفقیت، خط بالا را کامنت کن و خط زیر را فعال کن:
-    // processServerResponse("UPDATE_PROFILE_RESULT||SUCCESS");
-    // =========================================================
 }
 
 void Userprofilepage::on_pushButton_enseraf_clicked()
@@ -221,18 +203,6 @@ void Userprofilepage::requestHistoryBook(const QString &bookId)
 {
     QString message = "GET_HISTORY_BOOK||" + bookId;
     m_client->sendMessage(message);
-
-    // ================== شروع تست ۲ (اطلاعات کتاب‌ها) ==================
-    // if (bookId == "101") {
-    //     processServerResponse(
-    //         "HISTORY_BOOK_INFO||101||سمفونی مردگان||عباس معروفی||130000||1402/05/12");
-    // } else if (bookId == "102") {
-    //     processServerResponse("HISTORY_BOOK_INFO||102||بوف کور||صادق هدایت||90000||1402/06/15");
-    // } else if (bookId == "103") {
-    //     processServerResponse(
-    //         "HISTORY_BOOK_INFO||103||شازده کوچولو||آنتوان دو سنت اگزوپری||120000||1402/07/20");
-    // }
-    // =========================================================
 }
 
 void Userprofilepage::processServerResponse(const QString &response)

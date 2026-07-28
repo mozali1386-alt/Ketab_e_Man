@@ -25,4 +25,4 @@ private:
     QPushButton *markAllReadBtn;
 };
 
-#endif // NOTIFICATION_H
+#endif

@@ -104,8 +104,7 @@ void BookLibraryItem::updateShelvesMenu(const QMap<QString, QString> &shelvesMap
 
         if (shelfId == currentShelf) {
             action->setChecked(true);
-            action->setEnabled(
-                false); // نمی‌تواند دوباره روی قفسه فعلی کلیک کند
+            action->setEnabled(false);
         } else {
             connect(action, &QAction::triggered, this, [=]() {
                 emit shelfAssignmentChanged(currentBookId, shelfId);

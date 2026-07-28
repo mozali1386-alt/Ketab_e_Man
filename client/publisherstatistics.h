@@ -8,6 +8,7 @@
 #include <QtCharts/QBarSet>
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
 #include <QtCharts/QPieSeries>
 #include <QtCharts/QValueAxis>
 #include "clientsocketmanager.h"
@@ -48,6 +49,9 @@ private:
                        const QString &name,
                        const QString &sales,
                        const QString &score);
+
+    void requestDailySalesChartData();
+    void drawDailySalesChart(const QStringList &dataParts);
 };
 
-#endif // PUBLISHERSTATISTICS_H
+#endif

@@ -46,7 +46,7 @@ void Cartpage::processServerResponse(const QString &response)
             expectedCartItems = 0;
             loadedCartItems = 0;
             isCheckingOut = false; // لغو حالت خرید
-            updateSummary();       // نمایش صفحه "سبد خرید خالی است"
+            updateSummary();
             return;
         }
 
@@ -78,7 +78,6 @@ void Cartpage::processServerResponse(const QString &response)
         loadedCartItems++;
 
         if (loadedCartItems == expectedCartItems) {
-            // چک می‌کنیم آیا کاربر دکمه ثبت خرید را زده بود؟
             if (isCheckingOut) {
                 // استخراج قیمت جدید پس از آپدیت
                 QString newPriceStr = ui->label_totalprice_discountnext->text();
@@ -90,7 +89,6 @@ void Cartpage::processServerResponse(const QString &response)
                     m_client->sendMessage(message);
 
                 } else {
-                    // قیمت تغییر کرده! توقف عملیات و نمایش پیام (خرید لغو می‌شود)
                     QMessageBox::warning(this,
                                          "تغییر قیمت",
                                          "قیمت یا موجودی کتاب‌ها تغییر کرده است. سبد خرید "
@@ -105,7 +103,7 @@ void Cartpage::processServerResponse(const QString &response)
     }
 
     else if (command == "CHECKOUT_RESULT") {
-        isCheckingOut = false; // اطمینان از خروج از حالت اعتبارسنجی
+        isCheckingOut = false;
 
         if (fieldTwo == "SUCCESS") {
             QMessageBox::information(this,

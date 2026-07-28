@@ -65,4 +65,4 @@ private:
     ClientSocketManager *m_client = nullptr;
 };
 
-#endif // LIBRARYWIDGET_H
+#endif

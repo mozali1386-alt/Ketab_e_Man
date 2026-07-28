@@ -21,4 +21,4 @@ private:
     Ui::HistoryCardwidget *ui;
 };
 
-#endif // HISTORYCARDWIDGET_H
+#endif

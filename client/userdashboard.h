@@ -38,7 +38,7 @@ private:
     Ui::UserDashboard *ui;
 
     Notification *notifPopup;
-    QLabel *badgeLabel; // لیبل دایره قرمز برای نمایش عدد
+    QLabel *badgeLabel;
     int unreadCount = 0;
 
     void updateBadge(); // تابعی برای روشن/خاموش کردن دایره قرمز
@@ -46,4 +46,4 @@ private:
     ClientSocketManager *m_client;
 };
 
-#endif // USERDASHBOARD_H
+#endif

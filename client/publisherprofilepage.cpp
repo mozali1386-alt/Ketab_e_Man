@@ -14,13 +14,6 @@ PublisherProfilePage::PublisherProfilePage(QWidget *parent)
     ui->label_error_email->setStyleSheet("color: red;");
     ui->label_error_entesharat->clear();
     ui->label_error_email->clear();
-
-    // ================== شروع تست ۱ (لود اولیه صفحه) ==================
-    // این خط را وقتی سرور واقعی وصل شد پاک کن
-    //processServerResponse(
-    //"PUB_PROFILE_INFO||نشر چشمه||pub_cheshmeh||cheshmeh@gmail.com||2500000||ناشر تخصصی "
-    // "کتاب‌های ادبی و هنری");
-    // ================== پایان تست ۱ ==================================
 }
 
 PublisherProfilePage::~PublisherProfilePage()
@@ -63,19 +56,6 @@ void PublisherProfilePage::on_pushButton_save_clicked()
     QString message = QString("UPDATE_PUB_PROFILE||%1||%2||%3")
                           .arg(currentEntesharat, currentEmail, currentBio);
     m_client->sendMessage(message);
-
-    // ================== شروع تست ۲ (ثبت تغییرات) ==================
-    // برای تست کردن هر حالت، فقط کامنت (//) همان خط را بردار:
-
-    // حالت الف: تست موفقیت
-    //processServerResponse("UPDATE_PUB_PROFILE_RESULT||SUCCESS");
-
-    // حالت ب: تست خطای ایمیل تکراری
-    // processServerResponse("UPDATE_PUB_PROFILE_RESULT||DUPLICATE_EMAIL");
-
-    // حالت ج: تست خطای انتشارات تکراری
-    // processServerResponse("UPDATE_PUB_PROFILE_RESULT||DUPLICATE_ENTESHARAT");
-    // ================== پایان تست ۲ ===============================
 }
 
 void PublisherProfilePage::on_pushButton_enseraf_clicked()
@@ -98,10 +78,6 @@ void PublisherProfilePage::on_pushButton_withdrawbalance_clicked()
         return;
     }
     m_client->sendMessage("WITHDRAW_BALANCE");
-
-    // ================== شروع تست ۳ (برداشت وجه) ==================
-    //processServerResponse("WITHDRAW_BALANCE_RESULT||SUCCESS");
-    // ================== پایان تست ۳ ==============================
 }
 
 void PublisherProfilePage::on_pushButton_editusername_clicked()

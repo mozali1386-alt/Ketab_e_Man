@@ -95,7 +95,6 @@ void pdfviewerWidget::on_toolButton_zoomin_clicked()
 
 void pdfviewerWidget::on_toolButton_zoomout_clicked()
 {
-    //  ابتدا قفل "فیت بودن صفحه" را باز می‌کنیم
     ui->widget->setZoomMode(QPdfView::ZoomMode::Custom);
 
     //حالا زوم را 20 درصد کاهش می‌دهیم

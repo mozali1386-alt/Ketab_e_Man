@@ -68,49 +68,31 @@ QPushButton#btnSubmitBook:hover {
       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="4">
-       <widget class="QLineEdit" name="lineEdit_bookname">
-        <property name="minimumSize">
-         <size>
-          <width>215</width>
-          <height>40</height>
-         </size>
-        </property>
+      <item row="7" column="5">
+       <widget class="QLabel" name="label_10">
         <property name="text">
+         <string>توضیحات :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>قیمت:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="4" rowspan="4">
+       <widget class="QTextEdit" name="textEdit_explanation">
+        <property name="layoutDirection">
+         <enum>Qt::LayoutDirection::RightToLeft</enum>
+        </property>
+        <property name="placeholderText">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="6" column="3">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>فایل کتاب: </string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="4">
-       <widget class="QComboBox" name="comboBox_tipe">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-        <item>
-         <property name="text">
-          <string>افزودن کتاب</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>نام نویسنده:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1" colspan="2">
+      <item row="5" column="1" colspan="2">
        <widget class="QPushButton" name="pushButton_pdf">
         <property name="minimumSize">
          <size>
@@ -123,64 +105,60 @@ QPushButton#btnSubmitBook:hover {
         </property>
        </widget>
       </item>
-      <item row="2" column="4">
-       <widget class="QComboBox" name="comboBox_genre">
+      <item row="2" column="5">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>ژانر</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QSpinBox" name="spinBox_discount">
         <property name="minimumSize">
          <size>
           <width>0</width>
           <height>40</height>
          </size>
         </property>
-        <item>
-         <property name="text">
-          <string>عاشقانه</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>علمی تخیلی</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>ترسناک</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>کلاسیک</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>جنایی</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>هنری</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>طنز</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>تاریخی</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="1" column="5">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>نام کتاب:</string>
+        <property name="maximum">
+         <number>100</number>
         </property>
        </widget>
       </item>
-      <item row="13" column="1" colspan="5">
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="lineEdit_anuturename">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" rowspan="2" colspan="2">
+       <widget class="QSpinBox" name="spinBox_price">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>1000000000</number>
+        </property>
+        <property name="stepType">
+         <enum>QAbstractSpinBox::StepType::DefaultStepType</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="5">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>درصد تخفیف: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="1" colspan="5">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <spacer name="horizontalSpacer">
@@ -298,11 +276,96 @@ QPushButton:pressed {
         </item>
        </layout>
       </item>
-      <item row="8" column="5">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>توضیحات :</string>
+      <item row="2" column="4">
+       <widget class="QComboBox" name="comboBox_genre">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
         </property>
+        <item>
+         <property name="text">
+          <string>عاشقانه</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>علمی تخیلی</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>ترسناک</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>کلاسیک</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>جنایی</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>هنری</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>طنز</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>تاریخی</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>نام کتاب:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>نام نویسنده:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLineEdit" name="lineEdit_bookname">
+        <property name="minimumSize">
+         <size>
+          <width>215</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="4">
+       <widget class="QComboBox" name="comboBox_tipe">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>افزودن کتاب</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="0" column="5">
@@ -312,126 +375,14 @@ QPushButton:pressed {
         </property>
        </widget>
       </item>
-      <item row="4" column="1" colspan="2">
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_8">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>از تاریخ:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="label_9">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>تا تاریخ:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QDateTimeEdit" name="dateTimeEdit_starttime">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QDateTimeEdit" name="dateTimeEdit_endtime">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="label_4">
+      <item row="5" column="3">
+       <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>قیمت:</string>
+         <string>فایل کتاب: </string>
         </property>
        </widget>
       </item>
-      <item row="2" column="5">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>ژانر</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QLineEdit" name="lineEdit_anuturename">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="4" rowspan="4">
-       <widget class="QTextEdit" name="textEdit_explanation">
-        <property name="layoutDirection">
-         <enum>Qt::LayoutDirection::RightToLeft</enum>
-        </property>
-        <property name="placeholderText">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" rowspan="2" colspan="2">
-       <widget class="QSpinBox" name="spinBox_price">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>1000000000</number>
-        </property>
-        <property name="stepType">
-         <enum>QAbstractSpinBox::StepType::DefaultStepType</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="3">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>جلد کتاب:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1" rowspan="3" colspan="2">
+      <item row="6" column="1" rowspan="3" colspan="2">
        <widget class="QPushButton" name="pushButton_pikcher">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -450,36 +401,10 @@ QPushButton:pressed {
         </property>
        </widget>
       </item>
-      <item row="4" column="4">
-       <widget class="QSpinBox" name="spinBox_discount">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>100</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="5">
-       <widget class="QLabel" name="label_5">
+      <item row="7" column="3">
+       <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>درصد تخفیف: </string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3" rowspan="3">
-       <widget class="QCheckBox" name="checkBox_timediscount">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>تخفیف زمان دار</string>
+         <string>جلد کتاب:</string>
         </property>
        </widget>
       </item>
@@ -492,49 +417,13 @@ QPushButton:pressed {
   <tabstop>lineEdit_bookname</tabstop>
   <tabstop>lineEdit_anuturename</tabstop>
   <tabstop>comboBox_genre</tabstop>
-  <tabstop>checkBox_timediscount</tabstop>
   <tabstop>textEdit_explanation</tabstop>
   <tabstop>comboBox_tipe</tabstop>
-  <tabstop>dateTimeEdit_starttime</tabstop>
-  <tabstop>dateTimeEdit_endtime</tabstop>
   <tabstop>pushButton_save</tabstop>
   <tabstop>pushButton_edit</tabstop>
   <tabstop>pushButton_enable</tabstop>
   <tabstop>pushButton_disable</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>checkBox_timediscount</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>dateTimeEdit_starttime</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>266</x>
-     <y>163</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>184</x>
-     <y>138</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_timediscount</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>dateTimeEdit_endtime</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>251</x>
-     <y>169</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>180</x>
-     <y>195</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

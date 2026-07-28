@@ -33,13 +33,10 @@ void ClientSocketManager::sendMessage(const QString &message)
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
-    // هماهنگ‌سازی نسخه با سرورِ هم‌تیمی‌ات
     out.setVersion(QDataStream::Qt_5_10);
 
-    //  نوشتن یک عدد صفر به صورت موقت تا جا برای سایز پیام باز شود
     out << (quint32) 0;
 
-    //  نوشتن دقیقاً همان رشته متنی که تو از داشبورد فرستاده‌ای (مثلاً "LOGIN||ali||123")
     out << message;
 
     out.device()->seek(0);
@@ -82,10 +79,8 @@ void ClientSocketManager::onReadyRead()
 
         qDebug() << "server replied:   " << message;
 
-        // ۴. صفر کردن مجدد سایز برای پیام‌های بعدی که در راه هستند
         blockSize = 0;
 
-        //  ارسال دقیقِ رشته به سمت کدهای تو (دقیقاً همان چیزی که کدهایت منتظرش هستند
         emit messageReceived(message);
     }
 }

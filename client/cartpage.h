@@ -40,4 +40,4 @@ private:
     ClientSocketManager *m_client = nullptr;
 };
 
-#endif // CARTPAGE_H
+#endif

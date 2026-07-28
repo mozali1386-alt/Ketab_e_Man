@@ -37,4 +37,4 @@ private:
     ClientSocketManager *m_client;
 };
 
-#endif // SIGNINWINDOW_H
+#endif

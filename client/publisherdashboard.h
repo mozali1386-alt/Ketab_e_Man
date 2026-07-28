@@ -44,4 +44,4 @@ private:
     ClientSocketManager *m_client;
 };
 
-#endif // PUBLISHERDASHBOARD_H
+#endif

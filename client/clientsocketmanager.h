@@ -29,7 +29,7 @@ private slots:
 
 private:
     QTcpSocket *socket;
-    quint32 blockSize; // این متغیر فقط برای محاسبه سایز بایت‌های سرور است
+    quint32 blockSize;
 };
 
-#endif // CLIENTSOCKETMANAGER_H
+#endif

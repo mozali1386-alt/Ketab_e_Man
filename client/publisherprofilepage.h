@@ -34,4 +34,4 @@ private:
     ClientSocketManager *m_client = nullptr;
 };
 
-#endif // PUBLISHERPROFILEPAGE_H
+#endif

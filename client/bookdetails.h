@@ -62,4 +62,4 @@ private:
     void loadAndSetImage(QLabel *imageLabel, const QString &base64Data);
     ClientSocketManager *m_client = nullptr;
 };
-#endif // BOOKDETAILS_H
+#endif

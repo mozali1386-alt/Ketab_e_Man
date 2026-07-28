@@ -70,27 +70,12 @@ void Storepage::on_pushButton_search_clicked()
     lastsearchdisplay = message;
 
     m_client->sendMessage(message);
-    // ================== شروع تست (بعداً پاک کن) ==================
-    //processServerResponse("SEARCH_RESULT||1,2,3");
-    // =========================================================
 }
 
-// تابع درخواست اطلاعات کامل یک کتاب با استفاده از آیدی
 void Storepage::requestBookSummary(const QString &bookId)
 {
     QString message = "GET_BOOK_SUMMARY||" + bookId;
     m_client->sendMessage(message);
-
-    // ================== شروع تست (بعداً پاک کن) ==================
-    // if (bookId == "1") {
-    //     processServerResponse("BOOK_SUMMARY||1||NO_IMAGE||سمفونی مردگان||عباس معروفی||130000||4.8");
-    // } else if (bookId == "2") {
-    //     processServerResponse("BOOK_SUMMARY||NOT_FOUND");
-    // } else if (bookId == "3") {
-    //     processServerResponse(
-    //         "BOOK_SUMMARY||3||NO_IMAGE||شازده کوچولو||آنتوان دو سنت اگزوپری||120000||4.9");
-    // }
-    // =========================================================
 }
 
 void Storepage::processServerResponse(const QString &response)
@@ -121,7 +106,7 @@ void Storepage::processServerResponse(const QString &response)
 
     else if (command == "BOOK_SUMMARY") {
         if (fieldTwo == "NOT_FOUND") {
-            return; // عبور از این آیدی بدون ساخت کارت
+            return;
         }
 
         if (mainParts.size() >= 7) {

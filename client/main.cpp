@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // ساختن شیء اصلی شبکه
     ClientSocketManager clientManager;
 
     clientManager.connectToServer("127.0.0.1", 5050);
