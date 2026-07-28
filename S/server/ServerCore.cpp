@@ -3,11 +3,13 @@
 
 #include "ServerCore.h"
 #include "../shared/Author.h"
+#include "../shared/Admin.h"
 #include "../shared/Cart.h"
 #include <QStringList>
 #include <QDir>
 #include <QFile>
 #include <QCoreApplication>
+
 ServerCore::ServerCore(QObject *parent) : QObject(parent) {
     network = new ServerNetwork(this);
 
@@ -15,6 +17,44 @@ ServerCore::ServerCore(QObject *parent) : QObject(parent) {
 
     fileManager.loadAllData(&data);
     data.rebuildAllIndexes();
+
+    ensureDefaultAdminExists();
+}
+
+void ServerCore::ensureDefaultAdminExists() {
+    QMap<quint64, User *> &users = data.getUsersMap();
+
+    bool adminExists = false;
+    for (auto it = users.constBegin(); it != users.constEnd(); ++it) {
+        if (it.value()->getRole() == Role::ADMIN) {
+            adminExists = true;
+            break;
+        }
+    }
+
+    if (adminExists) {
+        return;
+    }
+
+    Admin *admin = new Admin();
+    admin->assignNewId();
+    admin->setFullName("Administrator");
+    admin->setUsername("admin");
+    admin->setEmail("admin@ketabeman.local");
+    admin->setPassword("admin123");
+    admin->setIsBlocked(false);
+
+    data.getUsersMap().insert(admin->getId(), admin);
+    data.registerUsername("admin", admin->getId());
+    data.registerEmail("admin@ketabeman.local", admin->getId());
+
+    Wallet *wallet = new Wallet();
+    wallet->assignNewId();
+    wallet->setOwnerId(admin->getId());
+    data.getWalletsMap().insert(wallet->getId(), wallet);
+    admin->setWalletId(wallet->getId());
+
+    emit logMessageGenerated("Default admin account created (username: admin, password: admin123)");
 }
 
 ServerCore::~ServerCore() {

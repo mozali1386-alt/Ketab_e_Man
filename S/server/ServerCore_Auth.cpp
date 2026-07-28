@@ -184,13 +184,16 @@ void ServerCore::handleForgotPassUpdateRequest(ClientHandler *handler, const QSt
         return;
     }
 
-    quint64 recoveryUserId = handler->getRecoveryUserId();
-    if (recoveryUserId == 0) {
+    quint64 targetUserId = handler->getRecoveryUserId();
+    if (targetUserId == 0) {
+        targetUserId = handler->getUserId();
+    }
+    if (targetUserId == 0) {
         handler->sendResponse(Command::FORGOT_PASS_UPDATE, {"FAIL"});
         return;
     }
 
-    User *user = data.getUsersMap().value(recoveryUserId, nullptr);
+    User *user = data.getUsersMap().value(targetUserId, nullptr);
     if (user == nullptr) {
         handler->setRecoveryUserId(0);
         handler->sendResponse(Command::FORGOT_PASS_UPDATE, {"FAIL"});

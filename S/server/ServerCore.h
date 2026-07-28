@@ -79,6 +79,7 @@ private:
 
     void handleRequest(ClientHandler *handler, Command command, const QStringList &fields);
 
+    void ensureDefaultAdminExists();
 
     void handleLoginRequest(ClientHandler *handler, const QStringList &fields);
 
