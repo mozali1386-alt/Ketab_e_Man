@@ -392,11 +392,43 @@ void Admindashboard::processServerResponse(const QString &response)
                 }
             }
         }
+    } else if (cmd == "BOOK_COVER_RESULT") {
+        if (parts.size() < 3)
+            return;
+
+        QString bookId = parts[1];
+        QByteArray imageData = QByteArray::fromBase64(parts[2].toUtf8());
+
+        if (imageData.isEmpty()) {
+            QMessageBox::warning(this, "خطا", "داده تصویر جلد خالی یا نامعتبر است.");
+            return;
+        }
+
+        QPixmap pixmap;
+        if (!pixmap.loadFromData(imageData)) {
+            QMessageBox::warning(this, "خطا", "تصویر جلد قابل نمایش نیست.");
+            return;
+        }
+        QDialog *dlg = new QDialog(this);
+        dlg->setWindowTitle("جلد کتاب");
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+
+        QLabel *label = new QLabel(dlg);
+        label->setPixmap(pixmap.scaled(400, 600, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        label->setAlignment(Qt::AlignCenter);
+
+        QVBoxLayout *layout = new QVBoxLayout(dlg);
+        layout->addWidget(label);
+
+        dlg->resize(450, 650);
+        dlg->show();
     }
+
     else if (cmd == "PDF_START") {
         if (parts.size() >= 3) {
             currentPdfBookId = parts[1];
             int totalChunks = parts[2].toInt();
+
             pdfLoadingDialog = new QProgressDialog("در حال دریافت فایل PDF...",
                                                    "لغو",
                                                    0,
@@ -406,11 +438,19 @@ void Admindashboard::processServerResponse(const QString &response)
             pdfLoadingDialog->setWindowModality(Qt::WindowModal);
             pdfLoadingDialog->setValue(0);
             pdfLoadingDialog->show();
+
             currentPdfBuffer.clear();
+            // اختیاری ولی مفید برای فایل‌های بزرگ:
+            // currentPdfBuffer.reserve(totalChunks * 500 * 1024);
         }
     } else if (cmd == "PDF_CHUNK") {
         if (parts.size() >= 3) {
-            currentPdfBuffer.append(parts[2].toUtf8());
+            // هر تکه را جداگانه دیکد کن و باینری را append کن
+            QByteArray binaryChunk = QByteArray::fromBase64(parts[2].toUtf8());
+            if (!binaryChunk.isEmpty()) {
+                currentPdfBuffer.append(binaryChunk);
+            }
+
             if (pdfLoadingDialog)
                 pdfLoadingDialog->setValue(pdfLoadingDialog->value() + 1);
         }
@@ -421,20 +461,32 @@ void Admindashboard::processServerResponse(const QString &response)
                 delete pdfLoadingDialog;
                 pdfLoadingDialog = nullptr;
             }
-            QByteArray finalPdfData = QByteArray::fromBase64(currentPdfBuffer);
+
+            // دیگر fromBase64 لازم نیست؛ currentPdfBuffer از قبل باینری کامل است
+            QByteArray finalPdfData = currentPdfBuffer;
+
+            if (finalPdfData.isEmpty()) {
+                QMessageBox::critical(this, "خطا", "داده‌های PDF خالی است.");
+                currentPdfBuffer.clear();
+                currentPdfBookId.clear();
+                return;
+            }
+
             pdfviewerWidget *viewer = new pdfviewerWidget();
             viewer->setAttribute(Qt::WA_DeleteOnClose);
+
             if (viewer->loadPdfFromData(finalPdfData)) {
                 viewer->showMaximized();
-                viewer->jumpToPage(0);
+                // صفحه اول (۱-based)
+                QTimer::singleShot(50, viewer, [viewer]() { viewer->jumpToPage(1); });
             } else {
                 delete viewer;
             }
+
             currentPdfBuffer.clear();
             currentPdfBookId.clear();
         }
-    }
-    else if (cmd == "NOTIFICATION_INFO_RESULT") {
+    } else if (cmd == "NOTIFICATION_INFO_RESULT") {
         if (parts.size() >= 5) {
             QString notifId = parts[1];
             QString msg = parts[2];
@@ -451,8 +503,7 @@ void Admindashboard::processServerResponse(const QString &response)
                 qmlRoot->setProperty("unreadCount", currentUnread + 1);
             }
         }
-    }
-    else if (cmd == "NEW_NOTIFICATION_PUSH") {
+    } else if (cmd == "NEW_NOTIFICATION_PUSH") {
         if (parts.size() >= 5) {
             QString notifId = parts[1];
             QString msg = parts[2];

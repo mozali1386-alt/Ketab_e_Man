@@ -117,9 +117,16 @@ void pdfviewerWidget::setBookId(const QString &bookId)
 
 void pdfviewerWidget::jumpToPage(int pageIndex)
 {
-    if (m_document && pageIndex >= 0 && pageIndex < m_document->pageCount()) {
-        ui->widget->pageNavigator()->jump(pageIndex - 1,
-                                          QPointF(),
-                                          ui->widget->pageNavigator()->currentZoom());
-    }
+    if (!m_document)
+        return;
+
+    // pageIndex از بیرون ۱-based می‌آید
+    if (pageIndex < 1)
+        pageIndex = 1;
+    if (pageIndex > m_document->pageCount())
+        pageIndex = m_document->pageCount();
+
+    ui->widget->pageNavigator()->jump(pageIndex - 1,
+                                      QPointF(),
+                                      ui->widget->pageNavigator()->currentZoom());
 }

@@ -264,21 +264,29 @@ void LibraryWidget::processServerResponse(const QString &response)
             currentBookLastPage = parts[3].toInt();
             if (currentBookLastPage <= 0)
                 currentBookLastPage = 1;
+
+            currentPdfBuffer.clear();
+            // اگر خواستی می‌توانی reserve هم بگذاری
+            // currentPdfBuffer.reserve(totalChunks * 500 * 1024);
+
             if (pdfLoadingDialog) {
                 pdfLoadingDialog->setMaximum(totalChunks);
                 pdfLoadingDialog->setValue(0);
             }
         }
     } else if (cmd == "FILE_CHUNK") {
-        // به جای استفاده از split که روی || کار می‌کند و ممکن است متن بیس‌اسلایس را خراب کند،
-        // باید خودِ رشته‌ی پاسخ را از بعد از دومین || جدا کنیم تا داده‌های خام دست‌نخورده بمانند.
+        // روش امن‌تر (بدون split روی کل پاسخ)
         int firstSeparator = response.indexOf("||");
         int secondSeparator = response.indexOf("||", firstSeparator + 2);
 
         if (secondSeparator != -1) {
-            // تمام حروفِ بعد از دومین علامت || بدنه اصلی تکه فایل (Base64 خام) است
-            QByteArray rawChunk = response.mid(secondSeparator + 2).toLatin1();
-            currentPdfBuffer.append(rawChunk);
+            QByteArray base64Chunk = response.mid(secondSeparator + 2).toUtf8().trimmed();
+            QByteArray binaryChunk = QByteArray::fromBase64(
+                base64Chunk); // ← دیکد همین‌جا
+
+            if (!binaryChunk.isEmpty()) {
+                currentPdfBuffer.append(binaryChunk); // ← باینری append می‌شود
+            }
 
             if (pdfLoadingDialog) {
                 pdfLoadingDialog->setValue(pdfLoadingDialog->value() + 1);
@@ -290,10 +298,16 @@ void LibraryWidget::processServerResponse(const QString &response)
             pdfLoadingDialog->close();
             delete pdfLoadingDialog;
             pdfLoadingDialog = nullptr;
-            qDebug() << currentBookLastPage;
         }
 
-        QByteArray finalPdfData = QByteArray::fromBase64(currentPdfBuffer);
+        QByteArray finalPdfData = currentPdfBuffer;
+
+        if (finalPdfData.isEmpty()) {
+            QMessageBox::critical(this, "خطا", "داده‌های PDF خالی است.");
+            currentPdfBuffer.clear();
+            return;
+        }
+
         pdfviewerWidget *viewer = new pdfviewerWidget();
         viewer->setAttribute(Qt::WA_DeleteOnClose);
         viewer->setBookId(currentReadingBookId);
@@ -302,10 +316,14 @@ void LibraryWidget::processServerResponse(const QString &response)
 
         if (viewer->loadPdfFromData(finalPdfData)) {
             viewer->showMaximized();
-            viewer->jumpToPage(currentBookLastPage);
+
+            QTimer::singleShot(50, viewer, [viewer, page = currentBookLastPage]() {
+                viewer->jumpToPage(page);
+            });
         } else {
             delete viewer;
         }
+
         currentPdfBuffer.clear();
     }
 }
