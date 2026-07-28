@@ -6,7 +6,7 @@
 
 Wallet::Wallet() {
     ownerId = 0;
-    balance = 0.0;
+    balance = 0;
 }
 
 Wallet::~Wallet() {
@@ -16,7 +16,7 @@ quint64 Wallet::getOwnerId() const {
     return ownerId;
 }
 
-double Wallet::getBalance() const {
+qint64 Wallet::getBalance() const {
     return balance;
 }
 
@@ -29,8 +29,8 @@ void Wallet::setOwnerId(quint64 newOwnerId) {
     touchUpdatedAt();
 }
 
-void Wallet::deposit(double amount) {
-    if (amount <= 0.0) {
+void Wallet::deposit(qint64 amount) {
+    if (amount <= 0) {
         return;
     }
 
@@ -38,8 +38,8 @@ void Wallet::deposit(double amount) {
     touchUpdatedAt();
 }
 
-bool Wallet::withdraw(double amount) {
-    if (amount <= 0.0) {
+bool Wallet::withdraw(qint64 amount) {
+    if (amount <= 0) {
         return false;
     }
 
@@ -90,7 +90,7 @@ void Wallet::deserialize(const QString &data) {
     index++;
     ownerId = tokens.at(index).toULongLong();
     index++;
-    balance = tokens.at(index).toDouble();
+    balance = tokens.at(index).toLongLong();
     index++;
 
     transactionIds.clear();
