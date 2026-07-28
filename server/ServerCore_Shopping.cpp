@@ -2,170 +2,272 @@
 //YA MAHDI
 
 #include "ServerCore.h"
-#include "../shared/Protocol.h"
 #include "../shared/Publisher.h"
-#include <QStringList>
+#include "../shared/Cart.h"
 
-bool ServerCore::processPurchase(ClientHandler *handler, quint64 userId, const QVector<quint64> &bookIdList) {
-    Library *library = requireUserLibrary(userId, handler);
+PurchaseOutcome ServerCore::performPurchase(quint64 buyerId, const QSet<quint64> &bookIds) {
+    PurchaseOutcome outcome;
+    outcome.success = false;
+    outcome.purchaseId = 0;
+    outcome.totalAmount = 0.0;
+
+    User *buyer = data.getUsersMap().value(buyerId, nullptr);
+    if (buyer == nullptr || buyer->getRole() != Role::USER) {
+        outcome.failReason = "Not authorized";
+        return outcome;
+    }
+
+    NormalUser *normalUser = static_cast<NormalUser *>(buyer);
+    Library *library = data.getLibrariesMap().value(normalUser->getLibraryId(), nullptr);
     if (library == nullptr) {
-        return false;
+        outcome.failReason = "Library not found";
+        return outcome;
     }
 
-    User *buyerUser = data.getUsersMap().value(userId);
-    Wallet *buyerWallet = data.getWalletsMap().value(buyerUser->getWalletId(), nullptr);
+    Wallet *buyerWallet = data.getWalletsMap().value(buyer->getWalletId(), nullptr);
     if (buyerWallet == nullptr) {
-        handler->sendResponse(RES_FAIL, "Wallet not found");
-        return false;
+        outcome.failReason = "Wallet not found";
+        return outcome;
     }
 
-    if (bookIdList.size() == 0) {
-        handler->sendResponse(RES_FAIL, "No books to purchase");
-        return false;
+    if (bookIds.isEmpty()) {
+        outcome.failReason = "No books to purchase";
+        return outcome;
     }
 
-    double total = 0.0;
-    for (int i = 0; i < bookIdList.size(); i++) {
-        Book *b = data.getBooksMap().value(bookIdList.at(i), nullptr);
-        if (b == nullptr || !b->getIsActive()) {
-            handler->sendResponse(RES_FAIL, "One of the books is unavailable");
-            return false;
+    double totalAmount = 0.0;
+    for (quint64 bookId: bookIds) {
+        Book *book = data.getBooksMap().value(bookId, nullptr);
+        if (book == nullptr || !book->getIsActive()) {
+            outcome.failReason = "One of the books is unavailable";
+            return outcome;
         }
 
-        User *publisherUser = data.getUsersMap().value(b->getPublisherId(), nullptr);
+        User *publisherUser = data.getUsersMap().value(book->getPublisherId(), nullptr);
         if (publisherUser == nullptr || publisherUser->getRole() != Role::PUBLISHER) {
-            handler->sendResponse(RES_FAIL, "One of the books has no valid publisher");
-            return false;
+            outcome.failReason = "One of the books has no valid publisher";
+            return outcome;
         }
 
+        Wallet *publisherWallet = data.getWalletsMap().value(publisherUser->getWalletId(), nullptr);
+        if (publisherWallet == nullptr) {
+            outcome.failReason = "One of the publishers has no valid wallet";
+            return outcome;
+        }
+
+        totalAmount += book->getFinalPrice();
+    }
+
+    if (buyerWallet->getBalance() < totalAmount) {
+        outcome.failReason = "Insufficient balance";
+        return outcome;
+    }
+
+    buyerWallet->withdraw(totalAmount);
+
+    Transaction *buyerTransaction = new Transaction();
+    buyerTransaction->assignNewId();
+    buyerTransaction->setWalletId(buyerWallet->getId());
+    buyerTransaction->setAmount(totalAmount);
+    buyerTransaction->setType(TransactionType::PURCHASE);
+    data.getTransactionsMap().insert(buyerTransaction->getId(), buyerTransaction);
+    buyerWallet->addTransaction(buyerTransaction->getId());
+
+    for (quint64 bookId: bookIds) {
+        Book *book = data.getBooksMap().value(bookId, nullptr);
+        User *publisherUser = data.getUsersMap().value(book->getPublisherId(), nullptr);
         Publisher *publisher = static_cast<Publisher *>(publisherUser);
-        if (!data.getWalletsMap().contains(publisher->getWalletId())) {
-            handler->sendResponse(RES_FAIL, "One of the publishers has no valid wallet");
-            return false;
-        }
+        Wallet *publisherWallet = data.getWalletsMap().value(publisherUser->getWalletId(), nullptr);
 
-        total += b->getFinalPrice();
-    }
+        double bookPrice = book->getFinalPrice();
+        publisherWallet->deposit(bookPrice);
+        publisher->receiveSaleIncome(bookPrice);
+        book->incrementSales();
 
-    if (!buyerWallet->withdraw(total)) {
-        handler->sendResponse(RES_FAIL, "Insufficient balance");
-        return false;
-    }
+        Transaction *saleTransaction = new Transaction();
+        saleTransaction->assignNewId();
+        saleTransaction->setWalletId(publisherWallet->getId());
+        saleTransaction->setAmount(bookPrice);
+        saleTransaction->setType(TransactionType::SALE_INCOME);
+        saleTransaction->setBookPriceAtPurchase(bookId, bookPrice);
+        data.getTransactionsMap().insert(saleTransaction->getId(), saleTransaction);
+        publisherWallet->addTransaction(saleTransaction->getId());
 
-    for (int i = 0; i < bookIdList.size(); i++) {
-        quint64 bookId = bookIdList.at(i);
-        Book *b = data.getBooksMap().value(bookId);
-        b->incrementSales();
         library->addToPurchasedBooks(bookId);
-
-        Transaction *buyerTx = new Transaction();
-        buyerTx->assignNewId();
-        buyerTx->setWalletId(buyerWallet->getId());
-        buyerTx->setAmount(b->getFinalPrice());
-        buyerTx->setType(TransactionType::PURCHASE);
-        buyerTx->setBookPriceAtPurchase(bookId, b->getFinalPrice());
-        data.getTransactionsMap().insert(buyerTx->getId(), buyerTx);
-        buyerWallet->addTransaction(buyerTx->getId());
-
-        Publisher *publisher = static_cast<Publisher *>(data.getUsersMap().value(b->getPublisherId()));
-        publisher->receiveSaleIncome(b->getFinalPrice());
-
-        Wallet *publisherWallet = data.getWalletsMap().value(publisher->getWalletId());
-        publisherWallet->deposit(b->getFinalPrice());
-
-        Transaction *publisherTx = new Transaction();
-        publisherTx->assignNewId();
-        publisherTx->setWalletId(publisherWallet->getId());
-        publisherTx->setAmount(b->getFinalPrice());
-        publisherTx->setType(TransactionType::SALE_INCOME);
-        publisherTx->setBookPriceAtPurchase(bookId, b->getFinalPrice());
-        data.getTransactionsMap().insert(publisherTx->getId(), publisherTx);
-        publisherWallet->addTransaction(publisherTx->getId());
-
-        QString message = "Your book '" + b->getTitle() + "' was purchased!";
-        sendNotificationToUser(publisher->getId(), NotificationType::NEW_SALE_FOR_PUBLISHER, message);
     }
 
     Purchase *purchase = new Purchase();
     purchase->assignNewId();
-    purchase->setBuyerId(userId);
-
-    QSet<quint64> purchasedBookIdSet;
-    for (int i = 0; i < bookIdList.size(); i++) {
-        purchasedBookIdSet.insert(bookIdList.at(i));
-    }
-    purchase->setBookIds(purchasedBookIdSet);
-    purchase->setTotalAmount(total);
+    purchase->setBuyerId(buyerId);
+    purchase->setBookIds(bookIds);
+    purchase->setTotalAmount(totalAmount);
     data.getPurchasesMap().insert(purchase->getId(), purchase);
 
-    sendNotificationToUser(userId, NotificationType::PURCHASE_COMPLETE, "Your purchase was completed!");
 
-    handler->sendResponse(RES_SUCCESS, QString::number(purchase->getId()) + "|" + QString::number(total));
-    return true;
+    pushNotification(buyerId, NotificationType::PURCHASE_COMPLETE, "خرید شما با موفقیت انجام شد");
+
+    QSet<quint64> notifiedPublishers;
+    for (quint64 bookId: bookIds) {
+        Book *book = data.getBooksMap().value(bookId, nullptr);
+        if (book == nullptr || notifiedPublishers.contains(book->getPublisherId())) {
+            continue;
+        }
+        notifiedPublishers.insert(book->getPublisherId());
+        pushNotification(book->getPublisherId(), NotificationType::NEW_SALE_FOR_PUBLISHER,
+                         "یکی از کتاب‌های شما فروخته شد");
+    }
+
+    outcome.success = true;
+    outcome.purchaseId = purchase->getId();
+    outcome.totalAmount = totalAmount;
+    return outcome;
 }
 
-void ServerCore::handleBuyRequest(ClientHandler *handler, const QString &payload) {
+void ServerCore::handleBuyRequest(ClientHandler *handler, const QStringList &fields) {
     quint64 userId = requireAuthentication(handler);
     if (userId == 0) {
         return;
     }
 
-    QStringList bookIdStrings = payload.split(",");
-
-    QVector<quint64> bookIdList;
-    for (int i = 0; i < bookIdStrings.size(); i++) {
-        bookIdList.append(bookIdStrings.at(i).toULongLong());
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
     }
 
-    processPurchase(handler, userId, bookIdList);
+    QSet<quint64> bookIds;
+    QStringList idParts = fields.at(0).split(",");
+    for (int i = 0; i < idParts.size(); i++) {
+        if (!idParts.at(i).isEmpty()) {
+            bookIds.insert(idParts.at(i).toULongLong());
+        }
+    }
+
+    PurchaseOutcome outcome = performPurchase(userId, bookIds);
+    if (!outcome.success) {
+        handler->sendResponse(Command::FAIL, {outcome.failReason});
+        return;
+    }
+
+    handler->sendResponse(Command::SUCCESS, {
+                              QString::number(outcome.purchaseId), QString::number(outcome.totalAmount)
+                          });
 }
 
-void ServerCore::handleAddToCartRequest(ClientHandler *handler, const QString &payload) {
+void ServerCore::handleGetCartItemsRequest(ClientHandler *handler, const QStringList &fields) {
+    Q_UNUSED(fields);
+
     quint64 userId = requireAuthentication(handler);
     if (userId == 0) {
         return;
     }
 
     Cart *cart = findOrCreateCartForUser(userId);
-    cart->addItem(payload.toULongLong());
+    QSet<quint64> bookIds = cart->getBookIds();
 
-    handler->sendResponse(RES_SUCCESS, "Added to cart");
+    if (bookIds.isEmpty()) {
+        handler->sendResponse(Command::CART_RESULT, {"EMPTY"});
+        return;
+    }
+
+    QStringList idsList;
+    for (quint64 bookId: bookIds) {
+        idsList.append(QString::number(bookId));
+    }
+
+    handler->sendResponse(Command::CART_RESULT, {QString::number(idsList.size()), idsList.join(",")});
 }
 
-void ServerCore::handleRemoveFromCartRequest(ClientHandler *handler, const QString &payload) {
+void ServerCore::handleGetCartBookSummaryRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }
+
+    QString authorName = getAuthorName(book->getAuthorId());
+    QString imageBase64 = getCoverImageOrPlaceholder(book->getCoverImagePath());
+
+    handler->sendResponse(Command::CART_BOOK_SUMMARY, {
+                              QString::number(book->getId()),
+                              imageBase64,
+                              book->getTitle(),
+                              authorName,
+                              QString::number(book->getPrice()),
+                              QString::number(book->getFinalPrice())
+                          });
+}
+
+void ServerCore::handleAddCartRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }
+
+    Cart *cart = findOrCreateCartForUser(userId);
+    cart->addItem(bookId);
+
+    handler->sendResponse(Command::SUCCESS, {"Added to cart"});
+}
+
+void ServerCore::handleRemoveCartRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+
+    Cart *cart = findOrCreateCartForUser(userId);
+    cart->removeItem(bookId);
+
+    handler->sendResponse(Command::SUCCESS, {"Removed from cart"});
+}
+
+void ServerCore::handleCheckoutCartRequest(ClientHandler *handler, const QStringList &fields) {
+    Q_UNUSED(fields);
+
     quint64 userId = requireAuthentication(handler);
     if (userId == 0) {
         return;
     }
 
     Cart *cart = findOrCreateCartForUser(userId);
-    cart->removeItem(payload.toULongLong());
+    QSet<quint64> bookIds = cart->getBookIds();
 
-    handler->sendResponse(RES_SUCCESS, "Removed from cart");
-}
-
-void ServerCore::handleCheckoutCartRequest(ClientHandler *handler, const QString &payload) {
-    Q_UNUSED(payload);
-
-    quint64 userId = requireAuthentication(handler);
-    if (userId == 0) {
+    PurchaseOutcome outcome = performPurchase(userId, bookIds);
+    if (!outcome.success) {
+        handler->sendResponse(Command::CHECKOUT_RESULT, {"FAILED"});
         return;
     }
 
-    Cart *cart = findOrCreateCartForUser(userId);
-    QSet<quint64> cartBookIds = cart->getBookIds();
-
-    if (cartBookIds.size() == 0) {
-        handler->sendResponse(RES_FAIL, "Cart is empty");
-        return;
-    }
-
-    QVector<quint64> bookIdList;
-    for (quint64 bookId: cartBookIds) {
-        bookIdList.append(bookId);
-    }
-
-    if (processPurchase(handler, userId, bookIdList)) {
-        cart->clear();
-    }
+    cart->clear();
+    handler->sendResponse(Command::CHECKOUT_RESULT, {"SUCCESS"});
 }
