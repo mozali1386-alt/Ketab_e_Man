@@ -2,87 +2,129 @@
 //YA MAHDI
 
 #include "ServerCore.h"
-#include "../shared/Protocol.h"
 #include "../shared/Publisher.h"
-#include "../shared/PipeEscape.h"
-#include <QStringList>
+#include "../shared/Wallet.h"
+#include "../shared/Library.h"
 
-void ServerCore::handleLoginRequest(ClientHandler *handler, const QString &payload) {
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 2, parts)) {
+void ServerCore::handleLoginRequest(ClientHandler *handler, const QStringList &fields) {
+    if (fields.size() < 3) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
         return;
     }
 
-    QString username = PipeEscape::unescape(parts.at(0));
-    QString password = PipeEscape::unescape(parts.at(1));
+    bool roleOk = false;
+    Role requestedRole = stringToRole(fields.at(0), roleOk);
+    QString username = fields.at(1);
+    QString password = fields.at(2);
+
+    if (!roleOk) {
+        handler->sendResponse(Command::LOGIN, {"FAIL", "Invalid username or password"});
+        return;
+    }
 
     User *user = findUserByUsername(username);
-    if (user == nullptr || user->getIsBlocked() || !user->authenticatePassword(password)) {
-        handler->sendResponse(RES_FAIL, "Invalid username or password");
+    if (user == nullptr || user->getIsBlocked() || user->getRole() != requestedRole || !user->
+        authenticatePassword(password)) {
+        handler->sendResponse(Command::LOGIN, {"FAIL", "Invalid username or password"});
         return;
     }
 
     ClientHandler *existingSession = loggedInClients.value(user->getId(), nullptr);
     if (existingSession != nullptr && existingSession != handler) {
         existingSession->setUserId(0);
-        existingSession->sendResponse(RES_FAIL, "Logged in from another location");
+        existingSession->sendResponse(Command::LOGIN, {"FAIL", "Logged in from another location"});
     }
 
     handler->setUserId(user->getId());
     loggedInClients.insert(user->getId(), handler);
 
-    QString response = QString::number(user->getId()) + "|" + QString::number(static_cast<int>(user->getRole()));
-    handler->sendResponse(RES_LOGIN_OK, response);
+    handler->sendResponse(Command::LOGIN, {"SUCCESS", QString::number(user->getId())});
+
+    pushAdminStatsUpdate();
 }
 
-void ServerCore::handleRegisterRequest(ClientHandler *handler, const QString &payload) {
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 7, parts)) {
+void ServerCore::handleSignupPublisherRequest(ClientHandler *handler, const QStringList &fields) {
+    if (fields.size() < 4) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
         return;
     }
 
-    bool roleOk = false;
-    int roleInt = parts.at(0).toInt(&roleOk);
-    QString fullName = PipeEscape::unescape(parts.at(1));
-    QString username = PipeEscape::unescape(parts.at(2));
-    QString email = PipeEscape::unescape(parts.at(3));
-    QString password = PipeEscape::unescape(parts.at(4));
-    QString securityQuestion = PipeEscape::unescape(parts.at(5));
-    QString securityAnswer = PipeEscape::unescape(parts.at(6));
-
-    if (!roleOk) {
-        handler->sendResponse(RES_FAIL, "Invalid role");
-        return;
-    }
+    QString publisherName = fields.at(0);
+    QString username = fields.at(1);
+    QString email = fields.at(2);
+    QString password = fields.at(3);
 
     if (findUserByUsername(username) != nullptr) {
-        handler->sendResponse(RES_FAIL, "Username already exists");
+        handler->sendResponse(Command::SIGNUP_PUBLISHER, {"FAIL", "USERNAME_EXISTS"});
         return;
     }
 
     if (data.findUserByEmail(email) != nullptr) {
-        handler->sendResponse(RES_FAIL, "Email already exists");
+        handler->sendResponse(Command::SIGNUP_PUBLISHER, {"FAIL", "EMAIL_EXISTS"});
         return;
     }
 
-    User *newUser = nullptr;
-    if (roleInt == static_cast<int>(Role::PUBLISHER)) {
-        newUser = new Publisher();
-    } else if (roleInt == static_cast<int>(Role::USER)) {
-        newUser = new NormalUser();
-    } else {
-        handler->sendResponse(RES_FAIL, "Invalid role");
+    Publisher *newPublisher = new Publisher();
+    newPublisher->assignNewId();
+    newPublisher->setFullName(publisherName);
+    newPublisher->setUsername(username);
+    newPublisher->setEmail(email);
+    newPublisher->setPassword(password);
+    newPublisher->setIsBlocked(false);
+
+    data.getUsersMap().insert(newPublisher->getId(), newPublisher);
+    data.registerUsername(username, newPublisher->getId());
+    data.registerEmail(email, newPublisher->getId());
+
+    Wallet *wallet = new Wallet();
+    wallet->assignNewId();
+    wallet->setOwnerId(newPublisher->getId());
+    data.getWalletsMap().insert(wallet->getId(), wallet);
+    newPublisher->setWalletId(wallet->getId());
+
+    handler->sendResponse(Command::SIGNUP_PUBLISHER, {"SUCCESS"});
+
+    pushAdminStatsUpdate();
+}
+
+void ServerCore::handleSignupNormalUserRequest(ClientHandler *handler, const QStringList &fields) {
+    if (fields.size() < 5) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
         return;
     }
 
+    QString fullName = fields.at(0);
+    QString username = fields.at(1);
+    QString email = fields.at(2);
+    QString password = fields.at(3);
+    QString genresString = fields.at(4);
+
+    if (findUserByUsername(username) != nullptr) {
+        handler->sendResponse(Command::SIGNUP_NORMALUSER, {"FAIL", "USERNAME_EXISTS"});
+        return;
+    }
+
+    if (data.findUserByEmail(email) != nullptr) {
+        handler->sendResponse(Command::SIGNUP_NORMALUSER, {"FAIL", "EMAIL_EXISTS"});
+        return;
+    }
+
+    NormalUser *newUser = new NormalUser();
     newUser->assignNewId();
     newUser->setFullName(fullName);
     newUser->setUsername(username);
     newUser->setEmail(email);
     newUser->setPassword(password);
-    newUser->setSecurityQuestion(securityQuestion);
-    newUser->setSecurityAnswer(securityAnswer);
     newUser->setIsBlocked(false);
+
+    QStringList genreParts = genresString.split(",");
+    for (int i = 0; i < genreParts.size(); i++) {
+        Genre genre;
+        if (stringToGenre(genreParts.at(i), genre)) {
+            newUser->addFavoriteGenre(genre);
+        }
+    }
+
     data.getUsersMap().insert(newUser->getId(), newUser);
     data.registerUsername(username, newUser->getId());
     data.registerEmail(email, newUser->getId());
@@ -93,53 +135,19 @@ void ServerCore::handleRegisterRequest(ClientHandler *handler, const QString &pa
     data.getWalletsMap().insert(wallet->getId(), wallet);
     newUser->setWalletId(wallet->getId());
 
-    if (roleInt != static_cast<int>(Role::PUBLISHER)) {
-        Library *library = new Library();
-        library->assignNewId();
-        library->setOwnerId(newUser->getId());
-        data.getLibrariesMap().insert(library->getId(), library);
-        static_cast<NormalUser *>(newUser)->setLibraryId(library->getId());
-    }
+    Library *library = new Library();
+    library->assignNewId();
+    library->setOwnerId(newUser->getId());
+    data.getLibrariesMap().insert(library->getId(), library);
+    newUser->setLibraryId(library->getId());
 
-    handler->sendResponse(RES_REGISTER_OK, QString::number(newUser->getId()));
+    handler->sendResponse(Command::SIGNUP_NORMALUSER, {"SUCCESS"});
+
+    pushAdminStatsUpdate();
 }
 
-void ServerCore::handleForgotPasswordRequest(ClientHandler *handler, const QString &payload) {
-    QString username = PipeEscape::unescape(payload);
-    User *user = findUserByUsername(username);
-    if (user == nullptr) {
-        handler->sendResponse(RES_FAIL, "User not found");
-        return;
-    }
-    handler->sendResponse(RES_SUCCESS, user->getSecurityQuestion());
-}
-
-void ServerCore::handleResetPasswordRequest(ClientHandler *handler, const QString &payload) {
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 4, parts)) {
-        return;
-    }
-
-    QString username = PipeEscape::unescape(parts.at(0));
-    User *user = findUserByUsername(username);
-    if (user == nullptr) {
-        handler->sendResponse(RES_FAIL, "User not found");
-        return;
-    }
-
-    QString question = PipeEscape::unescape(parts.at(1));
-    QString answer = PipeEscape::unescape(parts.at(2));
-    QString newPassword = PipeEscape::unescape(parts.at(3));
-
-    if (user->resetPassword(question, answer, newPassword)) {
-        handler->sendResponse(RES_SUCCESS, "Password reset");
-    } else {
-        handler->sendResponse(RES_FAIL, "Incorrect security answer");
-    }
-}
-
-void ServerCore::handleLogoutRequest(ClientHandler *handler, const QString &payload) {
-    Q_UNUSED(payload);
+void ServerCore::handleLogoutRequest(ClientHandler *handler, const QStringList &fields) {
+    Q_UNUSED(fields);
 
     quint64 userId = requireAuthentication(handler);
     if (userId == 0) {
@@ -148,77 +156,50 @@ void ServerCore::handleLogoutRequest(ClientHandler *handler, const QString &payl
 
     loggedInClients.remove(userId);
     handler->setUserId(0);
-    handler->sendResponse(RES_SUCCESS, "Logged out");
+    handler->sendResponse(Command::SUCCESS, {"Logged out"});
+
+    pushAdminStatsUpdate();
 }
 
-void ServerCore::handleSetFavoriteGenresRequest(ClientHandler *handler, const QString &payload) {
-    quint64 userId = requireAuthentication(handler);
-    if (userId == 0) {
+void ServerCore::handleForgotPassCheckRequest(ClientHandler *handler, const QStringList &fields) {
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
         return;
     }
 
-    NormalUser *normalUser = requireNormalUser(userId, handler);
-    if (normalUser == nullptr) {
+    QString email = fields.at(0);
+    User *user = data.findUserByEmail(email);
+    if (user == nullptr) {
+        handler->sendResponse(Command::FORGOT_PASS_CHECK, {"FAIL"});
         return;
     }
 
-    QStringList genreParts = payload.split(",");
-    for (int i = 0; i < genreParts.size(); i++) {
-        Genre genre;
-        if (parseGenre(genreParts.at(i), genre)) {
-            normalUser->addFavoriteGenre(genre);
-        }
-    }
-
-    handler->sendResponse(RES_SUCCESS, "Favorite genres updated");
+    handler->setRecoveryUserId(user->getId());
+    handler->sendResponse(Command::FORGOT_PASS_CHECK, {"SUCCESS", user->getUsername()});
 }
 
-void ServerCore::handleBlockUserRequest(ClientHandler *handler, const QString &payload) {
-    quint64 adminId = requireAuthentication(handler);
-    if (adminId == 0) {
+void ServerCore::handleForgotPassUpdateRequest(ClientHandler *handler, const QStringList &fields) {
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
         return;
     }
 
-    Admin *admin = requireAdmin(adminId, handler);
-    if (admin == nullptr) {
+    quint64 recoveryUserId = handler->getRecoveryUserId();
+    if (recoveryUserId == 0) {
+        handler->sendResponse(Command::FORGOT_PASS_UPDATE, {"FAIL"});
         return;
     }
 
-    User *target = data.getUsersMap().value(payload.toULongLong(), nullptr);
-    if (target == nullptr) {
-        handler->sendResponse(RES_FAIL, "User not found");
+    User *user = data.getUsersMap().value(recoveryUserId, nullptr);
+    if (user == nullptr) {
+        handler->setRecoveryUserId(0);
+        handler->sendResponse(Command::FORGOT_PASS_UPDATE, {"FAIL"});
         return;
     }
 
-    admin->blockUser(target);
+    QString newPassword = fields.at(0);
+    user->setPassword(newPassword);
+    handler->setRecoveryUserId(0);
 
-    ClientHandler *targetHandler = findClientHandlerByUserId(target->getId());
-    if (targetHandler != nullptr) {
-        targetHandler->setUserId(0);
-        loggedInClients.remove(target->getId());
-        targetHandler->sendResponse(RES_FAIL, "Your account has been blocked");
-    }
-
-    handler->sendResponse(RES_SUCCESS, "User blocked");
-}
-
-void ServerCore::handleUnblockUserRequest(ClientHandler *handler, const QString &payload) {
-    quint64 adminId = requireAuthentication(handler);
-    if (adminId == 0) {
-        return;
-    }
-
-    Admin *admin = requireAdmin(adminId, handler);
-    if (admin == nullptr) {
-        return;
-    }
-
-    User *target = data.getUsersMap().value(payload.toULongLong(), nullptr);
-    if (target == nullptr) {
-        handler->sendResponse(RES_FAIL, "User not found");
-        return;
-    }
-
-    admin->unblockUser(target);
-    handler->sendResponse(RES_SUCCESS, "User unblocked");
+    handler->sendResponse(Command::FORGOT_PASS_UPDATE, {"SUCCESS"});
 }
