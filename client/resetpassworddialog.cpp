@@ -1,0 +1,135 @@
+#include "resetpassworddialog.h"
+#include <QRegularExpression>
+#include "ui_resetpassworddialog.h"
+
+ResetPasswordDialog::ResetPasswordDialog(ClientSocketManager *client, QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::ResetPasswordDialog)
+    , m_client(client)
+{
+    ui->setupUi(this);
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &ResetPasswordDialog::processServerResponse);
+
+    QString errorStyle = "color: red; background-color: transparent; border: none;";
+    ui->label_passworderror->setStyleSheet(errorStyle);
+    ui->label_repeatpassworderror->setStyleSheet(errorStyle);
+    ui->label_EmailError->setStyleSheet(errorStyle);
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+ResetPasswordDialog::~ResetPasswordDialog()
+{
+    delete ui;
+}
+
+void ResetPasswordDialog::on_pushButton_page1back_clicked()
+{
+    this->close();
+}
+
+void ResetPasswordDialog::on_pushButton_page1next_clicked()
+{
+    ui->label_EmailError->clear();
+    QString email = ui->lineEdit_Email->text().trimmed();
+
+    if (email.isEmpty()) {
+        ui->label_EmailError->setText("لطفاً ایمیل خود را وارد کنید.");
+        return;
+    }
+
+    QRegularExpression emailRegex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    if (!emailRegex.match(email).hasMatch()) {
+        ui->label_EmailError->setText("فرمت ایمیل نامعتبر است.");
+        return;
+    }
+
+    QString Message = QString("FORGOT_PASS_CHECK||%1").arg(email);
+    qDebug() << Message;
+
+    m_client->sendMessage(Message);
+
+    // ======== تست بررسی ایمیل ========
+    // // تست ایمیل موجود:
+    //processServerResponse("FORGOT_PASS_CHECK||SUCCESS||Ali_Moazed");
+
+    // // تست ایمیل ناموجود:
+    // processServerResponse("FORGOT_PASS_CHECK||FAIL");
+}
+
+void ResetPasswordDialog::on_pushButton_page2back_2_clicked()
+{
+    if (isFromProfile) {
+        this->reject(); // اگر از پروفایل بود، کل پنجره را ببند
+    } else {
+        ui->stackedWidget->setCurrentIndex(0);
+    }
+}
+
+void ResetPasswordDialog::on_pushButton_page2next_2_clicked()
+{
+    ui->label_passworderror->clear();
+    ui->label_repeatpassworderror->clear();
+
+    QString newPassword = ui->lineEdit_password->text().trimmed();
+    QString repeatPassword = ui->lineEdit_repeatpassword->text().trimmed();
+    bool hasError = false;
+
+    if (newPassword.isEmpty()) {
+        ui->label_passworderror->setText("رمز عبور جدید را وارد کنید.");
+        hasError = true;
+    }
+
+    if (repeatPassword.isEmpty()) {
+        ui->label_repeatpassworderror->setText("لطفاً رمز عبور را تکرار کنید.");
+        hasError = true;
+    } else if (newPassword != repeatPassword) {
+        ui->label_repeatpassworderror->setText("تکرار رمز عبور با رمز عبور جدید یکسان نیست.");
+        hasError = true;
+    }
+
+    if (hasError) {
+        return;
+    }
+
+    QString Message = QString("FORGOT_PASS_UPDATE||%1").arg(newPassword);
+    qDebug() << Message;
+
+    m_client->sendMessage(Message);
+
+    // // ======== تست تغییر رمز ========
+    // // تست آپدیت موفق:
+    //processServerResponse("FORGOT_PASS_UPDATE||SUCCESS");
+}
+
+void ResetPasswordDialog::setupForProfile()
+{
+    isFromProfile = true;
+    ui->stackedWidget->setCurrentIndex(1);
+}
+
+void ResetPasswordDialog::processServerResponse(const QString &response)
+{
+    QStringList parts = response.split("||");
+    if (parts.isEmpty())
+        return;
+
+    if (parts[0] == "FORGOT_PASS_CHECK") {
+        if (parts.size() >= 3 && parts[1] == "SUCCESS") {
+            QString username = parts[2];
+            ui->label_username->setText("کاربر  " + username + " خوش آمدید");
+            ui->stackedWidget->setCurrentIndex(1);
+        } else {
+            ui->label_EmailError->setText("حسابی با این ایمیل یافت نشد.");
+        }
+    } else if (parts[0] == "FORGOT_PASS_UPDATE") {
+        if (parts.size() >= 2 && parts[1] == "SUCCESS") {
+            // اگر موفقیت آمیز بود، پنجره کاملا بسته و تایید می‌شود
+            this->accept();
+        } else {
+            ui->label_passworderror->setText("خطا در تغییر رمز عبور. دوباره تلاش کنید.");
+        }
+    }
+}
