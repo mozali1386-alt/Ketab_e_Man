@@ -204,7 +204,7 @@ void ServerCore::handleGetCartBookSummaryRequest(ClientHandler *handler, const Q
                               book->getTitle(),
                               authorName,
                               QString::number(book->getPrice()),
-                              QString::number(book->getFinalPrice())
+                              QString::number((long long)(book->getPrice() * book->getDiscountPercent()))
                           });
 }
 
