@@ -108,3 +108,39 @@ if (WIN32)
         endif ()
     endforeach ()
 endif ()
+
+# ============= CPack Settings for Inno Setup =============
+set(CPACK_PACKAGE_NAME "Ketab_e_Man")
+set(CPACK_PACKAGE_VENDOR "Your Name")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Ketab_e_Man - Digital Library Management System")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
+
+# Install the server executable
+install(TARGETS Ketab_e_Man_Server
+        RUNTIME DESTINATION ..
+        BUNDLE DESTINATION ..
+        LIBRARY DESTINATION lib)
+
+# Install required Qt DLLs and other runtime libraries
+include(InstallRequiredSystemLibraries)
+install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ..)
+
+# Set the generator for Windows
+if (WIN32)
+    set(CPACK_GENERATOR "INNOSETUP")
+
+    # Optional: Inno Setup specific settings
+    set(CPACK_INNOSETUP_ARCHITECTURE "x64")
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-win64")
+
+    # If you have an icon file, uncomment and set the path
+    # set(CPACK_INNOSETUP_SETUP_SetupIconFile "${CMAKE_SOURCE_DIR}/icon.ico")
+    # set(CPACK_INNOSETUP_SETUP_UninstallDisplayIcon "${CMAKE_SOURCE_DIR}/icon.ico")
+
+    # If you have a license file
+    # set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
+endif()
+
+# Include CPack module (must be at the end)
+include(CPack)
