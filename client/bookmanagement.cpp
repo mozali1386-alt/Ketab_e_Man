@@ -19,6 +19,48 @@ BookManagement::~BookManagement()
 {
     delete ui;
 }
+
+QString BookManagement::persianToEnglishGenre(const QString &persian)
+{
+    if (persian == "عاشقانه")
+        return "ROMANCE";
+    else if (persian == "علمی تخیلی")
+        return "SCIFI"; // به صورت چسبیده نوشته شد
+    else if (persian == "ترسناک")
+        return "HORROR";
+    else if (persian == "کلاسیک")
+        return "CLASSIC";
+    else if (persian == "جنایی")
+        return "CRIME";
+    else if (persian == "هنری")
+        return "ART";
+    else if (persian == "طنز")
+        return "COMEDY";
+    else if (persian == "تاریخی")
+        return "HISTORY";
+    return "UNKNOWN";
+}
+
+QString BookManagement::englishToPersianGenre(const QString &english)
+{
+    if (english == "ROMANCE")
+        return "عاشقانه";
+    else if (english == "SCIFI")
+        return "علمی تخیلی"; // به صورت چسبیده نوشته شد
+    else if (english == "HORROR")
+        return "ترسناک";
+    else if (english == "CLASSIC")
+        return "کلاسیک";
+    else if (english == "CRIME")
+        return "جنایی";
+    else if (english == "ART")
+        return "هنری";
+    else if (english == "COMEDY")
+        return "طنز";
+    else if (english == "HISTORY")
+        return "تاریخی";
+    return "نامشخص";
+}
 void BookManagement::processServerResponse(const QString &message)
 {
     QStringList parts = message.split("||");
@@ -48,7 +90,7 @@ void BookManagement::processServerResponse(const QString &message)
         if (parts.size() >= 10) {
             ui->lineEdit_bookname->setText(parts[2]);
             ui->lineEdit_anuturename->setText(parts[3]);
-            ui->comboBox_genre->setCurrentText(parts[4]);
+            ui->comboBox_genre->setCurrentText(englishToPersianGenre(parts[4]));
             ui->spinBox_price->setValue(parts[5].toInt());
             ui->spinBox_discount->setValue(parts[6].toInt());
             ui->textEdit_explanation->setText(parts[7]);
@@ -230,8 +272,9 @@ void BookManagement::on_pushButton_save_clicked()
     }
 
     QString msg = "ADD_BOOK_METADATA||" + ui->lineEdit_bookname->text() + "||"
-                  + ui->lineEdit_anuturename->text() + "||" + ui->comboBox_genre->currentText()
-                  + "||" + QString::number(ui->spinBox_price->value()) + "||"
+                  + ui->lineEdit_anuturename->text() + "||"
+                  + persianToEnglishGenre(ui->comboBox_genre->currentText()) + "||"
+                  + QString::number(ui->spinBox_price->value()) + "||"
                   + QString::number(ui->spinBox_discount->value()) + "||"
                   + ui->textEdit_explanation->toPlainText() + "||" + m_base64Image;
 
@@ -281,7 +324,7 @@ void BookManagement::on_pushButton_edit_clicked()
     QString imageToSend = orig_hasNewImage ? m_base64Image : "EMPTY";
     QString msg = "EDIT_BOOK||" + currentSelectedBookId + "||" + ui->lineEdit_bookname->text()
                   + "||" + ui->lineEdit_anuturename->text() + "||"
-                  + ui->comboBox_genre->currentText() + "||"
+                  + persianToEnglishGenre(ui->comboBox_genre->currentText()) + "||"
                   + QString::number(ui->spinBox_price->value()) + "||"
                   + QString::number(ui->spinBox_discount->value()) + "||"
                   + ui->textEdit_explanation->toPlainText() + "||" + imageToSend;

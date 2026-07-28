@@ -9,6 +9,8 @@ Publisherdashboard::Publisherdashboard(ClientSocketManager *client, QWidget *par
 {
     ui->setupUi(this);
     ui->page_managementbook->setClient(m_client);
+    // برای اینکه تابع رفرش مدیریت کتاب صدا زده شود
+    on_pushButton_managmentbook_clicked();
     ui->scrollAreaWidgetContents->setClient(m_client);
     ui->page_profile->setClient(m_client);
     connect(m_client,

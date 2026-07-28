@@ -46,6 +46,9 @@ private:
     bool orig_hasNewImage;
     ClientSocketManager *m_client = nullptr;
 
+    QString persianToEnglishGenre(const QString &persian);
+    QString englishToPersianGenre(const QString &english);
+
     // توابع کمکی
     void resetForm();
     void sendPdfChunks(const QString &bookId);
