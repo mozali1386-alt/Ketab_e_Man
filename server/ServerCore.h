@@ -5,27 +5,35 @@
 #define SERVERCORE_H
 
 #include <QObject>
-#include <QVector>
 #include <QSet>
 #include <QMap>
 #include <QMutex>
+#include <QStringList>
+#include <QVector>
 #include "network/ServerNetwork.h"
 #include "network/ClientHandler.h"
 #include "database/FileManager.h"
-#include "logic/SearchEngine.h"
 #include "ServerStats.h"
 #include "ServerDataStore.h"
 #include "../shared/User.h"
 #include "../shared/NormalUser.h"
-#include "../shared/Admin.h"
-#include "../shared/Book.h"
-#include "../shared/Author.h"
-#include "../shared/Library.h"
-#include "../shared/Shelf.h"
-#include "../shared/Review.h"
-#include "../shared/Cart.h"
-#include "../shared/Notification.h"
+#include "../shared/Publisher.h"
 #include "../shared/Enums.h"
+#include "../shared/Protocol.h"
+
+
+struct PdfUploadState {
+    QStringList chunks;
+    int totalChunks;
+};
+
+
+struct PurchaseOutcome {
+    bool success;
+    QString failReason;
+    quint64 purchaseId;
+    double totalAmount;
+};
 
 class ServerCore : public QObject {
     Q_OBJECT
@@ -53,7 +61,7 @@ signals:
 private slots:
     void onNewClientHandlerCreated(ClientHandler *handler);
 
-    void onClientRequestReceived(ClientHandler *handler, int commandId, QString payload);
+    void onClientRequestReceived(ClientHandler *handler, Command command, QStringList fields);
 
     void onClientDisconnected(ClientHandler *handler);
 
@@ -64,93 +72,232 @@ private:
     mutable QMutex dataMutex;
 
     FileManager fileManager;
-    SearchEngine searchEngine;
     ServerStats stats;
     ServerDataStore data;
 
-    void handleRequest(ClientHandler *handler, int commandId, const QString &payload);
+    QMap<quint64, PdfUploadState> pdfUploads;
 
-    void handleLoginRequest(ClientHandler *handler, const QString &payload);
+    void handleRequest(ClientHandler *handler, Command command, const QStringList &fields);
 
-    void handleRegisterRequest(ClientHandler *handler, const QString &payload);
 
-    void handleForgotPasswordRequest(ClientHandler *handler, const QString &payload);
+    void handleLoginRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleResetPasswordRequest(ClientHandler *handler, const QString &payload);
+    void handleSignupPublisherRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleLogoutRequest(ClientHandler *handler, const QString &payload);
+    void handleSignupNormalUserRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handlePublishRequest(ClientHandler *handler, const QString &payload);
+    void handleLogoutRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleUpdateBookRequest(ClientHandler *handler, const QString &payload);
+    void handleForgotPassCheckRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleDeactivateBookRequest(ClientHandler *handler, const QString &payload);
+    void handleForgotPassUpdateRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleBuyRequest(ClientHandler *handler, const QString &payload);
 
-    void handleSearchRequest(ClientHandler *handler, const QString &payload);
+    void handleGetPublisherBooksRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleAddReviewRequest(ClientHandler *handler, const QString &payload);
+    void handleGetPubBookDetailsRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleEditReviewRequest(ClientHandler *handler, const QString &payload);
+    void handleGetBookDetailsRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleDeleteReviewRequest(ClientHandler *handler, const QString &payload);
+    void handleAddBookMetadataRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleAddToCartRequest(ClientHandler *handler, const QString &payload);
+    void handleUploadPdfStartRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleRemoveFromCartRequest(ClientHandler *handler, const QString &payload);
+    void handleUploadPdfChunkRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleCheckoutCartRequest(ClientHandler *handler, const QString &payload);
+    void handleUploadPdfEndRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleCreateShelfRequest(ClientHandler *handler, const QString &payload);
+    void handleEditBookRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleAddBookToShelfRequest(ClientHandler *handler, const QString &payload);
+    void handleToggleBookStatusRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleSaveBookRequest(ClientHandler *handler, const QString &payload);
+    void handleDeleteBookRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleBlockUserRequest(ClientHandler *handler, const QString &payload);
+    void handleSearchStorepageRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleUnblockUserRequest(ClientHandler *handler, const QString &payload);
+    void handleGetBookSummaryRequest(ClientHandler *handler, const QStringList &fields);
 
-    void handleDeleteBookRequest(ClientHandler *handler, const QString &payload);
 
-    void handleSetFavoriteGenresRequest(ClientHandler *handler, const QString &payload);
+    void handleBuyRequest(ClientHandler *handler, const QStringList &fields);
 
-    User *findUserByUsername(const QString &username);
+    void handleGetCartItemsRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetCartBookSummaryRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleAddCartRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleRemoveCartRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleCheckoutCartRequest(ClientHandler *handler, const QStringList &fields);
 
     Cart *findOrCreateCartForUser(quint64 userId);
 
+    PurchaseOutcome performPurchase(quint64 buyerId, const QSet<quint64> &bookIds);
+
+
+    void handleGetMyBooksRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetSavedBooksRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetShelvesRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetShelfBooksRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetMyBookInfoRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetSavedBookInfoRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetShelfBookInfoRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleAddShelfRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleEditShelfRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleDeleteShelfRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleUnsaveBookRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleRemoveFromShelfRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleAssignToShelfRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleSaveBookRequest(ClientHandler *handler, const QStringList &fields);
+
+    Library *getLibraryForUser(quint64 userId);
+
+    bool userHasPurchasedBook(quint64 userId, quint64 bookId);
+
+    quint64 findShelfContainingBook(quint64 userId, quint64 bookId);
+
+
+    void handleGetPubGeneralStatsRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetPubTopBooksIdsRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetPubBookInfoTopRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetPubLowestBooksIdsRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetPubBookInfoLowestRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetPubSalesChartRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetPubScoreChartRequest(ClientHandler *handler, const QStringList &fields);
+
+    QVector<quint64> sortedPublisherBookIdsBySales(Publisher *publisher, bool descending);
+
+    void handleGetPubProfileInfoRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleUpdatePubProfileRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleWithdrawBalanceRequest(ClientHandler *handler, const QStringList &fields);
+
+
+    void handleDownloadBookRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleUpdateLastPageRequest(ClientHandler *handler, const QStringList &fields);
+
+
+    void handleGetCommentsListRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetCommentDetailsRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleUpdateCommentRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleDeleteCommentRequest(ClientHandler *handler, const QStringList &fields);
+
+    QString formatCommentId(quint64 reviewId);
+
+    bool parseCommentId(const QString &text, quint64 &outId);
+
+
+    void handleSearchUsersRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetUserInfoRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleDeleteUserRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleBlockUserRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleUnblockUserRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleDeleteCommentAdminRequest(ClientHandler *handler, const QStringList &fields);
+
+
+    void handleGetAllBooksAdminRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetBookInfoAdminRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleEditBookAdminRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetBookCoverRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleDownloadPdfAdminRequest(ClientHandler *handler, const QStringList &fields);
+
+
+    void handleGetAllCommentsAdminRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetCommentInfoRequest(ClientHandler *handler, const QStringList &fields);
+
+
+    void cascadeDeleteBook(quint64 bookId);
+
+    void cascadeDeleteReviewsByAuthor(quint64 userId);
+
+    void cascadeDeleteWalletAndTransactions(quint64 walletId);
+
+    void cascadeDeleteNotificationsFor(quint64 userId);
+
+
+    void handleGetDataUserProfileRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetHistoryIdsRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetHistoryBookRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleUpdateBalanceRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleUpdateProfileRequest(ClientHandler *handler, const QStringList &fields);
+
+
+    void pushNotification(quint64 recipientUserId, NotificationType type, const QString &message);
+
+    void pushAdminStatsUpdate();
+
+    void handleGetNotificationsRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleGetNotificationInfoRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleMarkNotificationReadRequest(ClientHandler *handler, const QStringList &fields);
+
+    void handleMarkAllNotificationsReadRequest(ClientHandler *handler, const QStringList &fields);
+
+    User *findUserByUsername(const QString &username);
+
     ClientHandler *findClientHandlerByUserId(quint64 userId);
 
-    bool splitPayloadOrFail(ClientHandler *handler, const QString &payload, int minParts, QStringList &outParts);
-
-    bool parseGenre(const QString &text, Genre &out);
-
-    bool parseDouble(const QString &text, double &out);
+    Role stringToRole(const QString &text, bool &ok);
 
     quint64 requireAuthentication(ClientHandler *handler);
 
-    Admin *requireAdmin(quint64 userId, ClientHandler *handler);
+    User *requireRole(ClientHandler *handler, Role requiredRole);
 
-    NormalUser *requireNormalUser(quint64 userId, ClientHandler *handler);
+    quint64 findOrCreateAuthorByName(const QString &authorName);
 
-    Library *requireUserLibrary(quint64 userId, ClientHandler *handler);
+    QString saveBase64File(const QString &base64Data, const QString &subDirectory, const QString &fileNameWithoutExt,
+                           const QString &extension);
 
-    Book *requireOwnedBook(quint64 bookId, quint64 userId, ClientHandler *handler);
+    QString readFileAsBase64(const QString &filePath);
 
-    void sendNotificationToUser(quint64 userId, NotificationType type, const QString &message);
+    double averageStarsForBook(quint64 bookId);
 
-    void notifyUsersAboutNewBook(Book *book);
 
-    void broadcastReviewUpdated(quint64 bookId);
+    bool canViewInactiveBook(ClientHandler *handler, Book *book);
 
-    void purgeBookFromNonOwnerPlaces(quint64 bookId);
 
-    bool libraryOwnerHasPurchasedBook(quint64 ownerId, quint64 bookId);
+    QString getCoverImageOrPlaceholder(const QString &coverImagePath);
 
-    bool processPurchase(ClientHandler *handler, quint64 userId, const QVector<quint64> &bookIdList);
-
-    void deleteAllReviewsForBook(quint64 bookId, Book *book);
+    QString getAuthorName(quint64 authorId);
 };
 
 #endif
