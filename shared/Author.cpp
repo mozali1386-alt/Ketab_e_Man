@@ -2,11 +2,11 @@
 //YA MAHDI
 
 #include "Author.h"
+#include "PipeEscape.h"
 #include <QStringList>
 
 Author::Author() {
     fullName = "";
-    biography = "";
 }
 
 Author::~Author() {
@@ -16,21 +16,12 @@ QString Author::getFullName() const {
     return fullName;
 }
 
-QString Author::getBiography() const {
-    return biography;
-}
-
 QSet<quint64> Author::getBookIds() const {
     return bookIds;
 }
 
 void Author::setFullName(const QString &newFullName) {
     fullName = newFullName;
-    touchUpdatedAt();
-}
-
-void Author::setBiography(const QString &bio) {
-    biography = bio;
     touchUpdatedAt();
 }
 
@@ -54,18 +45,12 @@ QString Author::serialize() const {
         bookList.append(QString::number(bookId));
     }
 
-    QString safeName = fullName;
-    safeName.replace("&pipe;", "&amp;pipe;");
-    safeName.replace("|", "&pipe;");
-    QString safeBio = biography;
-    safeBio.replace("&pipe;", "&amp;pipe;");
-    safeBio.replace("|", "&pipe;");
+    QString safeName = PipeEscape::escape(fullName);
     QString result = "";
     result += QString::number(id) + "|";
     result += createdAt.toString(Qt::ISODate) + "|";
     result += updatedAt.toString(Qt::ISODate) + "|";
     result += safeName + "|";
-    result += safeBio + "|";
     result += bookList.join(",");
 
     return result;
@@ -84,12 +69,7 @@ void Author::deserialize(const QString &data) {
 
     fullName = tokens.at(index);
     index++;
-    fullName.replace("&pipe;", "|");
-    fullName.replace("&amp;pipe;", "&pipe;");
-    biography = tokens.at(index);
-    index++;
-    biography.replace("&pipe;", "|");
-    biography.replace("&amp;pipe;", "&pipe;");
+    fullName = PipeEscape::unescape(fullName);
     bookIds.clear();
     QString bookToken = tokens.at(index);
     index++;

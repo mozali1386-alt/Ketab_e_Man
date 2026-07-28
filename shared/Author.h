@@ -16,13 +16,9 @@ public:
 
     QString getFullName() const;
 
-    QString getBiography() const;
-
     QSet<quint64> getBookIds() const;
 
     void setFullName(const QString &newFullName);
-
-    void setBiography(const QString &bio);
 
     void addBook(quint64 bookId);
 
@@ -36,7 +32,6 @@ public:
 
 private:
     QString fullName;
-    QString biography;
     QSet<quint64> bookIds;
 };
 
