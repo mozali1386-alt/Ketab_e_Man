@@ -24,7 +24,7 @@ Bookdetails::Bookdetails(ClientSocketManager *client, QWidget *parent, QString b
     isSaved = false;
     isOwned = false;
     currentUserRating = 5;
-    originalUserRating = 5;
+    originalUserRating = 0;
     originalUserComment = "";
 
     updateCommentFormUI(false, false);
@@ -41,6 +41,26 @@ Bookdetails::~Bookdetails()
     delete ui;
 }
 
+QString Bookdetails::englishToPersianGenre(const QString &english)
+{
+    if (english == "ROMANCE")
+        return "عاشقانه";
+    else if (english == "SCIFI")
+        return "علمی تخیلی";
+    else if (english == "HORROR")
+        return "ترسناک";
+    else if (english == "CLASSIC")
+        return "کلاسیک";
+    else if (english == "CRIME")
+        return "جنایی";
+    else if (english == "ART")
+        return "هنری";
+    else if (english == "COMEDY")
+        return "طنز";
+    else if (english == "HISTORY")
+        return "تاریخی";
+    return "نامشخص";
+}
 
 void Bookdetails::requestBookDetails()
 {
@@ -116,7 +136,7 @@ void Bookdetails::processServerResponse(const QString &response)
             ui->label_bookname->setText(mainParts[4].trimmed());
             ui->label_anothername->setText(mainParts[5].trimmed());
             ui->label_publishername->setText(mainParts[6].trimmed());
-            ui->label_genrename->setText(mainParts[7].trimmed());
+            ui->label_genrename->setText(englishToPersianGenre(mainParts[7].trimmed()));
 
             int mainPrice = mainParts[8].toInt();
             int discount = mainParts[9].toInt();
@@ -278,6 +298,7 @@ void Bookdetails::on_pushButton_commentadd_clicked()
         return;
     }
 
+    // پیام با همان متغیر currentText ساخته می‌شود. اگر خالی باشد، بعد از || چیزی نمی‌افتد.
     QString message = QString("UPDATE_COMMENT||%1||%2||%3")
                           .arg(currentBookId, QString::number(currentUserRating), currentText);
     m_client->sendMessage(message);
@@ -297,7 +318,7 @@ void Bookdetails::on_pushButton_commentremove_clicked()
     QString message = "DELETE_COMMENT||" + currentBookId;
     m_client->sendMessage(message);
 
-    originalUserRating = 5;
+    originalUserRating = 0;
     originalUserComment = "";
     ui->textEdit_yourcomment->clear();
     updateStarsUI(5);
