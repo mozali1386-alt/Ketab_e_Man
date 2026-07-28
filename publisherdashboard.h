@@ -4,6 +4,7 @@
 #include <QCloseEvent>
 #include <QLabel>
 #include <QMainWindow>
+#include "clientsocketmanager.h"
 #include "notification.h"
 
 namespace Ui {
@@ -15,7 +16,7 @@ class Publisherdashboard : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Publisherdashboard(QWidget *parent = nullptr);
+    explicit Publisherdashboard(ClientSocketManager *client, QWidget *parent = nullptr);
     ~Publisherdashboard();
 
 protected:
@@ -40,6 +41,7 @@ private:
 
     void updateBadge();
     void processServerResponse(const QString &response);
+    ClientSocketManager *m_client;
 };
 
 #endif // PUBLISHERDASHBOARD_H

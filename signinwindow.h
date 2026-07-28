@@ -2,6 +2,7 @@
 #define SIGNINWINDOW_H
 
 #include <QMainWindow>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class signinwindow;
@@ -12,7 +13,9 @@ class signinwindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit signinwindow(const QString &role, QWidget *parent = nullptr);
+    explicit signinwindow(ClientSocketManager *client,
+                          const QString &role,
+                          QWidget *parent = nullptr);
     ~signinwindow();
 
 signals:
@@ -31,6 +34,7 @@ private slots:
 private:
     Ui::signinwindow *ui;
     QString role;
+    ClientSocketManager *m_client;
 };
 
 #endif // SIGNINWINDOW_H

@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QString>
 #include <QWidget>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class Bookdetails;
@@ -14,7 +15,9 @@ class Bookdetails : public QWidget
     Q_OBJECT
 
 public:
-    explicit Bookdetails(QWidget *parent = nullptr, QString bookId = "");
+    explicit Bookdetails(ClientSocketManager *client,
+                         QWidget *parent = nullptr,
+                         QString bookId = "");
     ~Bookdetails();
 
 private slots:
@@ -56,5 +59,6 @@ private:
     void updateStarsUI(int score);
 
     void loadAndSetImage(QLabel *imageLabel, const QString &base64Data);
+    ClientSocketManager *m_client = nullptr;
 };
 #endif // BOOKDETAILS_H

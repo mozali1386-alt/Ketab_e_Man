@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QWidget>
 #include "booklibraryitem.h"
+#include "clientsocketmanager.h"
 #include <qprogressdialog.h>
 
 namespace Ui {
@@ -19,6 +20,7 @@ public:
     explicit LibraryWidget(QWidget *parent = nullptr);
     ~LibraryWidget();
     void refreshCurrentTab();
+    void setClient(ClientSocketManager *client);
 
 private slots:
     void on_tabWidget_currentChanged(int index);
@@ -60,6 +62,7 @@ private:
     QProgressDialog *pdfLoadingDialog = nullptr;
     QString currentReadingBookId;
     int currentBookLastPage = 0;
+    ClientSocketManager *m_client = nullptr;
 };
 
 #endif // LIBRARYWIDGET_H

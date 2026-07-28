@@ -25,7 +25,6 @@ signals:
     void lastPageSaved(QString bookId, int pageNumber);
 
 private slots:
-    // این همان توابعی است که کامپایلر شما گم کرده بود!
     void on_pushButton_exit_clicked();
     void on_toolButton_nextpage_clicked();
     void on_toolButton_backpage_clicked();

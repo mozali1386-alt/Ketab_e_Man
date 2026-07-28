@@ -2,6 +2,7 @@
 #define PUBLISHERSIGNUPWINDOW_H
 
 #include <QMainWindow>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class publishersignupwindow;
@@ -12,7 +13,7 @@ class publishersignupwindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit publishersignupwindow(QWidget *parent = nullptr);
+    explicit publishersignupwindow(ClientSocketManager *client, QWidget *parent = nullptr);
     ~publishersignupwindow();
 
 signals:
@@ -27,6 +28,7 @@ private slots:
 
 private:
     Ui::publishersignupwindow *ui;
+    ClientSocketManager *m_client;
 };
 
 #endif // PUBLISHERSIGNUPWINDOW_H

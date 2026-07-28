@@ -24,96 +24,93 @@ PublisherStatistics::~PublisherStatistics()
 void PublisherStatistics::requestGeneralStats()
 {
     QString message = "GET_PUB_GENERAL_STATS";
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     // =============== شروع کدهای تست ===============
-    QTimer::singleShot(100, this, [=]() {
-        processServerResponse("PUB_GENERAL_RESULT||15||4.2||2500000");
-    });
+    // QTimer::singleShot(100, this, [=]() {
+    //     processServerResponse("PUB_GENERAL_RESULT||15||4.2||2500000");
+    // });
     // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestTopBooksIds()
 {
     QString message = "GET_PUB_TOP_BOOKS_IDS";
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     // =============== شروع کدهای تست ===============
-    QTimer::singleShot(150, this, [=]() {
-        processServerResponse("PUB_TOP_IDS_RESULT||101,102,103");
-    });
+    // QTimer::singleShot(150, this, [=]() {
+    //     processServerResponse("PUB_TOP_IDS_RESULT||101,102,103");
+    // });
     // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestTopBookInfo(const QString &bookId)
 {
     QString message = "GET_PUB_BOOK_INFO_TOP||" + bookId;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     // =============== شروع کدهای تست ===============
-    QTimer::singleShot(200, this, [=]() {
-        QString mockResponse = "PUB_BOOK_INFO_TOP_RESULT||" + bookId + "||کتاب برتر " + bookId
-                               + "||150||4.8";
-        processServerResponse(mockResponse);
-    });
+    // QTimer::singleShot(200, this, [=]() {
+    //     QString mockResponse = "PUB_BOOK_INFO_TOP_RESULT||" + bookId + "||کتاب برتر " + bookId
+    //                            + "||150||4.8";
+    //     processServerResponse(mockResponse);
+    // });
     // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestLowestBooksIds()
 {
     QString message = "GET_PUB_LOWEST_BOOKS_IDS";
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     // =============== شروع کدهای تست ===============
-    QTimer::singleShot(150, this, [=]() {
-        processServerResponse("PUB_LOWEST_IDS_RESULT||201,202");
-    });
+    // QTimer::singleShot(150, this, [=]() {
+    //     processServerResponse("PUB_LOWEST_IDS_RESULT||201,202");
+    // });
     // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestLowestBookInfo(const QString &bookId)
 {
     QString message = "GET_PUB_BOOK_INFO_LOWEST||" + bookId;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     // =============== شروع کدهای تست ===============
-    QTimer::singleShot(200, this, [=]() {
-        QString mockResponse = "PUB_BOOK_INFO_LOWEST_RESULT||" + bookId + "||کتاب کم فروش " + bookId
-                               + "||5||2.1";
-        processServerResponse(mockResponse);
-    });
+    // QTimer::singleShot(200, this, [=]() {
+    //     QString mockResponse = "PUB_BOOK_INFO_LOWEST_RESULT||" + bookId + "||کتاب کم فروش " + bookId
+    //                            + "||5||2.1";
+    //     processServerResponse(mockResponse);
+    // });
     // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestSalesChartData()
 {
     QString message = "GET_PUB_SALES_CHART";
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     // =============== شروع کدهای تست ===============
-    QTimer::singleShot(300, this, [=]() {
-        processServerResponse("PUB_SALES_CHART_RESULT||کتاب الف:500,کتاب ب:350,کتاب ج:200,سایر "
-                              "کتاب‌ها:150");
-    });
+    // QTimer::singleShot(300, this, [=]() {
+    //     processServerResponse("PUB_SALES_CHART_RESULT||کتاب الف:500,کتاب ب:350,کتاب ج:200,سایر "
+    //                           "کتاب‌ها:150");
+    // });
     // =============== پایان کدهای تست ===============
 }
 
 void PublisherStatistics::requestScoreChartData()
 {
     QString message = "GET_PUB_SCORE_CHART";
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     // =============== شروع کدهای تست ===============
-    QTimer::singleShot(350, this, [=]() {
-        processServerResponse("PUB_SCORE_CHART_RESULT||کتاب ۱:4.5,کتاب ۲:3.2,کتاب ۳:4.8,کتاب "
-                              "۴:2.5,کتاب ۵:3.9,کتاب ۶:4.1,کتاب ۷:2.9,کتاب ۸:5.0");
-    });
+    // QTimer::singleShot(350, this, [=]() {
+    //     processServerResponse("PUB_SCORE_CHART_RESULT||کتاب ۱:4.5,کتاب ۲:3.2,کتاب ۳:4.8,کتاب "
+    //                           "۴:2.5,کتاب ۵:3.9,کتاب ۶:4.1,کتاب ۷:2.9,کتاب ۸:5.0");
+    // });
     // =============== پایان کدهای تست ===============
 }
 
-// ==========================================
-// پردازش پیام‌های سرور
-// ==========================================
 void PublisherStatistics::processServerResponse(const QString &response)
 {
     QStringList parts = response.split("||");
@@ -153,9 +150,6 @@ void PublisherStatistics::processServerResponse(const QString &response)
     }
 }
 
-// ==========================================
-// توابع کمکی رسم UI
-// ==========================================
 void PublisherStatistics::appendToTable(QTableWidget *table,
                                         const QString &name,
                                         const QString &sales,
@@ -252,4 +246,12 @@ void PublisherStatistics::refreshStatistics()
     requestLowestBooksIds();
     requestSalesChartData();
     requestScoreChartData();
+}
+void PublisherStatistics::setClient(ClientSocketManager *client)
+{
+    m_client = client;
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &PublisherStatistics::processServerResponse);
 }

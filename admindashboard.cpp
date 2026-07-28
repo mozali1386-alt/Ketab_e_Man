@@ -11,9 +11,10 @@
 #include "pdfviewerwidget.h"
 #include "ui_admindashboard.h"
 
-Admindashboard::Admindashboard(QWidget *parent)
+Admindashboard::Admindashboard(ClientSocketManager *client, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Admindashboard)
+    , m_client(client)
 {
     ui->setupUi(this);
 
@@ -41,50 +42,54 @@ Admindashboard::Admindashboard(QWidget *parent)
         connect(qmlRoot, SIGNAL(bellClicked()), this, SLOT(onBellClicked()));
     }
 
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &Admindashboard::processServerResponse);
     // ==========================================================
     // === شروع کدهای شبیه‌سازی سرور (بعد از وصل شدن به سرور پاک شوند) ===
     // ==========================================================
 
     // فعال کردن دکمه PDF صرفاً در زمان تست
-    ui->pushButton_pdf->setEnabled(true);
+    // ui->pushButton_pdf->setEnabled(true);
 
-    // ۱. تست پیام‌های آفلاین (قدیمی) - بدون استاتوس‌بار
-    QTimer::singleShot(2000, this, [=]() {
-        processServerResponse("UPDATE_ADMIN_STATS||18||240");
+    // // ۱. تست پیام‌های آفلاین (قدیمی) - بدون استاتوس‌بار
+    // QTimer::singleShot(2000, this, [=]() {
+    //     processServerResponse("UPDATE_ADMIN_STATS||18||240");
 
-        // متن بسیار طولانی برای تست جا شدن در ارتفاع کم (خوانده شده)
-        processServerResponse("NOTIFICATION_INFO_RESULT||101||کتاب 'بوف کور' نوشته صادق هدایت، "
-                              "توسط ناشر جهت بررسی و تایید نهایی در سیستم ثبت شد و نیازمند توجه و "
-                              "بازبینی دقیق شماست. لطفاً در اسرع وقت رسیدگی کنید.||14:30||READ");
+    //     // متن بسیار طولانی برای تست جا شدن در ارتفاع کم (خوانده شده)
+    //     processServerResponse("NOTIFICATION_INFO_RESULT||101||کتاب 'بوف کور' نوشته صادق هدایت، "
+    //                           "توسط ناشر جهت بررسی و تایید نهایی در سیستم ثبت شد و نیازمند توجه و "
+    //                           "بازبینی دقیق شماست. لطفاً در اسرع وقت رسیدگی کنید.||14:30||READ");
 
-        // متن متوسط (نخوانده)
-        processServerResponse(
-            "NOTIFICATION_INFO_RESULT||102||ناشر جدیدی با نام 'نشر چشمه' با "
-            "موفقیت در سیستم ثبت‌نام کرده و هم‌اکنون منتظر "
-            "تایید "
-            "است.||15:45||UNREAD");
-    });
+    //     // متن متوسط (نخوانده)
+    //     processServerResponse(
+    //         "NOTIFICATION_INFO_RESULT||102||ناشر جدیدی با نام 'نشر چشمه' با "
+    //         "موفقیت در سیستم ثبت‌نام کرده و هم‌اکنون منتظر "
+    //         "تایید "
+    //         "است.||15:45||UNREAD");
+    // });
 
-    // ۲. تست پیام‌های زنده (Real-Time) - همراه با استاتوس‌بار
-    QTimer::singleShot(5000, this, [=]() {
-        // متن طولانی (نخوانده)
-        processServerResponse("NEW_NOTIFICATION_PUSH||103||کاربر جدیدی با نام 'علی رضایی' وارد "
-                              "سیستم شد. این کاربر پیش از این در بخش نظرات فعالیت مشکوکی داشته "
-                              "است. لطفاً سوابق وی را بررسی کنید.||16:20||UNREAD");
-    });
+    // // ۲. تست پیام‌های زنده (Real-Time) - همراه با استاتوس‌بار
+    // QTimer::singleShot(5000, this, [=]() {
+    //     // متن طولانی (نخوانده)
+    //     processServerResponse("NEW_NOTIFICATION_PUSH||103||کاربر جدیدی با نام 'علی رضایی' وارد "
+    //                           "سیستم شد. این کاربر پیش از این در بخش نظرات فعالیت مشکوکی داشته "
+    //                           "است. لطفاً سوابق وی را بررسی کنید.||16:20||UNREAD");
+    // });
 
-    QTimer::singleShot(8000, this, [=]() {
-        // متن کوتاه (نخوانده)
-        processServerResponse("NEW_NOTIFICATION_PUSH||104||گزارش خطای سیستم: ارتباط با پایگاه داده "
-                              "قطع شد.||16:25||UNREAD");
-    });
+    // QTimer::singleShot(8000, this, [=]() {
+    //     // متن کوتاه (نخوانده)
+    //     processServerResponse("NEW_NOTIFICATION_PUSH||104||گزارش خطای سیستم: ارتباط با پایگاه داده "
+    //                           "قطع شد.||16:25||UNREAD");
+    // });
 
-    // === تست اضافه شدن کتاب برای تست دکمه PDF ===
-    QTimer::singleShot(500, this, [=]() {
-        processServerResponse("ALL_BOOKS_ADMIN_RESULT||1||201");
-        processServerResponse("BOOK_INFO_ADMIN_RESULT||201||بوف کور||صادق هدایت||نشر "
-                              "چشمه||CLASSIC||کتابی برای تست PDF||ACTIVE");
-    });
+    // // === تست اضافه شدن کتاب برای تست دکمه PDF ===
+    // QTimer::singleShot(500, this, [=]() {
+    //     processServerResponse("ALL_BOOKS_ADMIN_RESULT||1||201");
+    //     processServerResponse("BOOK_INFO_ADMIN_RESULT||201||بوف کور||صادق هدایت||نشر "
+    //                           "چشمه||CLASSIC||کتابی برای تست PDF||ACTIVE");
+    // });
     // ==========================================================
     // === پایان کدهای شبیه‌سازی ===
     // ==========================================================
@@ -264,7 +269,7 @@ void Admindashboard::processServerResponse(const QString &response)
                 const QStringList ids = idString.split(",", Qt::SkipEmptyParts);
                 for (const QString &id : ids) {
                     QString req = "GET_BOOK_INFO_ADMIN||" + id;
-                    // client->sendMessage(req);
+                    m_client->sendMessage(req);
                 }
             }
         }
@@ -349,7 +354,7 @@ void Admindashboard::processServerResponse(const QString &response)
                 const QStringList ids = idString.split(",", Qt::SkipEmptyParts);
                 for (const QString &id : ids) {
                     QString req = "GET_COMMENT_INFO||" + id;
-                    // client->sendMessage(req);
+                    m_client->sendMessage(req);
                 }
             }
         }
@@ -502,10 +507,6 @@ void Admindashboard::processServerResponse(const QString &response)
     }
 }
 
-// ==========================================
-// رویدادهای اکشن کاربر
-// ==========================================
-
 void Admindashboard::on_pushButton_search_clicked()
 {
     QString nameFilter = ui->lineEdit_name->text().trimmed();
@@ -527,13 +528,13 @@ void Admindashboard::on_pushButton_search_clicked()
         statusFilter = "BLOCK";
 
     QString message = "SEARCH_USERS||" + nameFilter + "||" + roleFilter + "||" + statusFilter;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 }
 
 void Admindashboard::requestUserInfo(const QString &userId)
 {
     QString message = "GET_USER_INFO||" + userId;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 }
 
 int Admindashboard::findUserRowById(const QString &userId)
@@ -580,7 +581,7 @@ void Admindashboard::on_pushButton_deletehesab_clicked()
         return;
     QString userId = ui->tableWidget_allusers->item(row, 0)->data(Qt::UserRole).toString();
     QString message = "DELETE_USER||" + userId;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 }
 
 void Admindashboard::on_pushButton_block_clicked()
@@ -590,7 +591,7 @@ void Admindashboard::on_pushButton_block_clicked()
         return;
     QString userId = ui->tableWidget_allusers->item(row, 0)->data(Qt::UserRole).toString();
     QString message = "BLOCK_USER||" + userId;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 }
 
 void Admindashboard::on_pushButton_unblock_clicked()
@@ -600,19 +601,19 @@ void Admindashboard::on_pushButton_unblock_clicked()
         return;
     QString userId = ui->tableWidget_allusers->item(row, 0)->data(Qt::UserRole).toString();
     QString message = "UNBLOCK_USER||" + userId;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 }
 
 void Admindashboard::requestAdminBooks()
 {
     QString req = "GET_ALL_BOOKS_ADMIN";
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 }
 
 void Admindashboard::requestAdminComments()
 {
     QString req = "GET_ALL_COMMENTS_ADMIN";
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 }
 
 void Admindashboard::on_tableWidget_books_itemSelectionChanged()
@@ -631,7 +632,7 @@ void Admindashboard::on_pushButton_deletebook_clicked()
         return;
     QString bookId = ui->tableWidget_books->item(row, 0)->data(Qt::UserRole).toString();
     QString req = "DELETE_BOOK||" + bookId;
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 }
 
 void Admindashboard::on_pushButton_editbook_clicked()
@@ -664,7 +665,7 @@ void Admindashboard::on_pushButton_editbook_clicked()
 
         QString req = "EDIT_BOOK_ADMIN||" + bookId + "||" + newName + "||" + newAuthor + "||"
                       + newGenreEn + "||" + newDesc;
-        // client->sendMessage(req);
+        m_client->sendMessage(req);
     }
 }
 
@@ -675,7 +676,7 @@ void Admindashboard::on_pushButton_pikther_clicked()
         return;
     QString bookId = ui->tableWidget_books->item(row, 0)->data(Qt::UserRole).toString();
     QString req = "GET_BOOK_COVER||" + bookId;
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 }
 
 void Admindashboard::on_pushButton_pdf_clicked()
@@ -686,37 +687,37 @@ void Admindashboard::on_pushButton_pdf_clicked()
 
     QString bookId = ui->tableWidget_books->item(row, 0)->data(Qt::UserRole).toString();
     QString req = "DOWNLOAD_PDF_ADMIN||" + bookId;
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 
     // ==========================================================
     // === شروع کدهای شبیه‌سازی (بعد از اتصال به سرور پاک شوند) ===
     // ==========================================================
-    QTimer::singleShot(100, this, [=]() { processServerResponse("PDF_START||" + bookId + "||2"); });
-    QTimer::singleShot(200, this, [=]() {
-        processServerResponse(
-            "PDF_CHUNK||" + bookId
-            + "||"
-              "JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT4+"
-              "CnN0cmVhbQp4nDPQM1Qo5ypUMFAwALJMLU31jBQK0osSQFwFIwUjA0OQvJAy3wIFQxNLoDAAh4gKRAplbmRz"
-              "dHJlYW0KZW5kb2JqCgozIDAgb2JqCjM5CmVuZG9iagoKMSAwIG9iago8PC9UeXBlL1BhZ2UvTWVkaWFCb3hb"
-              "MCAwIDU5NSA4NDJd");
-    });
-    QTimer::singleShot(300, this, [=]() {
-        processServerResponse(
-            "PDF_CHUNK||" + bookId
-            + "||L1Jlc291cmNlczw8L0ZvbnQ8PC9GMCA0IDAgUj4+"
-              "Pj4vQ29udGVudHMgMiAwIFIvUGFyZW50IDUgMCBSPj4KZW5kb2JqCgo0IDAgb2JqCjw8L1R5cGUvRm9udC9T"
-              "dWJ0eXBlL1R5cGUxL0Jhc2VGb250L0hlbHZldGljYT4+"
-              "CmVuZG9iagoKNSAwIG9iago8PC9UeXBlL1BhZ2VzL0NvdW50IDEvS2lkc1sxIDAgUl0+"
-              "PgplbmRvYmoKCjYgMCBvYmoKPDwvVHlwZS9DYXRhbG9nL1BhZ2VzIDUgMCBSPj4KZW5kb2JqCgp4cmVmCjAg"
-              "NwowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAxMjUgMDAwMDAgbiAKMDAwMDAwMDAxOSAwMDAwMCBuIAow"
-              "MDAwMDAwMTA2IDAwMDAwIG4gCjAwMDAwMDAyMjMgMDAwMDAgbiAKMDAwMDAwMDI4MSAwMDAwMCBuIAowMDAw"
-              "MDAwMzMyIDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA3L1Jvb3QgNiAwIFI+"
-              "PgpzdGFydHhyZWYKNDg2CiUlRU9GCg==");
-    });
-    QTimer::singleShot(400, this, [=]() {
-        processServerResponse("PDF_END||" + bookId + "||SUCCESS");
-    });
+    // QTimer::singleShot(100, this, [=]() { processServerResponse("PDF_START||" + bookId + "||2"); });
+    // QTimer::singleShot(200, this, [=]() {
+    //     processServerResponse(
+    //         "PDF_CHUNK||" + bookId
+    //         + "||"
+    //           "JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT4+"
+    //           "CnN0cmVhbQp4nDPQM1Qo5ypUMFAwALJMLU31jBQK0osSQFwFIwUjA0OQvJAy3wIFQxNLoDAAh4gKRAplbmRz"
+    //           "dHJlYW0KZW5kb2JqCgozIDAgb2JqCjM5CmVuZG9iagoKMSAwIG9iago8PC9UeXBlL1BhZ2UvTWVkaWFCb3hb"
+    //           "MCAwIDU5NSA4NDJd");
+    // });
+    // QTimer::singleShot(300, this, [=]() {
+    //     processServerResponse(
+    //         "PDF_CHUNK||" + bookId
+    //         + "||L1Jlc291cmNlczw8L0ZvbnQ8PC9GMCA0IDAgUj4+"
+    //           "Pj4vQ29udGVudHMgMiAwIFIvUGFyZW50IDUgMCBSPj4KZW5kb2JqCgo0IDAgb2JqCjw8L1R5cGUvRm9udC9T"
+    //           "dWJ0eXBlL1R5cGUxL0Jhc2VGb250L0hlbHZldGljYT4+"
+    //           "CmVuZG9iagoKNSAwIG9iago8PC9UeXBlL1BhZ2VzL0NvdW50IDEvS2lkc1sxIDAgUl0+"
+    //           "PgplbmRvYmoKCjYgMCBvYmoKPDwvVHlwZS9DYXRhbG9nL1BhZ2VzIDUgMCBSPj4KZW5kb2JqCgp4cmVmCjAg"
+    //           "NwowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAxMjUgMDAwMDAgbiAKMDAwMDAwMDAxOSAwMDAwMCBuIAow"
+    //           "MDAwMDAwMTA2IDAwMDAwIG4gCjAwMDAwMDAyMjMgMDAwMDAgbiAKMDAwMDAwMDI4MSAwMDAwMCBuIAowMDAw"
+    //           "MDAwMzMyIDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA3L1Jvb3QgNiAwIFI+"
+    //           "PgpzdGFydHhyZWYKNDg2CiUlRU9GCg==");
+    // });
+    // QTimer::singleShot(400, this, [=]() {
+    //     processServerResponse("PDF_END||" + bookId + "||SUCCESS");
+    // });
     // ==========================================================
     // === پایان کدهای شبیه‌سازی ===
     // ==========================================================
@@ -736,7 +737,7 @@ void Admindashboard::on_pushButton_deletecomment_clicked()
     QString cId = ui->tableWidget_comment->item(row, 0)->data(Qt::UserRole).toString();
 
     QString req = "DELETE_COMMENT_ADMIN||" + cId;
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 }
 
 void Admindashboard::on_pushButton_textcomelcomment_clicked()
@@ -764,32 +765,32 @@ void Admindashboard::onBellClicked()
 void Admindashboard::onNotificationClicked(const QString &notifId)
 {
     QString req = "MARK_NOTIFICATION_READ||" + notifId;
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 
     // ==========================================================
     // === شروع کدهای شبیه‌سازی (بعد از اتصال به سرور پاک شوند) ===
     // ==========================================================
-    QTimer::singleShot(100, this, [=]() {
-        processServerResponse("MARK_READ_RESULT||" + notifId + "||SUCCESS");
-    });
+    // QTimer::singleShot(100, this, [=]() {
+    //     processServerResponse("MARK_READ_RESULT||" + notifId + "||SUCCESS");
+    // });
     // ==========================================================
 }
 
 void Admindashboard::onMarkAllReadClicked()
 {
     QString req = "MARK_ALL_NOTIFICATIONS_READ";
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 
     // ==========================================================
     // === شروع کدهای شبیه‌سازی (بعد از اتصال به سرور پاک شوند) ===
     // ==========================================================
-    QTimer::singleShot(100, this, [=]() { processServerResponse("MARK_ALL_READ_RESULT||SUCCESS"); });
+    //QTimer::singleShot(100, this, [=]() { processServerResponse("MARK_ALL_READ_RESULT||SUCCESS"); });
     // ==========================================================
 }
 
 void Admindashboard::closeEvent(QCloseEvent *event)
 {
-    // client->sendMessage("LOGOUT");
+    m_client->sendMessage("LOGOUT");
     // اجازه می‌دهیم برنامه روال عادی بسته شدن خود را طی کند
     event->accept();
 }

@@ -31,7 +31,6 @@ void CartitemWidget::setBookData(const QString &id,
     offPriceValue = discount;
     finalPriceValue = mainPrice - discount;
 
-    // تبدیل رشته Base64 به عکس واقعی
     if (image == "NO_IMAGE" || image.isEmpty()) {
         ui->label_pikcherbook->setText("بدون تصویر");
     } else {

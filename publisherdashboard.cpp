@@ -2,11 +2,20 @@
 #include <QTimer>
 #include "ui_publisherdashboard.h"
 
-Publisherdashboard::Publisherdashboard(QWidget *parent)
+Publisherdashboard::Publisherdashboard(ClientSocketManager *client, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Publisherdashboard)
+    , m_client(client)
 {
     ui->setupUi(this);
+    ui->page_managementbook->setClient(m_client);
+    ui->scrollAreaWidgetContents->setClient(m_client);
+    ui->page_profile->setClient(m_client);
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &Publisherdashboard::processServerResponse);
+
     ui->statusbar->setStyleSheet("color: red; font-weight: bold;");
 
     notifPopup = new Notification(this);
@@ -50,29 +59,29 @@ Publisherdashboard::Publisherdashboard(QWidget *parent)
     // ==========================================================
 
     // ۱. تست پیام‌های آفلاین (قدیمی) - فقط در پاپ‌آپ می‌آیند (بدون استاتوس‌بار)
-    QTimer::singleShot(2000, this, [=]() {
-        // آفلاین ۱: خوانده شده (زنگوله تغییر نمی‌کند)
-        processServerResponse("NOTIFICATION_INFO_RESULT||101||کتاب 'بوف کور' نوشته صادق هدایت، به "
-                              "کتابخانه شما اضافه شد.||14:30||READ");
+    // QTimer::singleShot(2000, this, [=]() {
+    //     // آفلاین ۱: خوانده شده (زنگوله تغییر نمی‌کند)
+    //     processServerResponse("NOTIFICATION_INFO_RESULT||101||کتاب 'بوف کور' نوشته صادق هدایت، به "
+    //                           "کتابخانه شما اضافه شد.||14:30||READ");
 
-        // آفلاین ۲: نخوانده (زنگوله ۱ عدد بالا می‌رود)
-        processServerResponse("NOTIFICATION_INFO_RESULT||102||کتاب جدیدی در ژانر کلاسیک که به آن "
-                              "علاقه دارید، در فروشگاه موجود شد!||15:45||UNREAD");
-    });
+    //     // آفلاین ۲: نخوانده (زنگوله ۱ عدد بالا می‌رود)
+    //     processServerResponse("NOTIFICATION_INFO_RESULT||102||کتاب جدیدی در ژانر کلاسیک که به آن "
+    //                           "علاقه دارید، در فروشگاه موجود شد!||15:45||UNREAD");
+    // });
 
-    // ۲. تست پیام‌های زنده (Real-Time) - همراه با استاتوس‌بار و صدا
-    QTimer::singleShot(5000, this, [=]() {
-        // زنده ۱: نخوانده (استاتوس‌بار پایین قرمز می‌شود + زنگوله ۱ عدد بالا می‌رود)
-        processServerResponse("NEW_NOTIFICATION_PUSH||103||موجودی حساب شما با موفقیت شارژ شد. "
-                              "هم‌اکنون می‌توانید "
-                              "خرید خود را نهایی کنید.||16:20||UNREAD");
-    });
+    // // ۲. تست پیام‌های زنده (Real-Time) - همراه با استاتوس‌بار و صدا
+    // QTimer::singleShot(5000, this, [=]() {
+    //     // زنده ۱: نخوانده (استاتوس‌بار پایین قرمز می‌شود + زنگوله ۱ عدد بالا می‌رود)
+    //     processServerResponse("NEW_NOTIFICATION_PUSH||103||موجودی حساب شما با موفقیت شارژ شد. "
+    //                           "هم‌اکنون می‌توانید "
+    //                           "خرید خود را نهایی کنید.||16:20||UNREAD");
+    // });
 
-    QTimer::singleShot(8000, this, [=]() {
-        // زنده ۲: نخوانده (استاتوس‌بار پایین قرمز می‌شود + زنگوله ۱ عدد بالا می‌رود)
-        processServerResponse("NEW_NOTIFICATION_PUSH||104||تخفیف ویژه ۵۰ درصدی فقط تا پایان امشب "
-                              "برای شما فعال شد!||16:25||UNREAD");
-    });
+    // QTimer::singleShot(8000, this, [=]() {
+    //     // زنده ۲: نخوانده (استاتوس‌بار پایین قرمز می‌شود + زنگوله ۱ عدد بالا می‌رود)
+    //     processServerResponse("NEW_NOTIFICATION_PUSH||104||تخفیف ویژه ۵۰ درصدی فقط تا پایان امشب "
+    //                           "برای شما فعال شد!||16:25||UNREAD");
+    // });
 
     // ==========================================================
     // === پایان کدهای شبیه‌سازی ===
@@ -126,30 +135,30 @@ void Publisherdashboard::on_toolButton_notification_clicked()
 void Publisherdashboard::onNotificationClicked(const QString &notifId)
 {
     QString req = "MARK_NOTIFICATION_READ||" + notifId;
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 
     // ==========================================================
     // === شروع کدهای شبیه‌سازی (بعد از اتصال به سرور پاک شوند) ===
     // ==========================================================
-    QTimer::singleShot(100, this, [=]() {
-        // سرور جواب می‌دهد که پیام با موفقیت خوانده شد
-        processServerResponse("MARK_READ_RESULT||" + notifId + "||SUCCESS");
-    });
+    //QTimer::singleShot(100, this, [=]() {
+    // سرور جواب می‌دهد که پیام با موفقیت خوانده شد
+    // processServerResponse("MARK_READ_RESULT||" + notifId + "||SUCCESS");
+    //});
     // ==========================================================
 }
 
 void Publisherdashboard::onMarkAllReadClicked()
 {
     QString req = "MARK_ALL_NOTIFICATIONS_READ";
-    // client->sendMessage(req);
+    m_client->sendMessage(req);
 
     // ==========================================================
     // === شروع کدهای شبیه‌سازی (بعد از اتصال به سرور پاک شوند) ===
     // ==========================================================
-    QTimer::singleShot(100, this, [=]() {
-        // سرور جواب می‌دهد که همه پیام‌ها با موفقیت خوانده شدند
-        processServerResponse("MARK_ALL_READ_RESULT||SUCCESS");
-    });
+    // QTimer::singleShot(100, this, [=]() {
+    //     // سرور جواب می‌دهد که همه پیام‌ها با موفقیت خوانده شدند
+    //     processServerResponse("MARK_ALL_READ_RESULT||SUCCESS");
+    // });
     // ==========================================================
 }
 void Publisherdashboard::processServerResponse(const QString &response)
@@ -190,7 +199,6 @@ void Publisherdashboard::processServerResponse(const QString &response)
                 unreadCount++;
                 updateBadge();
 
-                // نمایش در پایین صفحه به مدت ۵ ثانیه
                 ui->statusbar->showMessage("اعلان جدید: " + msg, 5000);
                 QApplication::beep();
             }
@@ -220,7 +228,7 @@ void Publisherdashboard::processServerResponse(const QString &response)
 
 void Publisherdashboard::closeEvent(QCloseEvent *event)
 {
-    // client->sendMessage("LOGOUT");
+    m_client->sendMessage("LOGOUT");
     // اجازه می‌دهیم برنامه روال عادی بسته شدن خود را طی کند
     event->accept();
 }

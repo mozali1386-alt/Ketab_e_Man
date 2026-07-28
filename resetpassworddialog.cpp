@@ -2,11 +2,16 @@
 #include <QRegularExpression>
 #include "ui_resetpassworddialog.h"
 
-ResetPasswordDialog::ResetPasswordDialog(QWidget *parent)
+ResetPasswordDialog::ResetPasswordDialog(ClientSocketManager *client, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::ResetPasswordDialog)
+    , m_client(client)
 {
     ui->setupUi(this);
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &ResetPasswordDialog::processServerResponse);
 
     QString errorStyle = "color: red; background-color: transparent; border: none;";
     ui->label_passworderror->setStyleSheet(errorStyle);
@@ -44,11 +49,11 @@ void ResetPasswordDialog::on_pushButton_page1next_clicked()
     QString Message = QString("FORGOT_PASS_CHECK||%1").arg(email);
     qDebug() << Message;
 
-    //client->sendMessage(Message);
+    m_client->sendMessage(Message);
 
     // ======== تست بررسی ایمیل ========
     // // تست ایمیل موجود:
-    processServerResponse("FORGOT_PASS_CHECK||SUCCESS||Ali_Moazed");
+    //processServerResponse("FORGOT_PASS_CHECK||SUCCESS||Ali_Moazed");
 
     // // تست ایمیل ناموجود:
     // processServerResponse("FORGOT_PASS_CHECK||FAIL");
@@ -92,11 +97,11 @@ void ResetPasswordDialog::on_pushButton_page2next_2_clicked()
     QString Message = QString("FORGOT_PASS_UPDATE||%1").arg(newPassword);
     qDebug() << Message;
 
-    //client->sendMessage(Message);
+    m_client->sendMessage(Message);
 
     // // ======== تست تغییر رمز ========
     // // تست آپدیت موفق:
-    processServerResponse("FORGOT_PASS_UPDATE||SUCCESS");
+    //processServerResponse("FORGOT_PASS_UPDATE||SUCCESS");
 }
 
 void ResetPasswordDialog::setupForProfile()
@@ -115,7 +120,7 @@ void ResetPasswordDialog::processServerResponse(const QString &response)
         if (parts.size() >= 3 && parts[1] == "SUCCESS") {
             QString username = parts[2];
             ui->label_username->setText("کاربر  " + username + " خوش آمدید");
-            ui->stackedWidget->setCurrentIndex(1); // رفتن به صفحه دوم
+            ui->stackedWidget->setCurrentIndex(1);
         } else {
             ui->label_EmailError->setText("حسابی با این ایمیل یافت نشد.");
         }

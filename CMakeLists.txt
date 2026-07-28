@@ -41,6 +41,7 @@ qt_add_executable(Ketab_e_Man
     admindashboard.h admindashboard.cpp admindashboard.ui
     editbookdialog.h editbookdialog.cpp editbookdialog.ui
     notification.h notification.cpp
+    clientsocketmanager.h clientsocketmanager.cpp
 
 
 

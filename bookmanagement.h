@@ -4,6 +4,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QWidget>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class BookManagement;
@@ -17,6 +18,7 @@ public:
     explicit BookManagement(QWidget *parent = nullptr);
     ~BookManagement();
     void refreshBooksList();
+    void setClient(ClientSocketManager *client);
 
 private slots:
     void on_comboBox_tipe_currentIndexChanged(int index);
@@ -42,6 +44,7 @@ private:
     int orig_discount;
     QString orig_explanation;
     bool orig_hasNewImage;
+    ClientSocketManager *m_client = nullptr;
 
     // توابع کمکی
     void resetForm();

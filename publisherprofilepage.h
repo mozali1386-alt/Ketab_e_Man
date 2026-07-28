@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QWidget>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class PublisherProfilePage;
@@ -16,6 +17,7 @@ public:
     explicit PublisherProfilePage(QWidget *parent = nullptr);
     ~PublisherProfilePage();
     void refreshProfile();
+    void setClient(ClientSocketManager *client);
 
 private slots:
     void on_pushButton_save_clicked();
@@ -29,6 +31,7 @@ private:
     QString originalEntesharat;
     QString originalEmail;
     QString originalExplanation;
+    ClientSocketManager *m_client = nullptr;
 };
 
 #endif // PUBLISHERPROFILEPAGE_H

@@ -3,6 +3,7 @@
 
 #include <QListWidgetItem>
 #include <QMainWindow>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class Usersignupwindow;
@@ -13,7 +14,7 @@ class Usersignupwindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Usersignupwindow(QWidget *parent = nullptr);
+    explicit Usersignupwindow(ClientSocketManager *client, QWidget *parent = nullptr);
     ~Usersignupwindow();
 
 signals:
@@ -29,6 +30,7 @@ private slots:
 
 private:
     Ui::Usersignupwindow *ui;
+    ClientSocketManager *m_client;
 };
 
 #endif // USERSIGNUPWINDOW_H

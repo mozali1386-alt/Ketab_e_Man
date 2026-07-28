@@ -6,6 +6,7 @@
 #include <QProgressDialog>
 #include <QQuickWidget>
 #include <QTableWidgetItem>
+#include "clientsocketmanager.h"
 #include <notification.h>
 
 namespace Ui {
@@ -17,7 +18,7 @@ class Admindashboard : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Admindashboard(QWidget *parent = nullptr);
+    explicit Admindashboard(ClientSocketManager *client, QWidget *parent = nullptr);
     ~Admindashboard();
 
 protected:
@@ -63,6 +64,8 @@ private:
     QProgressDialog *pdfLoadingDialog = nullptr;
     QByteArray currentPdfBuffer;
     QString currentPdfBookId;
+
+    ClientSocketManager *m_client;
 
     // Client *client;
 };

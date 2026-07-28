@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QWidget>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class Storepage;
@@ -16,6 +17,7 @@ public:
     explicit Storepage(QWidget *parent = nullptr);
     ~Storepage();
     void refreshStore();
+    void setClient(ClientSocketManager *client);
 
 private slots:
 
@@ -27,6 +29,7 @@ private:
     QString lastsearchdisplay;
     void processServerResponse(const QString &response);
     void requestBookSummary(const QString &bookId);
+    ClientSocketManager *m_client = nullptr;
 };
 
 #endif // STOREPAGE_H

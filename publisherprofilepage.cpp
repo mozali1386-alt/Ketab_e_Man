@@ -17,9 +17,9 @@ PublisherProfilePage::PublisherProfilePage(QWidget *parent)
 
     // ================== شروع تست ۱ (لود اولیه صفحه) ==================
     // این خط را وقتی سرور واقعی وصل شد پاک کن
-    processServerResponse(
-        "PUB_PROFILE_INFO||نشر چشمه||pub_cheshmeh||cheshmeh@gmail.com||2500000||ناشر تخصصی "
-        "کتاب‌های ادبی و هنری");
+    //processServerResponse(
+    //"PUB_PROFILE_INFO||نشر چشمه||pub_cheshmeh||cheshmeh@gmail.com||2500000||ناشر تخصصی "
+    // "کتاب‌های ادبی و هنری");
     // ================== پایان تست ۱ ==================================
 }
 
@@ -62,13 +62,13 @@ void PublisherProfilePage::on_pushButton_save_clicked()
 
     QString message = QString("UPDATE_PUB_PROFILE||%1||%2||%3")
                           .arg(currentEntesharat, currentEmail, currentBio);
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     // ================== شروع تست ۲ (ثبت تغییرات) ==================
     // برای تست کردن هر حالت، فقط کامنت (//) همان خط را بردار:
 
     // حالت الف: تست موفقیت
-    processServerResponse("UPDATE_PUB_PROFILE_RESULT||SUCCESS");
+    //processServerResponse("UPDATE_PUB_PROFILE_RESULT||SUCCESS");
 
     // حالت ب: تست خطای ایمیل تکراری
     // processServerResponse("UPDATE_PUB_PROFILE_RESULT||DUPLICATE_EMAIL");
@@ -97,16 +97,16 @@ void PublisherProfilePage::on_pushButton_withdrawbalance_clicked()
         QMessageBox::warning(this, "خطا", "موجودی شما کافی نیست.");
         return;
     }
-    // client->sendMessage("WITHDRAW_BALANCE");
+    m_client->sendMessage("WITHDRAW_BALANCE");
 
     // ================== شروع تست ۳ (برداشت وجه) ==================
-    processServerResponse("WITHDRAW_BALANCE_RESULT||SUCCESS");
+    //processServerResponse("WITHDRAW_BALANCE_RESULT||SUCCESS");
     // ================== پایان تست ۳ ==============================
 }
 
 void PublisherProfilePage::on_pushButton_editusername_clicked()
 {
-    ResetPasswordDialog dialog(this);
+    ResetPasswordDialog dialog(m_client, this);
     dialog.setupForProfile();
     dialog.exec();
 }
@@ -158,5 +158,13 @@ void PublisherProfilePage::processServerResponse(const QString &response)
 }
 void PublisherProfilePage::refreshProfile()
 {
-    // client->sendMessage("GET_PUB_PROFILE_INFO");
+    m_client->sendMessage("GET_PUB_PROFILE_INFO");
+}
+void PublisherProfilePage::setClient(ClientSocketManager *client)
+{
+    m_client = client;
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &PublisherProfilePage::processServerResponse);
 }

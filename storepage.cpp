@@ -69,28 +69,27 @@ void Storepage::on_pushButton_search_clicked()
 
     lastsearchdisplay = message;
 
-    // ارسال درخواست جستجو به سرور
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
     // ================== شروع تست (بعداً پاک کن) ==================
-    processServerResponse("SEARCH_RESULT||1,2,3");
+    //processServerResponse("SEARCH_RESULT||1,2,3");
     // =========================================================
 }
 
 // تابع درخواست اطلاعات کامل یک کتاب با استفاده از آیدی
 void Storepage::requestBookSummary(const QString &bookId)
 {
-    // QString message = "GET_BOOK_SUMMARY||" + bookId;
-    // client->sendMessage(message);
+    QString message = "GET_BOOK_SUMMARY||" + bookId;
+    m_client->sendMessage(message);
 
     // ================== شروع تست (بعداً پاک کن) ==================
-    if (bookId == "1") {
-        processServerResponse("BOOK_SUMMARY||1||NO_IMAGE||سمفونی مردگان||عباس معروفی||130000||4.8");
-    } else if (bookId == "2") {
-        processServerResponse("BOOK_SUMMARY||NOT_FOUND");
-    } else if (bookId == "3") {
-        processServerResponse(
-            "BOOK_SUMMARY||3||NO_IMAGE||شازده کوچولو||آنتوان دو سنت اگزوپری||120000||4.9");
-    }
+    // if (bookId == "1") {
+    //     processServerResponse("BOOK_SUMMARY||1||NO_IMAGE||سمفونی مردگان||عباس معروفی||130000||4.8");
+    // } else if (bookId == "2") {
+    //     processServerResponse("BOOK_SUMMARY||NOT_FOUND");
+    // } else if (bookId == "3") {
+    //     processServerResponse(
+    //         "BOOK_SUMMARY||3||NO_IMAGE||شازده کوچولو||آنتوان دو سنت اگزوپری||120000||4.9");
+    // }
     // =========================================================
 }
 
@@ -111,11 +110,6 @@ void Storepage::processServerResponse(const QString &response)
             }
             delete child;
         }
-
-        // if (fieldTwo == "NOT_FOUND" || fieldTwo.isEmpty()) {
-        //     return;
-        // }
-
         if (fieldTwo == "EMPTY" || fieldTwo.isEmpty()) {
             return;
         }
@@ -144,7 +138,7 @@ void Storepage::processServerResponse(const QString &response)
             book->setBookData(imageBase64, bookName, author, price, score);
 
             connect(book, &StorebookWidget::bookClicked, this, [=](QString clickedId) {
-                Bookdetails *detailsWindow = new Bookdetails(nullptr, clickedId);
+                Bookdetails *detailsWindow = new Bookdetails(m_client, nullptr, clickedId);
                 detailsWindow->setAttribute(Qt::WA_DeleteOnClose);
                 detailsWindow->show();
             });
@@ -158,4 +152,12 @@ void Storepage::refreshStore()
     // پاک کردن حافظه جستجوی قبلی تا اجازه درخواست مجدد داده شود
     lastsearchdisplay.clear();
     on_pushButton_search_clicked();
+}
+void Storepage::setClient(ClientSocketManager *client)
+{
+    m_client = client;
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &Storepage::processServerResponse);
 }
