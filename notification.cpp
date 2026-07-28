@@ -120,7 +120,6 @@ void Notification::markAllAsReadUI()
 }
 void Notification::markAsReadUI(const QString &id)
 {
-    // روی تمام آیتم‌های لیست می‌چرخد تا آیدی مورد نظر را پیدا کند
     for (int i = 0; i < listWidget->count(); ++i) {
         QListWidgetItem *item = listWidget->item(i);
         if (item->data(Qt::UserRole).toString() == id) { // اگر آیدی پیام پیدا شد

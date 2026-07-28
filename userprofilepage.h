@@ -5,6 +5,7 @@
 #include <QListWidgetItem>
 #include <QMap>
 #include <QWidget>
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class Userprofilepage;
@@ -18,6 +19,7 @@ public:
     explicit Userprofilepage(QWidget *parent = nullptr);
     ~Userprofilepage();
     void refreshProfile();
+    void setClient(ClientSocketManager *client);
 
 private slots:
     void on_pushButton_topUpbalance_clicked();
@@ -36,6 +38,7 @@ private:
     QMap<QString, QString> genreMap;
 
     void requestHistoryBook(const QString &bookId);
+    ClientSocketManager *m_client = nullptr;
 };
 
 #endif // USERPROFILEPAGE_H

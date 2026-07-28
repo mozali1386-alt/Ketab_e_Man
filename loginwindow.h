@@ -2,6 +2,7 @@
 #define LOGINWINDOW_H
 
 #include <QMainWindow>
+#include "clientsocketmanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -14,7 +15,7 @@ class LoginWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit LoginWindow(QWidget *parent = nullptr);
+    explicit LoginWindow(ClientSocketManager *client, QWidget *parent = nullptr);
     ~LoginWindow() override;
 
 private slots:
@@ -24,5 +25,6 @@ private slots:
 
 private:
     Ui::LoginWindow *ui;
+    ClientSocketManager *m_client;
 };
 #endif // LOGINWINDOW_H

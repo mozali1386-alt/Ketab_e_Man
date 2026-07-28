@@ -19,13 +19,13 @@ Cartpage::~Cartpage()
 void Cartpage::requestCartItems()
 {
     QString message = "GET_CART_ITEMS";
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 }
 
 void Cartpage::requestCartBookSummary(const QString &bookId)
 {
     QString message = "GET_CART_BOOK_SUMMARY||" + bookId;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 }
 
 void Cartpage::processServerResponse(const QString &response)
@@ -49,7 +49,7 @@ void Cartpage::processServerResponse(const QString &response)
             updateSummary();       // نمایش صفحه "سبد خرید خالی است"
             return;
         }
-        // گرفتن تعداد کل آیتم‌ها
+
         expectedCartItems = itemCountStr.toInt();
         loadedCartItems = 0;
 
@@ -75,10 +75,8 @@ void Cartpage::processServerResponse(const QString &response)
 
         addNewBookToCart(newBook);
 
-        // یک کتاب اضافه شد، شمارنده را بالا می‌بریم
         loadedCartItems++;
 
-        // وقتی همه کتاب‌ها کامل از سرور دریافت شدند
         if (loadedCartItems == expectedCartItems) {
             // چک می‌کنیم آیا کاربر دکمه ثبت خرید را زده بود؟
             if (isCheckingOut) {
@@ -88,9 +86,8 @@ void Cartpage::processServerResponse(const QString &response)
                 int newTotalPrice = newPriceStr.toInt();
 
                 if (newTotalPrice == savedOldPrice) {
-                    // قیمت تغییر نکرده! ارسال درخواست کسر از کیف پول به سرور
                     QString message = "CHECKOUT_CART";
-                    // client->sendMessage(message);
+                    m_client->sendMessage(message);
 
                 } else {
                     // قیمت تغییر کرده! توقف عملیات و نمایش پیام (خرید لغو می‌شود)
@@ -140,7 +137,7 @@ void Cartpage::addNewBookToCart(CartitemWidget *newBook)
 void Cartpage::removeBookFromCart(CartitemWidget *bookToRemove)
 {
     QString message = "REMOVE_CART||" + bookToRemove->getBookId();
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 
     ui->verticalLayout_5->removeWidget(bookToRemove);
     bookToRemove->hide();
@@ -150,19 +147,16 @@ void Cartpage::removeBookFromCart(CartitemWidget *bookToRemove)
     updateSummary();
 }
 
-// دکمه ثبت و نهایی سازی
 void Cartpage::on_pushButton_sabt_clicked()
 {
     QString currentPriceStr = ui->label_totalprice_discountnext->text();
     currentPriceStr.remove("مبلغ نهایی: ").remove(" تومان").trimmed();
     savedOldPrice = currentPriceStr.toInt();
 
-    // فعال کردن حالت خرید
     isCheckingOut = true;
     requestCartItems();
 }
 
-// تابع کمکی برای پاکسازی کامل لیست (جلوگیری از کدهای تکراری)
 void Cartpage::clearCartUI()
 {
     while (ui->verticalLayout_5->count() > 1) {
@@ -183,14 +177,12 @@ void Cartpage::updateSummary()
     QList<CartitemWidget *> items = this->findChildren<CartitemWidget *>();
     int totalItems = items.size();
 
-    // منطق نمایش صفحه خالی یا پر
     if (totalItems == 0) {
         ui->stackedWidget->setCurrentWidget(ui->page_khali);
     } else {
         ui->stackedWidget->setCurrentWidget(ui->page_asli);
     }
 
-    // جمع زدن تمام آیتم‌ها (چون چک‌باکس حذف شده، همه حساب می‌شوند)
     for (CartitemWidget *item : items) {
         checkedItems++;
         sumMainPrice += item->getMainPrice();
@@ -202,4 +194,10 @@ void Cartpage::updateSummary()
     ui->label_totalpriceasli->setText(QString::number(sumMainPrice));
     ui->label_discount->setText(QString::number(sumOff));
     ui->label_totalprice_discountnext->setText(QString("مبلغ نهایی: %1 تومان").arg(sumFinal));
+}
+
+void Cartpage::setClient(ClientSocketManager *client)
+{
+    m_client = client;
+    connect(m_client, &ClientSocketManager::messageReceived, this, &Cartpage::processServerResponse);
 }

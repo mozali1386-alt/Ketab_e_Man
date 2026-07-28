@@ -8,11 +8,17 @@
 #include "commentcardwidget.h"
 #include "ui_bookdetails.h"
 
-Bookdetails::Bookdetails(QWidget *parent, QString bookId)
+Bookdetails::Bookdetails(ClientSocketManager *client, QWidget *parent, QString bookId)
     : QWidget(parent)
     , ui(new Ui::Bookdetails)
+    , m_client(client)
 {
     ui->setupUi(this);
+
+    connect(m_client,
+            &ClientSocketManager::messageReceived,
+            this,
+            &Bookdetails::processServerResponse);
 
     isInCart = false;
     isSaved = false;
@@ -26,7 +32,6 @@ Bookdetails::Bookdetails(QWidget *parent, QString bookId)
 
     currentBookId = bookId;
 
-    // ارسال درخواست به سرور
     requestBookDetails();
     requestCommentsList();
 }
@@ -36,71 +41,65 @@ Bookdetails::~Bookdetails()
     delete ui;
 }
 
-// ==========================================
-// توابع درخواست از سرور (معماری مبتنی بر آیدی)
-// ==========================================
 
 void Bookdetails::requestBookDetails()
 {
-    // QString message = "GET_BOOK_DETAILS||" + currentBookId;
-    // client->sendMessage(message);
+    QString message = "GET_BOOK_DETAILS||" + currentBookId;
+    m_client->sendMessage(message);
 
     // ================== شروع تست (بعداً پاک کن) ==================
-    if (currentBookId == "1") {
-        processServerResponse("BOOK_DETAILS_RESULT||1||ali123||NO_IMAGE||"
-                              "سمفونی مردگان||عباس معروفی||نشر ققنوس||کلاسیک||150000||20000||4.8||"
-                              "این کتاب داستان یک خانواده اردبیلی را روایت "
-                              "می‌کند...||0||1||1");
+    // if (currentBookId == "1") {
+    //     processServerResponse("BOOK_DETAILS_RESULT||1||ali123||NO_IMAGE||"
+    //                           "سمفونی مردگان||عباس معروفی||نشر ققنوس||کلاسیک||150000||20000||4.8||"
+    //                           "این کتاب داستان یک خانواده اردبیلی را روایت "
+    //                           "می‌کند...||0||1||1");
 
-        processServerResponse("COMMENTS_LIST||C_1,C_2");
-    } else if (currentBookId == "3") {
-        processServerResponse(
-            "BOOK_DETAILS_RESULT||3||ali123||NO_IMAGE||"
-            "شازده کوچولو||آنتوان دو سنت اگزوپری||نشر...||کلاسیک||120000||0||4.9||"
-            "داستان شازده کوچولو...||1||0||0");
+    //     processServerResponse("COMMENTS_LIST||C_1,C_2");
+    // } else if (currentBookId == "3") {
+    //     processServerResponse(
+    //         "BOOK_DETAILS_RESULT||3||ali123||NO_IMAGE||"
+    //         "شازده کوچولو||آنتوان دو سنت اگزوپری||نشر...||کلاسیک||120000||0||4.9||"
+    //         "داستان شازده کوچولو...||1||0||0");
 
-        processServerResponse("COMMENTS_LIST||C_3_1,C_3_2,C_3_3");
-    }
+    //     processServerResponse("COMMENTS_LIST||C_3_1,C_3_2,C_3_3");
+    // }
 
     // پایان تست------------------------------------------
 }
 void Bookdetails::requestCommentsList()
 {
     QString message = "GET_COMMENTS_LIST||" + currentBookId;
-    // client->sendMessage(message);
+    m_client->sendMessage(message);
 }
 
 void Bookdetails::requestCommentDetails(const QString &commentId)
 {
-    // QString message = "GET_COMMENT_DETAILS||" + commentId;
-    // client->sendMessage(message);
+    QString message = "GET_COMMENT_DETAILS||" + commentId;
+    m_client->sendMessage(message);
 
     // ================== شروع تست (بعداً پاک کن) ==================
 
-    if (commentId == "C_1") {
-        processServerResponse(
-            "COMMENT_DETAILS||C_1||reza99||رضا کریمی||4||خیلی خوب بود||1402/05/10");
-    } else if (commentId == "C_2") {
-        processServerResponse("COMMENT_DETAILS||C_2||ali123||علی محمدی||5||شاهکار بود||1402/06/12");
-    }
+    // if (commentId == "C_1") {
+    //     processServerResponse(
+    //         "COMMENT_DETAILS||C_1||reza99||رضا کریمی||4||خیلی خوب بود||1402/05/10");
+    // } else if (commentId == "C_2") {
+    //     processServerResponse("COMMENT_DETAILS||C_2||ali123||علی محمدی||5||شاهکار بود||1402/06/12");
+    // }
 
-    else if (commentId == "C_3_1") {
-        processServerResponse(
-            "COMMENT_DETAILS||C_3_1||user1||امیر حسینی||1||اصلا جالب نبود||1402/07/01");
-    } else if (commentId == "C_3_2") {
-        processServerResponse("COMMENT_DETAILS||C_3_2||user2||سارا احمدی||2||معمولی بود، انتظار "
-                              "بیشتری داشتم||1402/07/05");
-    } else if (commentId == "C_3_3") {
-        processServerResponse(
-            "COMMENT_DETAILS||C_3_3||user3||محمد رضایی||4||کتاب خوبی بود، لذت بردم||1402/07/10");
-    }
+    // else if (commentId == "C_3_1") {
+    //     processServerResponse(
+    //         "COMMENT_DETAILS||C_3_1||user1||امیر حسینی||1||اصلا جالب نبود||1402/07/01");
+    // } else if (commentId == "C_3_2") {
+    //     processServerResponse("COMMENT_DETAILS||C_3_2||user2||سارا احمدی||2||معمولی بود، انتظار "
+    //                           "بیشتری داشتم||1402/07/05");
+    // } else if (commentId == "C_3_3") {
+    //     processServerResponse(
+    //         "COMMENT_DETAILS||C_3_3||user3||محمد رضایی||4||کتاب خوبی بود، لذت بردم||1402/07/10");
+    // }
 
     // پایان تست--------------------------------------------------------------------
 }
 
-// ==========================================
-// پردازش جواب‌های سرور
-// ===================================
 void Bookdetails::processServerResponse(const QString &response)
 {
     QStringList mainParts = response.split("||");
@@ -215,25 +214,19 @@ void Bookdetails::updateCommentFormUI(bool hasCommented, bool isEditing)
         ui->pushButton_commentremove->setVisible(isEditing);
 
         ui->textEdit_yourcomment->setReadOnly(false);
-        // دقت کن: دستورات غیرفعال کردن ستاره‌ها کلاً پاک شدند تا سیاه نشوند
     } else {
         ui->pushButton_commentadd->hide();
         ui->pushButton_commentedit->show();
         ui->pushButton_commentremove->show();
 
         ui->textEdit_yourcomment->setReadOnly(true);
-        // دقت کن: دستورات غیرفعال کردن ستاره‌ها کلاً پاک شدند تا سیاه نشوند
     }
 }
 
-// ==========================================
-// منطق جدید و بی‌نقص ستاره‌ها (بر اساس ایده شما)
-// ==========================================
 void Bookdetails::updateStarsUI(int score)
 {
     currentUserRating = score;
 
-    // ترتیب کاملاً طبیعی از چپ به راست
     ui->toolButton_star1->setIcon(
         QIcon(score >= 1 ? ":/images/icons8-star-48 (1).png" : ":/images/icons8-star-48 (2).png"));
     ui->toolButton_star2->setIcon(
@@ -276,10 +269,6 @@ void Bookdetails::on_toolButton_star5_clicked()
     updateStarsUI(5);
 }
 
-// ==========================================
-// توابع نظرات با ارسال دقیق اطلاعات
-// ==========================================
-
 void Bookdetails::on_pushButton_commentadd_clicked()
 {
     QString currentText = ui->textEdit_yourcomment->toPlainText().trimmed();
@@ -289,8 +278,9 @@ void Bookdetails::on_pushButton_commentadd_clicked()
         return;
     }
 
-    // QString message = QString("UPDATE_COMMENT||%1||%2||%3").arg(currentBookId, QString::number(currentUserRating), currentText);
-    // client->sendMessage(message);
+    QString message = QString("UPDATE_COMMENT||%1||%2||%3")
+                          .arg(currentBookId, QString::number(currentUserRating), currentText);
+    m_client->sendMessage(message);
 
     originalUserRating = currentUserRating;
     originalUserComment = currentText;
@@ -304,8 +294,8 @@ void Bookdetails::on_pushButton_commentedit_clicked()
 
 void Bookdetails::on_pushButton_commentremove_clicked()
 {
-    // QString message = "DELETE_COMMENT||" + currentBookId;
-    // client->sendMessage(message);
+    QString message = "DELETE_COMMENT||" + currentBookId;
+    m_client->sendMessage(message);
 
     originalUserRating = 5;
     originalUserComment = "";
@@ -314,13 +304,6 @@ void Bookdetails::on_pushButton_commentremove_clicked()
     updateCommentFormUI(false, false);
 }
 
-// ==========================================
-// توابع دکمه‌های سبد خرید و کتابخانه
-// ==========================================
-
-// ==========================================
-// تابع مدیریت ظاهر دکمه‌ها
-// ==========================================
 void Bookdetails::updateActionButtonsUI()
 {
     if (isOwned) {
@@ -344,14 +327,10 @@ void Bookdetails::updateActionButtonsUI()
     }
 }
 
-// ==========================================
-// توابع کلیک روی دکمه‌ها
-// ==========================================
-
 void Bookdetails::on_pushButton_cartadd_clicked()
 {
-    // QString message = "ADD_CART||" + currentBookId;
-    // client->sendMessage(message);
+    QString message = "ADD_CART||" + currentBookId;
+    m_client->sendMessage(message);
 
     isInCart = true;
     updateActionButtonsUI();
@@ -359,8 +338,8 @@ void Bookdetails::on_pushButton_cartadd_clicked()
 
 void Bookdetails::on_pushButton_cartremove_clicked()
 {
-    // QString message = "REMOVE_CART||" + currentBookId;
-    // client->sendMessage(message);
+    QString message = "REMOVE_CART||" + currentBookId;
+    m_client->sendMessage(message);
 
     isInCart = false;
     updateActionButtonsUI();
@@ -368,8 +347,8 @@ void Bookdetails::on_pushButton_cartremove_clicked()
 
 void Bookdetails::on_pushButton_savelibrary_clicked()
 {
-    // QString message = "SAVE_BOOK||" + currentBookId;
-    // client->sendMessage(message);
+    QString message = "SAVE_BOOK||" + currentBookId;
+    m_client->sendMessage(message);
 
     isSaved = true;
     updateActionButtonsUI();
@@ -377,8 +356,8 @@ void Bookdetails::on_pushButton_savelibrary_clicked()
 
 void Bookdetails::on_pushButton_removelibrary_clicked()
 {
-    // QString message = "UNSAVE_BOOK||" + currentBookId;
-    // client->sendMessage(message);
+    QString message = "UNSAVE_BOOK||" + currentBookId;
+    m_client->sendMessage(message);
 
     isSaved = false;
     updateActionButtonsUI();

@@ -6,9 +6,10 @@
 #include "signinwindow.h"
 #include "usersignupwindow.h"
 
-LoginWindow::LoginWindow(QWidget *parent)
+LoginWindow::LoginWindow(ClientSocketManager *client, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::LoginWindow)
+    , m_client(client)
 {
     ui->setupUi(this);
 }
@@ -23,11 +24,10 @@ void LoginWindow::on_pushButton_signup_clicked()
     QString role = ui->comboBox_role->currentText().trimmed();
 
     if (role == "مدیر") {
-        // نمایش ارور با استفاده از QMessageBox
         QMessageBox::warning(this, "خطا", "برای مدیر گزینه ثبت نام وجود ندارد");
 
     } else if (role == "ناشر") {
-        publishersignupwindow *publishersignup = new publishersignupwindow();
+        publishersignupwindow *publishersignup = new publishersignupwindow(m_client);
         publishersignup->show();
 
         connect(publishersignup,
@@ -42,7 +42,7 @@ void LoginWindow::on_pushButton_signup_clicked()
         this->hide();
 
     } else if (role == "کاربر عادی") {
-        Usersignupwindow *usersignup = new Usersignupwindow();
+        Usersignupwindow *usersignup = new Usersignupwindow(m_client);
         usersignup->show();
         this->hide();
 
@@ -62,7 +62,7 @@ void LoginWindow::on_pushButton_signin_clicked()
     if (role == "ناشر")
         englishrole = "PUBLISHER";
 
-    signinwindow *signin = new signinwindow(englishrole);
+    signinwindow *signin = new signinwindow(m_client, englishrole);
 
     signin->show();
     this->hide();

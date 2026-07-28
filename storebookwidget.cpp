@@ -22,7 +22,6 @@ void StorebookWidget::setBookData(const QString &image,
                                   const QString &finalPrice,
                                   const QString &score)
 {
-    // تبدیل رشته Base64 به عکس واقعی (حل باگ گرافیکی)
     if (image == "NO_IMAGE" || image.isEmpty()) {
         ui->label_pikcher->setText("بدون تصویر");
     } else {
@@ -35,8 +34,6 @@ void StorebookWidget::setBookData(const QString &image,
             ui->label_pikcher->setText("خطا در عکس");
         }
     }
-
-    // تنظیم اطلاعات متنی
     ui->label_bookname->setText(title);
     ui->label_anuthername->setText(author);
     ui->label_price->setText(finalPrice + " تومان");

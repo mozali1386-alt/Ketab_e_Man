@@ -17,7 +17,6 @@ pdfviewerWidget::pdfviewerWidget(QWidget *parent)
     ui->widget->setPageMode(QPdfView::PageMode::MultiPage);
     ui->widget->setZoomMode(QPdfView::ZoomMode::FitToWidth);
 
-    // هماهنگی شماره صفحه با اسپین‌باکس
     connect(ui->widget->pageNavigator(), &QPdfPageNavigator::currentPageChanged, this, [=](int page) {
         ui->spinBox_pagenumber->blockSignals(true);
         ui->spinBox_pagenumber->setValue(page + 1);
@@ -56,10 +55,6 @@ bool pdfviewerWidget::loadPdfFromData(const QByteArray &pdfData)
     return true;
 }
 
-// ========================================================
-// این بخش همان توابعی است که در سیستم شما پاک شده بود
-// ========================================================
-
 void pdfviewerWidget::on_pushButton_exit_clicked()
 {
     int currentPage = ui->widget->pageNavigator()->currentPage();
@@ -90,20 +85,20 @@ void pdfviewerWidget::on_toolButton_backpage_clicked()
 
 void pdfviewerWidget::on_toolButton_zoomin_clicked()
 {
-    // 1. ابتدا قفل "فیت بودن صفحه" را باز می‌کنیم
+    // ابتدا قفل "فیت بودن صفحه" را باز می‌کنیم
     ui->widget->setZoomMode(QPdfView::ZoomMode::Custom);
 
-    // 2. حالا زوم را 20 درصد افزایش می‌دهیم
+    // حالا زوم را 20 درصد افزایش می‌دهیم
     qreal currentZoom = ui->widget->zoomFactor();
     ui->widget->setZoomFactor(currentZoom * 1.2);
 }
 
 void pdfviewerWidget::on_toolButton_zoomout_clicked()
 {
-    // 1. ابتدا قفل "فیت بودن صفحه" را باز می‌کنیم
+    //  ابتدا قفل "فیت بودن صفحه" را باز می‌کنیم
     ui->widget->setZoomMode(QPdfView::ZoomMode::Custom);
 
-    // 2. حالا زوم را 20 درصد کاهش می‌دهیم
+    //حالا زوم را 20 درصد کاهش می‌دهیم
     qreal currentZoom = ui->widget->zoomFactor();
     ui->widget->setZoomFactor(currentZoom / 1.2);
 }

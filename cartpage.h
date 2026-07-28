@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "cartitemwidget.h"
+#include "clientsocketmanager.h"
 
 namespace Ui {
 class Cartpage;
@@ -18,6 +19,7 @@ public:
 
     void requestCartItems();
     void requestCartBookSummary(const QString &bookId);
+    void setClient(ClientSocketManager *client);
 
 private slots:
     void updateSummary();
@@ -35,6 +37,7 @@ private:
     int loadedCartItems = 0;
     int savedOldPrice = 0;
     bool isCheckingOut = false;
+    ClientSocketManager *m_client = nullptr;
 };
 
 #endif // CARTPAGE_H
