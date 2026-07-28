@@ -25,8 +25,6 @@ public:
 
     QString getEmail() const;
 
-    QString getSecurityQuestion() const;
-
     quint64 getWalletId() const;
 
     QSet<quint64> getReviewIds() const;
@@ -43,8 +41,6 @@ public:
 
     void setEmail(const QString &newEmail);
 
-    void setSecurityQuestion(const QString &question);
-
     void setWalletId(quint64 newWalletId);
 
     void setIsBlocked(bool blocked);
@@ -52,10 +48,6 @@ public:
     bool authenticatePassword(const QString &plainPassword);
 
     void setPassword(const QString &plainPassword);
-
-    void setSecurityAnswer(const QString &plainAnswer);
-
-    bool resetPassword(const QString &question, const QString &answer, const QString &newPassword);
 
     void addReview(quint64 reviewId);
 
@@ -71,8 +63,6 @@ protected:
     QString username;
     QString email;
     QString passwordHash;
-    QString securityQuestion;
-    QString securityAnswerHash;
     quint64 walletId;
     QSet<quint64> reviewIds;
     QSet<quint64> notificationIds;
