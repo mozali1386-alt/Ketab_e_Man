@@ -15,7 +15,7 @@ public:
 
     QSet<quint64> getMyBookIds() const;
 
-    double getRevenue() const;
+    qint64 getRevenue() const;
 
     QString getBio() const;
 
@@ -23,7 +23,7 @@ public:
 
     void removeBook(quint64 bookId);
 
-    void receiveSaleIncome(double amount);
+    void receiveSaleIncome(qint64 amount);
 
     void setBio(const QString &newBio);
 
@@ -35,7 +35,7 @@ public:
 
 private:
     QSet<quint64> myBookIds;
-    double revenue;
+    qint64 revenue;
     QString bio;
 };
 

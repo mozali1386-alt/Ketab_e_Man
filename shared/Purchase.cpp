@@ -6,7 +6,7 @@
 
 Purchase::Purchase() {
     buyerId = 0;
-    totalAmount = 0.0;
+    totalAmount = 0;
     purchaseDate = QDateTime::currentDateTime();
 }
 
@@ -21,7 +21,7 @@ QSet<quint64> Purchase::getBookIds() const {
     return bookIds;
 }
 
-double Purchase::getTotalAmount() const {
+qint64 Purchase::getTotalAmount() const {
     return totalAmount;
 }
 
@@ -39,7 +39,7 @@ void Purchase::setBookIds(const QSet<quint64> &newBookIds) {
     touchUpdatedAt();
 }
 
-void Purchase::setTotalAmount(double newTotalAmount) {
+void Purchase::setTotalAmount(qint64 newTotalAmount) {
     totalAmount = newTotalAmount;
     touchUpdatedAt();
 }
@@ -89,7 +89,7 @@ void Purchase::deserialize(const QString &data) {
         }
     }
 
-    totalAmount = tokens.at(index).toDouble();
+    totalAmount = tokens.at(index).toLongLong();
     index++;
     purchaseDate = QDateTime::fromString(tokens.at(index), Qt::ISODate);
     index++;

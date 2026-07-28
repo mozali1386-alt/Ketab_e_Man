@@ -17,7 +17,7 @@ public:
 
     QSet<quint64> getBookIds() const;
 
-    double getTotalAmount() const;
+    qint64 getTotalAmount() const;
 
     QDateTime getPurchaseDate() const;
 
@@ -25,7 +25,7 @@ public:
 
     void setBookIds(const QSet<quint64> &newBookIds);
 
-    void setTotalAmount(double newTotalAmount);
+    void setTotalAmount(qint64 newTotalAmount);
 
     static quint64 generateId();
 
@@ -36,7 +36,7 @@ public:
 private:
     quint64 buyerId;
     QSet<quint64> bookIds;
-    double totalAmount;
+    qint64 totalAmount;
     QDateTime purchaseDate;
 };
 

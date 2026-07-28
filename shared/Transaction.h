@@ -17,19 +17,19 @@ public:
 
     quint64 getWalletId() const;
 
-    double getAmount() const;
+    qint64 getAmount() const;
 
     TransactionType getType() const;
 
-    QPair<quint64, double> getBookPriceAtPurchase() const;
+    QPair<quint64, qint64> getBookPriceAtPurchase() const;
 
     void setWalletId(quint64 newWalletId);
 
-    void setAmount(double newAmount);
+    void setAmount(qint64 newAmount);
 
     void setType(TransactionType newType);
 
-    void setBookPriceAtPurchase(quint64 bookId, double priceAtPurchase);
+    void setBookPriceAtPurchase(quint64 bookId, qint64 priceAtPurchase);
 
     static quint64 generateId();
 
@@ -39,9 +39,9 @@ public:
 
 private:
     quint64 walletId;
-    double amount;
+    qint64 amount;
     TransactionType type;
-    QPair<quint64, double> bookPriceAtPurchase;
+    QPair<quint64, qint64> bookPriceAtPurchase;
 };
 
 #endif

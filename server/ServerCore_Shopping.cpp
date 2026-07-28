@@ -9,7 +9,7 @@ PurchaseOutcome ServerCore::performPurchase(quint64 buyerId, const QSet<quint64>
     PurchaseOutcome outcome;
     outcome.success = false;
     outcome.purchaseId = 0;
-    outcome.totalAmount = 0.0;
+    outcome.totalAmount = 0;
 
     User *buyer = data.getUsersMap().value(buyerId, nullptr);
     if (buyer == nullptr || buyer->getRole() != Role::USER) {
@@ -35,7 +35,7 @@ PurchaseOutcome ServerCore::performPurchase(quint64 buyerId, const QSet<quint64>
         return outcome;
     }
 
-    double totalAmount = 0.0;
+    qint64 totalAmount = 0;
     for (quint64 bookId: bookIds) {
         Book *book = data.getBooksMap().value(bookId, nullptr);
         if (book == nullptr || !book->getIsActive()) {
@@ -79,7 +79,7 @@ PurchaseOutcome ServerCore::performPurchase(quint64 buyerId, const QSet<quint64>
         Publisher *publisher = static_cast<Publisher *>(publisherUser);
         Wallet *publisherWallet = data.getWalletsMap().value(publisherUser->getWalletId(), nullptr);
 
-        double bookPrice = book->getFinalPrice();
+        qint64 bookPrice = book->getFinalPrice();
         publisherWallet->deposit(bookPrice);
         publisher->receiveSaleIncome(bookPrice);
         book->incrementSales();

@@ -6,9 +6,9 @@
 
 Transaction::Transaction() {
     walletId = 0;
-    amount = 0.0;
+    amount = 0;
     type = TransactionType::DEPOSIT;
-    bookPriceAtPurchase = QPair<quint64, double>(0, 0.0);
+    bookPriceAtPurchase = QPair<quint64, qint64>(0, 0);
 }
 
 Transaction::~Transaction() {
@@ -18,7 +18,7 @@ quint64 Transaction::getWalletId() const {
     return walletId;
 }
 
-double Transaction::getAmount() const {
+qint64 Transaction::getAmount() const {
     return amount;
 }
 
@@ -26,7 +26,7 @@ TransactionType Transaction::getType() const {
     return type;
 }
 
-QPair<quint64, double> Transaction::getBookPriceAtPurchase() const {
+QPair<quint64, qint64> Transaction::getBookPriceAtPurchase() const {
     return bookPriceAtPurchase;
 }
 
@@ -35,7 +35,7 @@ void Transaction::setWalletId(quint64 newWalletId) {
     touchUpdatedAt();
 }
 
-void Transaction::setAmount(double newAmount) {
+void Transaction::setAmount(qint64 newAmount) {
     amount = newAmount;
     touchUpdatedAt();
 }
@@ -45,8 +45,8 @@ void Transaction::setType(TransactionType newType) {
     touchUpdatedAt();
 }
 
-void Transaction::setBookPriceAtPurchase(quint64 bookId, double priceAtPurchase) {
-    bookPriceAtPurchase = QPair<quint64, double>(bookId, priceAtPurchase);
+void Transaction::setBookPriceAtPurchase(quint64 bookId, qint64 priceAtPurchase) {
+    bookPriceAtPurchase = QPair<quint64, qint64>(bookId, priceAtPurchase);
     touchUpdatedAt();
 }
 
@@ -79,7 +79,7 @@ void Transaction::deserialize(const QString &data) {
     index++;
     walletId = tokens.at(index).toULongLong();
     index++;
-    amount = tokens.at(index).toDouble();
+    amount = tokens.at(index).toLongLong();
     index++;
     type = static_cast<TransactionType>(tokens.at(index).toInt());
     index++;
@@ -87,6 +87,6 @@ void Transaction::deserialize(const QString &data) {
     QStringList bookPriceParts = tokens.at(index).split(":");
     index++;
     quint64 bookId = bookPriceParts.at(0).toULongLong();
-    double priceAtPurchase = bookPriceParts.at(1).toDouble();
-    bookPriceAtPurchase = QPair<quint64, double>(bookId, priceAtPurchase);
+    qint64 priceAtPurchase = bookPriceParts.at(1).toLongLong();
+    bookPriceAtPurchase = QPair<quint64, qint64>(bookId, priceAtPurchase);
 }

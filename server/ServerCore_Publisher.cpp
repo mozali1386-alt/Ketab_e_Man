@@ -58,7 +58,7 @@ void ServerCore::handleGetPubGeneralStatsRequest(ClientHandler *handler, const Q
     }
     double totalAvgScore = (scoredBooks > 0) ? (scoreSum / scoredBooks) : 0.0;
 
-    double totalIncome = publisher->getRevenue();
+    qint64 totalIncome = publisher->getRevenue();
 
     handler->sendResponse(Command::PUB_GENERAL_RESULT, {
                               QString::number(totalBooks),
@@ -253,7 +253,7 @@ void ServerCore::handleGetPubProfileInfoRequest(ClientHandler *handler, const QS
 
     Publisher *publisher = static_cast<Publisher *>(user);
 
-    double balance = 0.0;
+    qint64 balance = 0;
     Wallet *wallet = data.getWalletsMap().value(user->getWalletId(), nullptr);
     if (wallet != nullptr) {
         balance = wallet->getBalance();
@@ -333,8 +333,8 @@ void ServerCore::handleWithdrawBalanceRequest(ClientHandler *handler, const QStr
         return;
     }
 
-    double balance = wallet->getBalance();
-    if (balance <= 0.0) {
+    qint64 balance = wallet->getBalance();
+    if (balance <= 0) {
         handler->sendResponse(Command::WITHDRAW_BALANCE_RESULT, {"FAIL"});
         return;
     }
