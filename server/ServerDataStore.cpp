@@ -3,10 +3,12 @@
 
 #include "ServerDataStore.h"
 
-ServerDataStore::ServerDataStore() {
+ServerDataStore::ServerDataStore()
+{
 }
 
-ServerDataStore::~ServerDataStore() {
+ServerDataStore::~ServerDataStore()
+{
     qDeleteAll(users);
     qDeleteAll(books);
     qDeleteAll(authors);
@@ -20,51 +22,63 @@ ServerDataStore::~ServerDataStore() {
     qDeleteAll(purchases);
 }
 
-QMap<quint64, User *> &ServerDataStore::getUsersMap() {
+QMap<quint64, User*>& ServerDataStore::getUsersMap()
+{
     return users;
 }
 
-QMap<quint64, Book *> &ServerDataStore::getBooksMap() {
+QMap<quint64, Book*>& ServerDataStore::getBooksMap()
+{
     return books;
 }
 
-QMap<quint64, Author *> &ServerDataStore::getAuthorsMap() {
+QMap<quint64, Author*>& ServerDataStore::getAuthorsMap()
+{
     return authors;
 }
 
-QMap<quint64, Library *> &ServerDataStore::getLibrariesMap() {
+QMap<quint64, Library*>& ServerDataStore::getLibrariesMap()
+{
     return libraries;
 }
 
-QMap<quint64, Shelf *> &ServerDataStore::getShelvesMap() {
+QMap<quint64, Shelf*>& ServerDataStore::getShelvesMap()
+{
     return shelves;
 }
 
-QMap<quint64, Review *> &ServerDataStore::getReviewsMap() {
+QMap<quint64, Review*>& ServerDataStore::getReviewsMap()
+{
     return reviews;
 }
 
-QMap<quint64, Cart *> &ServerDataStore::getCartsMap() {
+QMap<quint64, Cart*>& ServerDataStore::getCartsMap()
+{
     return carts;
 }
 
-QMap<quint64, Notification *> &ServerDataStore::getNotificationsMap() {
+QMap<quint64, Notification*>& ServerDataStore::getNotificationsMap()
+{
     return notifications;
 }
 
-QMap<quint64, Wallet *> &ServerDataStore::getWalletsMap() {
+QMap<quint64, Wallet*>& ServerDataStore::getWalletsMap()
+{
     return wallets;
 }
 
-QMap<quint64, Transaction *> &ServerDataStore::getTransactionsMap() {
+QMap<quint64, Transaction*>& ServerDataStore::getTransactionsMap()
+{
     return transactions;
 }
 
-QMap<quint64, Purchase *> &ServerDataStore::getPurchasesMap() {
+QMap<quint64, Purchase*>& ServerDataStore::getPurchasesMap()
+{
     return purchases;
 }
 
-User *ServerDataStore::findUserByUsername(const QString &username) const {
+User* ServerDataStore::findUserByUsername(const QString &username) const
+{
     if (!usernameIndex.contains(username)) {
         return nullptr;
     }
@@ -72,11 +86,13 @@ User *ServerDataStore::findUserByUsername(const QString &username) const {
     return users.value(userId, nullptr);
 }
 
-void ServerDataStore::registerUsername(const QString &username, quint64 userId) {
+void ServerDataStore::registerUsername(const QString &username, quint64 userId)
+{
     usernameIndex.insert(username, userId);
 }
 
-User *ServerDataStore::findUserByEmail(const QString &email) const {
+User* ServerDataStore::findUserByEmail(const QString &email) const
+{
     if (!emailIndex.contains(email)) {
         return nullptr;
     }
@@ -84,11 +100,18 @@ User *ServerDataStore::findUserByEmail(const QString &email) const {
     return users.value(userId, nullptr);
 }
 
-void ServerDataStore::registerEmail(const QString &email, quint64 userId) {
+void ServerDataStore::registerEmail(const QString &email, quint64 userId)
+{
     emailIndex.insert(email, userId);
 }
 
-Cart *ServerDataStore::findCartByOwner(quint64 ownerId) const {
+void ServerDataStore::unregisterEmail(const QString &email)
+{
+    emailIndex.remove(email);
+}
+
+Cart* ServerDataStore::findCartByOwner(quint64 ownerId) const
+{
     if (!cartOwnerIndex.contains(ownerId)) {
         return nullptr;
     }
@@ -96,11 +119,13 @@ Cart *ServerDataStore::findCartByOwner(quint64 ownerId) const {
     return carts.value(cartId, nullptr);
 }
 
-void ServerDataStore::registerCartOwner(quint64 ownerId, quint64 cartId) {
+void ServerDataStore::registerCartOwner(quint64 ownerId, quint64 cartId)
+{
     cartOwnerIndex.insert(ownerId, cartId);
 }
 
-Author *ServerDataStore::findAuthorByName(const QString &authorName) const {
+Author* ServerDataStore::findAuthorByName(const QString &authorName) const
+{
     if (!authorNameIndex.contains(authorName)) {
         return nullptr;
     }
@@ -108,11 +133,13 @@ Author *ServerDataStore::findAuthorByName(const QString &authorName) const {
     return authors.value(authorId, nullptr);
 }
 
-void ServerDataStore::registerAuthorName(const QString &authorName, quint64 authorId) {
+void ServerDataStore::registerAuthorName(const QString &authorName, quint64 authorId)
+{
     authorNameIndex.insert(authorName, authorId);
 }
 
-void ServerDataStore::rebuildAllIndexes() {
+void ServerDataStore::rebuildAllIndexes()
+{
     usernameIndex.clear();
     emailIndex.clear();
     QList<quint64> userKeys = users.keys();
