@@ -58,7 +58,7 @@ bool pdfviewerWidget::loadPdfFromData(const QByteArray &pdfData)
 void pdfviewerWidget::on_pushButton_exit_clicked()
 {
     int currentPage = ui->widget->pageNavigator()->currentPage();
-    emit lastPageSaved(m_bookId, currentPage);
+    emit lastPageSaved(m_bookId, currentPage + 1);
 
     this->close();
 }
@@ -118,7 +118,7 @@ void pdfviewerWidget::setBookId(const QString &bookId)
 void pdfviewerWidget::jumpToPage(int pageIndex)
 {
     if (m_document && pageIndex >= 0 && pageIndex < m_document->pageCount()) {
-        ui->widget->pageNavigator()->jump(pageIndex,
+        ui->widget->pageNavigator()->jump(pageIndex - 1,
                                           QPointF(),
                                           ui->widget->pageNavigator()->currentZoom());
     }

@@ -193,7 +193,7 @@ void LibraryWidget::processServerResponse(const QString &response)
         updateComboBox();
     } else if (cmd == "SHELF_BOOKS_RESULT") {
         clearLayout(shelvesBooksLayout);
-        if (parts.size() >= 3 && parts[1] != "EMPTY" && parts[1].isEmpty()) {
+        if (parts.size() >= 3 && parts[1] != "EMPTY" && !parts[1].isEmpty()) {
             const QStringList ids = parts[2].split(",", Qt::SkipEmptyParts);
             for (const QString &id : ids)
                 requestLibraryBookInfo(id, BookLibraryItem::MyShelves);
@@ -262,15 +262,24 @@ void LibraryWidget::processServerResponse(const QString &response)
         if (parts.size() >= 4) {
             int totalChunks = parts[2].toInt();
             currentBookLastPage = parts[3].toInt();
+            if (currentBookLastPage <= 0)
+                currentBookLastPage = 1;
             if (pdfLoadingDialog) {
                 pdfLoadingDialog->setMaximum(totalChunks);
                 pdfLoadingDialog->setValue(0);
             }
         }
     } else if (cmd == "FILE_CHUNK") {
-        if (parts.size() >= 3) {
-            QString base64Data = parts[2];
-            currentPdfBuffer.append(base64Data.toUtf8());
+        // به جای استفاده از split که روی || کار می‌کند و ممکن است متن بیس‌اسلایس را خراب کند،
+        // باید خودِ رشته‌ی پاسخ را از بعد از دومین || جدا کنیم تا داده‌های خام دست‌نخورده بمانند.
+        int firstSeparator = response.indexOf("||");
+        int secondSeparator = response.indexOf("||", firstSeparator + 2);
+
+        if (secondSeparator != -1) {
+            // تمام حروفِ بعد از دومین علامت || بدنه اصلی تکه فایل (Base64 خام) است
+            QByteArray rawChunk = response.mid(secondSeparator + 2).toLatin1();
+            currentPdfBuffer.append(rawChunk);
+
             if (pdfLoadingDialog) {
                 pdfLoadingDialog->setValue(pdfLoadingDialog->value() + 1);
             }
@@ -281,6 +290,7 @@ void LibraryWidget::processServerResponse(const QString &response)
             pdfLoadingDialog->close();
             delete pdfLoadingDialog;
             pdfLoadingDialog = nullptr;
+            qDebug() << currentBookLastPage;
         }
 
         QByteArray finalPdfData = QByteArray::fromBase64(currentPdfBuffer);
@@ -343,12 +353,6 @@ void LibraryWidget::on_toolButton_addGhafaseh_clicked()
     if (ok && !text.isEmpty()) {
         QString message = "ADD_SHELF||" + text;
         m_client->sendMessage(message);
-
-        // ==========================================
-        // =============== شروع کدهای تست ===============
-        //QTimer::singleShot(100, this, [=]() { processServerResponse("ADD_SHELF_RESULT||SUCCESS"); });
-        // =============== پایان کدهای تست ===============
-        // ==========================================
     }
 }
 
@@ -370,14 +374,6 @@ void LibraryWidget::on_toolButton_editnameGhafaseh_clicked()
     if (ok && !text.isEmpty() && text != currentName) {
         QString message = "EDIT_SHELF||" + shelfId + "||" + text;
         m_client->sendMessage(message);
-
-        // ==========================================
-        // =============== شروع کدهای تست ===============
-        // QTimer::singleShot(100, this, [=]() {
-        //     processServerResponse("EDIT_SHELF_RESULT||SUCCESS");
-        // });
-        // =============== پایان کدهای تست ===============
-        // ==========================================
     }
 }
 
@@ -395,14 +391,6 @@ void LibraryWidget::on_toolButton_removeGhafaseh_clicked()
     if (reply == QMessageBox::Yes) {
         QString message = "DELETE_SHELF||" + shelfId;
         m_client->sendMessage(message);
-
-        // ==========================================
-        // =============== شروع کدهای تست ===============
-        // QTimer::singleShot(100, this, [=]() {
-        //     processServerResponse("DELETE_SHELF_RESULT||SUCCESS");
-        // });
-        // =============== پایان کدهای تست ===============
-        // ==========================================
     }
 }
 
@@ -431,12 +419,6 @@ void LibraryWidget::handleRemoveFromSaved(QString bookId)
 {
     QString message = "REMOVE_FROM_SAVED||" + bookId;
     m_client->sendMessage(message);
-
-    // ==========================================
-    // =============== شروع کدهای تست ===============
-    //QTimer::singleShot(100, this, [=]() { processServerResponse("REMOVE_SAVED_RESULT||SUCCESS"); });
-    // =============== پایان کدهای تست ===============
-    // ==========================================
 }
 
 void LibraryWidget::handleRemoveFromShelf(QString bookId)
@@ -444,26 +426,12 @@ void LibraryWidget::handleRemoveFromShelf(QString bookId)
     QString shelfId = ui->comboBox_Ghafaseh->currentData().toString();
     QString message = "REMOVE_FROM_SHELF||" + bookId + "||" + shelfId;
     m_client->sendMessage(message);
-
-    // ==========================================
-    // =============== شروع کدهای تست ===============
-    // QTimer::singleShot(100, this, [=]() {
-    //     processServerResponse("REMOVE_FROM_SHELF_RESULT||SUCCESS");
-    // });
-    // =============== پایان کدهای تست ===============
-    // ==========================================
 }
 
 void LibraryWidget::handleShelfAssignment(QString bookId, QString newShelfId)
 {
     QString message = "ASSIGN_TO_SHELF||" + bookId + "||" + newShelfId;
     m_client->sendMessage(message);
-
-    // ==========================================
-    // =============== شروع کدهای تست ===============
-    //QTimer::singleShot(100, this, [=]() { processServerResponse("ASSIGN_SHELF_RESULT||SUCCESS"); });
-    // =============== پایان کدهای تست ===============
-    // ==========================================
 }
 
 void LibraryWidget::handleLastPageSave(QString bookId, int pageNumber)
