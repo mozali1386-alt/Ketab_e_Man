@@ -2,190 +2,380 @@
 //YA MAHDI
 
 #include "ServerCore.h"
-#include "../shared/Protocol.h"
-#include <QStringList>
+#include "../shared/Shelf.h"
 
-void ServerCore::handleCreateShelfRequest(ClientHandler *handler, const QString &payload) {
+void ServerCore::handleGetMyBooksRequest(ClientHandler *handler, const QStringList &fields) {
+    Q_UNUSED(fields);
+
     quint64 userId = requireAuthentication(handler);
     if (userId == 0) {
         return;
     }
 
-    Library *library = requireUserLibrary(userId, handler);
+    Library *library = getLibraryForUser(userId);
     if (library == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Library not found"});
+        return;
+    }
+
+    QSet<quint64> bookIds = library->getPurchasedBooks();
+    QStringList idsList;
+    for (quint64 bookId: bookIds) {
+        idsList.append(QString::number(bookId));
+    }
+
+    handler->sendResponse(Command::MY_BOOKS_RESULT, {QString::number(bookIds.size()), idsList.join(",")});
+}
+
+void ServerCore::handleGetSavedBooksRequest(ClientHandler *handler, const QStringList &fields) {
+    Q_UNUSED(fields);
+
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    Library *library = getLibraryForUser(userId);
+    if (library == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Library not found"});
+        return;
+    }
+
+    QSet<quint64> bookIds = library->getSavedBooks();
+    QStringList idsList;
+    for (quint64 bookId: bookIds) {
+        idsList.append(QString::number(bookId));
+    }
+
+    handler->sendResponse(Command::SAVED_BOOKS_RESULT, {QString::number(bookIds.size()), idsList.join(",")});
+}
+
+void ServerCore::handleGetShelvesRequest(ClientHandler *handler, const QStringList &fields) {
+    Q_UNUSED(fields);
+
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    Library *library = getLibraryForUser(userId);
+    if (library == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Library not found"});
+        return;
+    }
+
+    QSet<quint64> shelfIds = library->getShelves();
+    QStringList entries;
+    for (quint64 shelfId: shelfIds) {
+        Shelf *shelf = data.getShelvesMap().value(shelfId, nullptr);
+        if (shelf == nullptr) {
+            continue;
+        }
+        entries.append(QString::number(shelfId) + ":" + shelf->getName());
+    }
+
+    handler->sendResponse(Command::SHELVES_RESULT, {QString::number(entries.size()), entries.join(",")});
+}
+
+void ServerCore::handleGetShelfBooksRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 shelfId = fields.at(0).toULongLong();
+    Shelf *shelf = data.getShelvesMap().value(shelfId, nullptr);
+    if (shelf == nullptr || shelf->getOwnerId() != userId) {
+        handler->sendResponse(Command::FAIL, {"Shelf not found"});
+        return;
+    }
+
+    QSet<quint64> bookIds = shelf->getBookIds();
+    if (bookIds.isEmpty()) {
+        handler->sendResponse(Command::SHELF_BOOKS_RESULT, {QString::number(shelfId), "EMPTY"});
+        return;
+    }
+
+    QStringList idsList;
+    for (quint64 bookId: bookIds) {
+        idsList.append(QString::number(bookId));
+    }
+
+    handler->sendResponse(Command::SHELF_BOOKS_RESULT, {QString::number(shelfId), idsList.join(",")});
+}
+
+void ServerCore::handleGetMyBookInfoRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }
+
+    QString imageBase64 = getCoverImageOrPlaceholder(book->getCoverImagePath());
+
+    quint64 currentShelfId = findShelfContainingBook(userId, bookId);
+
+    handler->sendResponse(Command::MY_BOOK_INFO_RESULT, {
+                              QString::number(bookId),
+                              imageBase64,
+                              book->getTitle(),
+                              QString::number(currentShelfId)
+                          });
+}
+
+void ServerCore::handleGetSavedBookInfoRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }
+
+    QString imageBase64 = getCoverImageOrPlaceholder(book->getCoverImagePath());
+
+    bool purchased = userHasPurchasedBook(userId, bookId);
+
+    handler->sendResponse(Command::SAVED_BOOK_INFO_RESULT, {
+                              QString::number(bookId),
+                              imageBase64,
+                              book->getTitle(),
+                              purchased ? "TRUE" : "FALSE"
+                          });
+}
+
+void ServerCore::handleGetShelfBookInfoRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    Book *book = data.getBooksMap().value(bookId, nullptr);
+    if (book == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }
+
+    QString imageBase64 = getCoverImageOrPlaceholder(book->getCoverImagePath());
+
+    quint64 currentShelfId = findShelfContainingBook(userId, bookId);
+
+    handler->sendResponse(Command::SHELF_BOOK_INFO_RESULT, {
+                              QString::number(bookId),
+                              imageBase64,
+                              book->getTitle(),
+                              QString::number(currentShelfId)
+                          });
+}
+
+void ServerCore::handleAddShelfRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::ADD_SHELF_RESULT, {"FAIL"});
+        return;
+    }
+
+    Library *library = getLibraryForUser(userId);
+    if (library == nullptr) {
+        handler->sendResponse(Command::ADD_SHELF_RESULT, {"FAIL"});
         return;
     }
 
     Shelf *shelf = new Shelf();
     shelf->assignNewId();
     shelf->setOwnerId(userId);
-    shelf->rename(payload);
+    shelf->rename(fields.at(0));
     data.getShelvesMap().insert(shelf->getId(), shelf);
 
     library->addShelf(shelf->getId());
 
-    handler->sendResponse(RES_SUCCESS, QString::number(shelf->getId()));
+    handler->sendResponse(Command::ADD_SHELF_RESULT, {"SUCCESS"});
 }
 
-void ServerCore::handleAddBookToShelfRequest(ClientHandler *handler, const QString &payload) {
+void ServerCore::handleEditShelfRequest(ClientHandler *handler, const QStringList &fields) {
     quint64 userId = requireAuthentication(handler);
     if (userId == 0) {
         return;
     }
 
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 2, parts)) {
+    if (fields.size() < 2) {
+        handler->sendResponse(Command::EDIT_SHELF_RESULT, {"FAIL"});
         return;
     }
 
-    quint64 shelfId = parts.at(0).toULongLong();
-    quint64 bookId = parts.at(1).toULongLong();
+    quint64 shelfId = fields.at(0).toULongLong();
+    Shelf *shelf = data.getShelvesMap().value(shelfId, nullptr);
+    if (shelf == nullptr || shelf->getOwnerId() != userId) {
+        handler->sendResponse(Command::EDIT_SHELF_RESULT, {"FAIL"});
+        return;
+    }
+
+    shelf->rename(fields.at(1));
+
+    handler->sendResponse(Command::EDIT_SHELF_RESULT, {"SUCCESS"});
+}
+
+void ServerCore::handleDeleteShelfRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::DELETE_SHELF_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 shelfId = fields.at(0).toULongLong();
+    Shelf *shelf = data.getShelvesMap().value(shelfId, nullptr);
+    if (shelf == nullptr || shelf->getOwnerId() != userId) {
+        handler->sendResponse(Command::DELETE_SHELF_RESULT, {"FAIL"});
+        return;
+    }
+
+    Library *library = getLibraryForUser(userId);
+    if (library != nullptr) {
+        library->removeShelf(shelfId);
+    }
+
+    data.getShelvesMap().remove(shelfId);
+    delete shelf;
+
+    handler->sendResponse(Command::DELETE_SHELF_RESULT, {"SUCCESS"});
+}
+
+void ServerCore::handleUnsaveBookRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::REMOVE_SAVED_RESULT, {"FAIL"});
+        return;
+    }
+
+    Library *library = getLibraryForUser(userId);
+    if (library == nullptr) {
+        handler->sendResponse(Command::REMOVE_SAVED_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    library->removeFromSavedBooks(bookId);
+
+    handler->sendResponse(Command::REMOVE_SAVED_RESULT, {"SUCCESS"});
+}
+
+void ServerCore::handleRemoveFromShelfRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
+        return;
+    }
+
+    if (fields.size() < 2) {
+        handler->sendResponse(Command::REMOVE_FROM_SHELF_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    quint64 shelfId = fields.at(1).toULongLong();
 
     Shelf *shelf = data.getShelvesMap().value(shelfId, nullptr);
     if (shelf == nullptr || shelf->getOwnerId() != userId) {
-        handler->sendResponse(RES_FAIL, "Not authorized");
+        handler->sendResponse(Command::REMOVE_FROM_SHELF_RESULT, {"FAIL"});
         return;
     }
 
-    Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr || !book->getIsActive()) {
-        handler->sendResponse(RES_FAIL, "Book not found");
+    shelf->removeBook(bookId);
+
+    handler->sendResponse(Command::REMOVE_FROM_SHELF_RESULT, {"SUCCESS"});
+}
+
+void ServerCore::handleAssignToShelfRequest(ClientHandler *handler, const QStringList &fields) {
+    quint64 userId = requireAuthentication(handler);
+    if (userId == 0) {
         return;
     }
 
-    if (!libraryOwnerHasPurchasedBook(userId, bookId)) {
-        handler->sendResponse(RES_FAIL, "You must purchase this book before adding it to a shelf");
+    if (fields.size() < 2) {
+        handler->sendResponse(Command::ASSIGN_SHELF_RESULT, {"FAIL"});
+        return;
+    }
+
+    quint64 bookId = fields.at(0).toULongLong();
+    quint64 newShelfId = fields.at(1).toULongLong();
+
+    Shelf *shelf = data.getShelvesMap().value(newShelfId, nullptr);
+    if (shelf == nullptr || shelf->getOwnerId() != userId) {
+        handler->sendResponse(Command::ASSIGN_SHELF_RESULT, {"FAIL"});
+        return;
+    }
+
+    if (!userHasPurchasedBook(userId, bookId)) {
+        handler->sendResponse(Command::ASSIGN_SHELF_RESULT, {"FAIL"});
         return;
     }
 
     shelf->addBook(bookId);
-    handler->sendResponse(RES_SUCCESS, "Book added to shelf");
+
+    handler->sendResponse(Command::ASSIGN_SHELF_RESULT, {"SUCCESS"});
 }
 
-void ServerCore::handleSaveBookRequest(ClientHandler *handler, const QString &payload) {
+void ServerCore::handleSaveBookRequest(ClientHandler *handler, const QStringList &fields) {
     quint64 userId = requireAuthentication(handler);
     if (userId == 0) {
         return;
     }
 
-    Library *library = requireUserLibrary(userId, handler);
+    if (fields.size() < 1) {
+        handler->sendResponse(Command::FAIL, {"Invalid data"});
+        return;
+    }
+
+    Library *library = getLibraryForUser(userId);
     if (library == nullptr) {
+        handler->sendResponse(Command::FAIL, {"Library not found"});
         return;
     }
 
-    library->addToSavedBooks(payload.toULongLong());
-    handler->sendResponse(RES_SUCCESS, "Book saved");
-}
+    quint64 bookId = fields.at(0).toULongLong();
+    library->addToSavedBooks(bookId);
 
-void ServerCore::handleAddReviewRequest(ClientHandler *handler, const QString &payload) {
-    quint64 userId = requireAuthentication(handler);
-    if (userId == 0) {
-        return;
-    }
-
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 3, parts)) {
-        return;
-    }
-
-    quint64 bookId = parts.at(0).toULongLong();
-
-    User *user = data.getUsersMap().value(userId, nullptr);
-    Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (user == nullptr || book == nullptr) {
-        handler->sendResponse(RES_FAIL, "Invalid data");
-        return;
-    }
-
-    if (!libraryOwnerHasPurchasedBook(userId, bookId)) {
-        handler->sendResponse(RES_FAIL, "You must purchase this book before reviewing it");
-        return;
-    }
-
-    Review *review = new Review();
-    review->assignNewId();
-    review->setUserId(userId);
-    review->setBookId(bookId);
-    review->editStars(parts.at(1).toInt());
-    review->editText(parts.at(2));
-    data.getReviewsMap().insert(review->getId(), review);
-
-    user->addReview(review->getId());
-    book->addReview(review->getId());
-
-    handler->sendResponse(RES_SUCCESS, QString::number(review->getId()));
-}
-
-void ServerCore::handleEditReviewRequest(ClientHandler *handler, const QString &payload) {
-    quint64 userId = requireAuthentication(handler);
-    if (userId == 0) {
-        return;
-    }
-
-    QStringList parts;
-    if (!splitPayloadOrFail(handler, payload, 3, parts)) {
-        return;
-    }
-
-    Review *review = data.getReviewsMap().value(parts.at(0).toULongLong(), nullptr);
-    if (review == nullptr) {
-        handler->sendResponse(RES_FAIL, "Review not found");
-        return;
-    }
-
-    if (review->getUserId() != userId) {
-        handler->sendResponse(RES_FAIL, "Not authorized");
-        return;
-    }
-
-    review->editStars(parts.at(1).toInt());
-    review->editText(parts.at(2));
-
-    broadcastReviewUpdated(review->getBookId());
-    handler->sendResponse(RES_SUCCESS, "Review updated");
-}
-
-void ServerCore::handleDeleteReviewRequest(ClientHandler *handler, const QString &payload) {
-    quint64 adminId = requireAuthentication(handler);
-    if (adminId == 0) {
-        return;
-    }
-
-    Admin *admin = requireAdmin(adminId, handler);
-    if (admin == nullptr) {
-        return;
-    }
-
-    quint64 reviewId = payload.toULongLong();
-    Review *review = data.getReviewsMap().value(reviewId, nullptr);
-    if (review == nullptr) {
-        handler->sendResponse(RES_FAIL, "Review not found");
-        return;
-    }
-
-    User *reviewOwner = data.getUsersMap().value(review->getUserId(), nullptr);
-    if (reviewOwner != nullptr) {
-        reviewOwner->removeReview(reviewId);
-    }
-
-    Book *book = data.getBooksMap().value(review->getBookId(), nullptr);
-    if (book != nullptr) {
-        book->removeReview(reviewId);
-    }
-
-    data.getReviewsMap().remove(reviewId);
-    delete review;
-
-    handler->sendResponse(RES_SUCCESS, "Review deleted");
-}
-
-void ServerCore::broadcastReviewUpdated(quint64 bookId) {
-    dataMutex.lock();
-    QSet<ClientHandler *> clientsCopy = connectedClients;
-    dataMutex.unlock();
-
-    QString payload = QString::number(bookId);
-    for (ClientHandler *handler: clientsCopy) {
-        handler->sendResponse(NOTIFY_REVIEW_UPDATED, payload);
-    }
+    handler->sendResponse(Command::SUCCESS, {"Book saved"});
 }
