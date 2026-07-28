@@ -109,38 +109,53 @@ if (WIN32)
     endforeach ()
 endif ()
 
-# ============= CPack Settings for Inno Setup =============
-set(CPACK_PACKAGE_NAME "Ketab_e_Man")
+# ============================================
+# CPack Configuration for creating installer
+# ============================================
+
+# Basic package information
+set(CPACK_PACKAGE_NAME "Ketab_e_Man_SERVER")
+set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_PACKAGE_VENDOR "Your Name")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Ketab_e_Man - Digital Library Management System")
-set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-Setup")
 
-# Install the server executable
+# Install the main executable
 install(TARGETS Ketab_e_Man_Server
-        RUNTIME DESTINATION ..
-        BUNDLE DESTINATION ..
+        RUNTIME DESTINATION .
+        BUNDLE DESTINATION .
         LIBRARY DESTINATION lib)
 
-# Install required Qt DLLs and other runtime libraries
+# Install required system libraries (including Qt DLLs)
 include(InstallRequiredSystemLibraries)
-install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ..)
+install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION .)
 
-# Set the generator for Windows
-if (WIN32)
-    set(CPACK_GENERATOR "INNOSETUP")
+# Specify the generator for Windows
+if(WIN32)
+    # Try NSIS first (usually comes with CMake)
+    set(CPACK_GENERATOR "NSIS")
 
-    # Optional: Inno Setup specific settings
-    set(CPACK_INNOSETUP_ARCHITECTURE "x64")
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-win64")
+    # NSIS specific settings
+    set(CPACK_NSIS_DISPLAY_NAME "Ketab_e_Man")
+    set(CPACK_NSIS_PACKAGE_NAME "Ketab_e_Man")
+    set(CPACK_NSIS_INSTALL_ROOT "C:")
+    set(CPACK_NSIS_URL_INFO_ABOUT "https://github.com/yourusername/ketabeman")
+    set(CPACK_NSIS_CONTACT "your-email@example.com")
+    set(CPACK_NSIS_MODIFY_PATH ON)
 
-    # If you have an icon file, uncomment and set the path
-    # set(CPACK_INNOSETUP_SETUP_SetupIconFile "${CMAKE_SOURCE_DIR}/icon.ico")
-    # set(CPACK_INNOSETUP_SETUP_UninstallDisplayIcon "${CMAKE_SOURCE_DIR}/icon.ico")
+    # Create desktop and start menu shortcuts
+    set(CPACK_NSIS_CREATE_ICONS_EXTRA "
+        CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Ketab_e_Man.lnk' '$INSTDIR\\\\Ketab_e_Man_Server.exe'
+        CreateShortCut '$DESKTOP\\\\Ketab_e_Man.lnk' '$INSTDIR\\\\Ketab_e_Man_Server.exe'
+    ")
 
-    # If you have a license file
-    # set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
+    # Uninstall shortcuts
+    set(CPACK_NSIS_DELETE_ICONS_EXTRA "
+        Delete '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Ketab_e_Man.lnk'
+        Delete '$DESKTOP\\\\Ketab_e_Man.lnk'
+    ")
 endif()
 
-# Include CPack module (must be at the end)
+# This MUST be at the very end
 include(CPack)
