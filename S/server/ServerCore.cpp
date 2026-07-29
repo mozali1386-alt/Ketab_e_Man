@@ -472,6 +472,10 @@ bool ServerCore::canViewInactiveBook(ClientHandler *handler, Book *book) {
 
     quint64 userId = handler->getUserId();
 
+    if (book->getIsDeletedByAdmin()) {
+        return userHasPurchasedBook(userId, book->getId());
+    }
+
     if (book->getPublisherId() == userId) {
         return true;
     }

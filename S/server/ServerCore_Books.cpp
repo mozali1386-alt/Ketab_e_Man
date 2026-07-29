@@ -23,7 +23,7 @@ void ServerCore::handleGetPublisherBooksRequest(ClientHandler *handler, const QS
     QStringList entries;
     for (quint64 bookId: bookIds) {
         Book *book = data.getBooksMap().value(bookId, nullptr);
-        if (book == nullptr) {
+        if (book == nullptr || book->getIsDeletedByAdmin()) {
             continue;
         }
         entries.append(QString::number(bookId) + ":" + book->getTitle());
@@ -45,7 +45,7 @@ void ServerCore::handleGetPubBookDetailsRequest(ClientHandler *handler, const QS
 
     quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr) {
+    if (book == nullptr || book->getIsDeletedByAdmin()) {
         handler->sendResponse(Command::FAIL, {"Book not found"});
         return;
     }
@@ -320,7 +320,7 @@ void ServerCore::handleEditBookRequest(ClientHandler *handler, const QStringList
 
     quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr || book->getPublisherId() != user->getId()) {
+    if (book == nullptr || book->getPublisherId() != user->getId() || book->getIsDeletedByAdmin()) {
         handler->sendResponse(Command::EDIT_BOOK_RESULT, {"FAIL"});
         return;
     }

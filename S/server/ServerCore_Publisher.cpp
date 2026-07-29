@@ -11,6 +11,10 @@ QVector<quint64> ServerCore::sortedPublisherBookIdsBySales(Publisher *publisher,
     QSet<quint64> bookIds = publisher->getMyBookIds();
     QVector<quint64> sorted;
     for (quint64 id: bookIds) {
+        Book *book = data.getBooksMap().value(id, nullptr);
+        if (book == nullptr || book->getIsDeletedByAdmin()) {
+            continue;
+        }
         sorted.append(id);
     }
 
@@ -44,12 +48,15 @@ void ServerCore::handleGetPubGeneralStatsRequest(ClientHandler *handler, const Q
 
     Publisher *publisher = static_cast<Publisher *>(user);
     QSet<quint64> bookIds = publisher->getMyBookIds();
-
-    int totalBooks = bookIds.size();
-
+    int totalBooks = 0;
     double scoreSum = 0.0;
     int scoredBooks = 0;
     for (quint64 bookId: bookIds) {
+        Book *book = data.getBooksMap().value(bookId, nullptr);
+        if (book == nullptr || book->getIsDeletedByAdmin()) {
+            continue;
+        }
+        totalBooks++;
         double avg = averageStarsForBook(bookId);
         if (avg > 0.0) {
             scoreSum += avg;
@@ -99,7 +106,7 @@ void ServerCore::handleGetPubBookInfoTopRequest(ClientHandler *handler, const QS
 
     quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr || book->getPublisherId() != user->getId()) {
+    if (book == nullptr || book->getPublisherId() != user->getId() || book->getIsDeletedByAdmin()) {
         handler->sendResponse(Command::FAIL, {"Book not found"});
         return;
     }
@@ -157,7 +164,7 @@ void ServerCore::handleGetPubBookInfoLowestRequest(ClientHandler *handler, const
 
     quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr || book->getPublisherId() != user->getId()) {
+    if (book == nullptr || book->getPublisherId() != user->getId() || book->getIsDeletedByAdmin()) {
         handler->sendResponse(Command::FAIL, {"Book not found"});
         return;
     }
@@ -234,7 +241,7 @@ void ServerCore::handleGetPubScoreChartRequest(ClientHandler *handler, const QSt
     QStringList entries;
     for (quint64 id: bookIds) {
         Book *book = data.getBooksMap().value(id, nullptr);
-        if (book == nullptr) {
+        if (book == nullptr || book->getIsDeletedByAdmin()) {
             continue;
         }
         entries.append(book->getTitle() + ":" + QString::number(averageStarsForBook(id), 'f', 1));

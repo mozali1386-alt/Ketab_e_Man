@@ -24,9 +24,15 @@ void ServerCore::handleGetAllBooksAdminRequest(ClientHandler *handler, const QSt
 
     QStringList idsList;
     for (auto it = books.constBegin(); it != books.constEnd(); ++it) {
+        if (it.value()->getIsDeletedByAdmin()) {
+            continue;
+        }
         idsList.append(QString::number(it.key()));
     }
-
+    if (idsList.isEmpty()) {
+        handler->sendResponse(Command::ALL_BOOKS_ADMIN_RESULT, {"0"});
+        return;
+    }
     handler->sendResponse(Command::ALL_BOOKS_ADMIN_RESULT, {QString::number(idsList.size()), idsList.join(",")});
 }
 
@@ -43,7 +49,7 @@ void ServerCore::handleGetBookInfoAdminRequest(ClientHandler *handler, const QSt
 
     quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr) {
+    if (book == nullptr || book->getIsDeletedByAdmin()) {
         handler->sendResponse(Command::FAIL, {"Book not found"});
         return;
     }
@@ -77,8 +83,8 @@ void ServerCore::handleEditBookAdminRequest(ClientHandler *handler, const QStrin
 
     quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr) {
-        handler->sendResponse(Command::EDIT_BOOK_ADMIN_RESULT, {QString::number(bookId), "FAILED"});
+    if (book == nullptr || book->getIsDeletedByAdmin()) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
         return;
     }
 
@@ -134,7 +140,7 @@ void ServerCore::handleGetBookCoverRequest(ClientHandler *handler, const QString
 
     quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr) {
+    if (book == nullptr || book->getIsDeletedByAdmin()) {
         handler->sendResponse(Command::FAIL, {"Book not found"});
         return;
     }
@@ -157,7 +163,10 @@ void ServerCore::handleDownloadPdfAdminRequest(ClientHandler *handler, const QSt
 
     quint64 bookId = fields.at(0).toULongLong();
     Book *book = data.getBooksMap().value(bookId, nullptr);
-    if (book == nullptr || book->getPdfFilePath().isEmpty()) {
+    if (book == nullptr || book->getIsDeletedByAdmin()) {
+        handler->sendResponse(Command::FAIL, {"Book not found"});
+        return;
+    }else if (book->getPdfFilePath().isEmpty()) {
         handler->sendResponse(Command::FAIL, {"PDF not available"});
         return;
     }
