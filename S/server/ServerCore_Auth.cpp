@@ -31,8 +31,8 @@ void ServerCore::handleLoginRequest(ClientHandler *handler, const QStringList &f
 
     ClientHandler *existingSession = loggedInClients.value(user->getId(), nullptr);
     if (existingSession != nullptr && existingSession != handler) {
-        existingSession->setUserId(0);
-        existingSession->sendResponse(Command::LOGIN, {"FAIL", "Logged in from another location"});
+        handler->sendResponse(Command::LOGIN, {"FAIL", "This account is already logged in from another session"});
+        return;
     }
 
     handler->setUserId(user->getId());
