@@ -4,6 +4,9 @@
 #include "ServerCore.h"
 #include "../shared/Notification.h"
 #include <QVector>
+#include <algorithm>
+
+static const int MAX_NOTIFICATIONS_PER_USER = 5;
 
 void ServerCore::pushNotification(quint64 recipientUserId, NotificationType type, const QString &message)
 {
@@ -13,6 +16,27 @@ void ServerCore::pushNotification(quint64 recipientUserId, NotificationType type
     notification->setType(type);
     notification->setMessage(message);
     data.getNotificationsMap().insert(notification->getId(), notification);
+
+    QMap<quint64, Notification*> &notifications = data.getNotificationsMap();
+    QVector<Notification *> userNotifications;
+    for (auto it = notifications.constBegin(); it != notifications.constEnd(); ++it) {
+        if (it.value()->getRecipientId() == recipientUserId) {
+            userNotifications.append(it.value());
+        }
+    }
+
+    if (userNotifications.size() > MAX_NOTIFICATIONS_PER_USER) {
+        std::sort(userNotifications.begin(), userNotifications.end(), [](Notification *a, Notification *b) {
+            return a->getCreatedAt() < b->getCreatedAt();
+        });
+
+        int countToRemove = userNotifications.size() - MAX_NOTIFICATIONS_PER_USER;
+        for (int i = 0; i < countToRemove; i++) {
+            Notification *oldest = userNotifications.at(i);
+            notifications.remove(oldest->getId());
+            delete oldest;
+        }
+    }
 
     ClientHandler *onlineHandler = findClientHandlerByUserId(recipientUserId);
     if (onlineHandler != nullptr) {
