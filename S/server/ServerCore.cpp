@@ -133,6 +133,18 @@ void ServerCore::onClientDisconnected(ClientHandler *handler) {
     connectedClients.remove(handler);
     loggedInClients.remove(handler->getUserId());
 
+
+    quint64 disconnectedUserId = handler->getUserId();
+    if (disconnectedUserId != 0) {
+        QList<quint64> pendingBookIds = pdfUploads.keys();
+        for (int i = 0; i < pendingBookIds.size(); i++) {
+            quint64 bookId = pendingBookIds.at(i);
+            if (pdfUploads.value(bookId).uploaderId == disconnectedUserId) {
+                pdfUploads.remove(bookId);
+            }
+        }
+    }
+
     int count = connectedClients.size();
     dataMutex.unlock();
 

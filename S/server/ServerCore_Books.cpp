@@ -237,6 +237,7 @@ void ServerCore::handleUploadPdfStartRequest(ClientHandler *handler, const QStri
 
     PdfUploadState state;
     state.totalChunks = totalChunks;
+    state.uploaderId = user->getId();
     pdfUploads.insert(bookId, state);
 }
 

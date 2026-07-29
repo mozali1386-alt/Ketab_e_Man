@@ -25,6 +25,7 @@
 struct PdfUploadState {
     QStringList chunks;
     int totalChunks;
+    quint64 uploaderId;
 };
 
 
