@@ -345,6 +345,8 @@ void ServerCore::handleEditBookRequest(ClientHandler *handler, const QStringList
     QString explanation = fields.at(6);
     QString coverImageBase64 = fields.at(7);
 
+    double oldDiscount = book->getDiscountPercent();
+
     quint64 oldAuthorId = book->getAuthorId();
     quint64 newAuthorId = findOrCreateAuthorByName(authorName);
     if (newAuthorId != oldAuthorId) {
@@ -370,6 +372,18 @@ void ServerCore::handleEditBookRequest(ClientHandler *handler, const QStringList
         QString coverPath = saveBase64File(coverImageBase64, "covers", QString::number(bookId), "img");
         if (!coverPath.isEmpty()) {
             book->setCoverImagePath(coverPath);
+        }
+    }
+
+
+    if (discount > oldDiscount) {
+        QMap<quint64, Library *> &libraries = data.getLibrariesMap();
+        for (auto it = libraries.constBegin(); it != libraries.constEnd(); ++it) {
+            Library *library = it.value();
+            if (library != nullptr && library->getSavedBooks().contains(bookId)) {
+                pushNotification(library->getOwnerId(), NotificationType::DISCOUNT_ON_SAVED_BOOK,
+                                 "روی یکی از کتاب‌های ذخیره‌شده‌ی شما تخفیف اعمال شد: " + bookName);
+            }
         }
     }
 

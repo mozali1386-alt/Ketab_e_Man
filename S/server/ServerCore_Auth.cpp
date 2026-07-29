@@ -5,6 +5,7 @@
 #include "../shared/Publisher.h"
 #include "../shared/Wallet.h"
 #include "../shared/Library.h"
+#include "../shared/Notification.h"
 
 void ServerCore::handleLoginRequest(ClientHandler *handler, const QStringList &fields) {
     if (fields.size() < 3) {
@@ -39,6 +40,20 @@ void ServerCore::handleLoginRequest(ClientHandler *handler, const QStringList &f
     loggedInClients.insert(user->getId(), handler);
 
     handler->sendResponse(Command::LOGIN, {"SUCCESS", QString::number(user->getId())});
+
+    QMap<quint64, Notification *> &notifications = data.getNotificationsMap();
+    for (auto it = notifications.constBegin(); it != notifications.constEnd(); ++it) {
+        Notification *notification = it.value();
+        if (notification->getRecipientId() != user->getId() || notification->getIsRead()) {
+            continue;
+        }
+        handler->sendResponse(Command::NEW_NOTIFICATION_PUSH, {
+                                  QString::number(notification->getId()),
+                                  notification->getMessage(),
+                                  notification->getCreatedAt().toString("yyyy/MM/dd - HH:mm"),
+                                  "UNREAD"
+                              });
+    }
 
     pushAdminStatsUpdate();
 }

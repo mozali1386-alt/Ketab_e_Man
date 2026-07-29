@@ -32,7 +32,8 @@ enum class NotificationType {
     NEW_BOOK_IN_FAVORITE_GENRE = 0,
     DISCOUNT_ON_SAVED_BOOK = 1,
     NEW_SALE_FOR_PUBLISHER = 2,
-    PURCHASE_COMPLETE = 3
+    PURCHASE_COMPLETE = 3,
+    NEW_REVIEW_ON_BOOK = 4
 };
 
 enum class TransactionType {

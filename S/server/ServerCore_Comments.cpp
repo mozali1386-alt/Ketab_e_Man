@@ -96,6 +96,8 @@ void ServerCore::handleUpdateCommentRequest(ClientHandler *handler, const QStrin
         }
     }
 
+    bool isNewReview = (existingReview == nullptr);
+
     if (existingReview != nullptr) {
         existingReview->editStars(stars);
         existingReview->editText(text);
@@ -112,6 +114,11 @@ void ServerCore::handleUpdateCommentRequest(ClientHandler *handler, const QStrin
     }
 
     handler->sendResponse(Command::SUCCESS, {});
+
+    if (isNewReview && book->getPublisherId() != userId) {
+        pushNotification(book->getPublisherId(), NotificationType::NEW_REVIEW_ON_BOOK,
+                         "نظر جدیدی برای کتاب شما ثبت شد: " + book->getTitle());
+    }
 
     QString bookIdText = QString::number(bookId);
     for (ClientHandler *onlineHandler: connectedClients) {
