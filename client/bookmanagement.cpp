@@ -299,7 +299,7 @@ void BookManagement::sendPdfChunks(const QString &bookId)
     m_client->sendMessage("UPLOAD_PDF_END||" + bookId);
 
     QMessageBox::information(this, "موفق", "کتاب با موفقیت آپلود شد.");
-    resetForm();
+    refreshBooksList();
 }
 
 void BookManagement::on_pushButton_edit_clicked()
